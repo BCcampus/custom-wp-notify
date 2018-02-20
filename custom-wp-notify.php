@@ -12,3 +12,8 @@
  */
 
 // Your code starts here.
+if ( ! defined( 'ABSPATH' ) ) {
+	die();
+}
+
+require_once __DIR__ . '/autoloader.php';
