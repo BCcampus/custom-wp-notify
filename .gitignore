@@ -1,5 +1,9 @@
 *~
 .DS_Store
 .idea
-vendor/
+!vendor
+vendor/*
+!vendor/autoload.php
+!vendor/composer
+!vendor/bccampus
 node_modules/
