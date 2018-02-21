@@ -16,37 +16,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-require_once __DIR__ . '/autoloader.php';
-
 /*
 |--------------------------------------------------------------------------
-| Dependency check
+| Constants
 |--------------------------------------------------------------------------
 |
-| Add what we don't have
+|
 |
 |
 */
 
+if ( ! defined( 'CWP_DIR' ) ) {
+	define( 'CWP_DIR', __DIR__ . '/' );
+}
+
+require_once CWP_DIR . 'autoloader.php';
+require_once CWP_DIR . 'vendor/autoload.php';
+
+/*
+|--------------------------------------------------------------------------
+| Update values required for Custom Rest Routes
+|--------------------------------------------------------------------------
+|
+|
+|
+|
+*/
 add_action( 'init', function () {
-	// Looks for the existence of dependencies
-	if ( ! class_exists( 'BCcampus\Rest\Routes' ) ) {
-		require_once __DIR__ . '/vendor/autoload.php';
-	} else { // only update options once
 
-		$slug = 'rest_routes';
-		$args = [ 'event' => 1, 'location' => 1 ];
+	$slug = 'rest_routes';
+	$args = [ 'event' => 1, 'location' => 1 ];
 
-		if ( is_multisite() ) {
-			$exists = get_site_option( $slug, false );
-			if ( ! $exists ) {
-				update_site_option( $slug, $args );
-			}
-		} else {
-			$exists = get_option( $slug );
-			if ( ! $exists ) {
-				update_option( $slug, $args );
-			}
+	if ( is_multisite() ) {
+		$exists = get_site_option( $slug, false );
+		if ( ! $exists ) {
+			update_site_option( $slug, $args );
+		}
+	} else {
+		$exists = get_option( $slug );
+		if ( ! $exists ) {
+			update_option( $slug, $args );
 		}
 	}
 } );
