@@ -17,4 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/autoloader.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
-new \BCcampus\Settings();
+/**
+ * Check the user has the right permissions
+ */
+if ( array( $this, 'current_user_can( "manage_options" )' ) ) {
+	new \BCcampus\Settings();
+	new \BCcampus\Shortcode();
+} else {
+	return;
+}

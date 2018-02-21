@@ -184,7 +184,9 @@ class Settings {
 	}
 }
 
-
+/**
+ *  Update/Create user meta cwp_notify
+ */
 function cwpOptIn() {
 
 	// Save save opt-in preference on form submission
@@ -192,7 +194,6 @@ function cwpOptIn() {
 		$user_id = get_current_user_id();
 		$opt     = $_POST['cwp-opt-in'];
 
-		// Update or Create User Meta
 		update_user_meta( $user_id, 'cwp_notify', $opt );
 	}
 }
