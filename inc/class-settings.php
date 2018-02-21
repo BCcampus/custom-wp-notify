@@ -17,19 +17,19 @@ class Settings {
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_action( 'admin_menu', array( $this, 'cwp_add_admin_menu' ) );
-		add_action( 'admin_init', array( $this, 'cwp_settings_init' ) );
-		add_shortcode( 'cwp_notify', array( $this, 'cwp_shortcode' ) );
+		add_action( 'admin_menu', array( $this, 'cwpAddAdminMenu' ) );
+		add_action( 'admin_init', array( $this, 'cwpSettingsInit' ) );
+		add_shortcode( 'cwp_notify', array( $this, 'cwpShortCode' ) );
 	}
 
 	/**
 	 * Add admin menu to dashboard
 	 */
-	function cwp_add_admin_menu() {
+	function cwpAddAdminMenu() {
 
 		add_options_page( 'Custom WP Notify', 'Custom WP Notify', 'manage_options', 'custom-wp-notify', array(
 			$this,
-			'cwp_options_page'
+			'cwpOptionsPage'
 		) );
 
 	}
@@ -37,46 +37,46 @@ class Settings {
 	/**
 	 * Register the plugin settings, create fields
 	 */
-	function cwp_settings_init() {
+	function cwpSettingsInit() {
 
-		register_setting( 'cwpOptions', 'cwp_settings' );
+		register_setting( 'cwp_options', 'cwp_settings' );
 
 		add_settings_section(
 			'cwp_pluginPage_section',
 			__( '', 'wordpress' ),
 			'',
-			'cwpOptions'
+			'cwp_options'
 		);
 
 		add_settings_field(
 			'cwp_enable',
 			__( 'Enable Notifications', 'wordpress' ),
-			array( $this, 'cwp_enable_render' ),
-			'cwpOptions',
+			array( $this, 'cwpEnableRender' ),
+			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_frequency',
 			__( 'Notification Frequency', 'wordpress' ),
-			array( $this, 'cwp_frequency_render' ),
-			'cwpOptions',
+			array( $this, 'cwpFrequencyRender' ),
+			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_optin',
 			__( 'Subscribe text:', 'wordpress' ),
-			array( $this, 'cwp_optin_render' ),
-			'cwpOptions',
+			array( $this, 'cwpOptInRender' ),
+			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_template',
 			__( 'Notification Template:', 'wordpress' ),
-			array( $this, 'cwp_template_render' ),
-			'cwpOptions',
+			array( $this, 'cwpTemplateRender' ),
+			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
@@ -86,7 +86,7 @@ class Settings {
 	/**
 	 * Render the options page enable field
 	 */
-	function cwp_enable_render() {
+	function cwpEnableRender() {
 
 		$options = get_option( 'cwp_settings' );
 		?>
@@ -98,7 +98,7 @@ class Settings {
 	/**
 	 * Render the options page frequency field
 	 */
-	function cwp_frequency_render() {
+	function cwpFrequencyRender() {
 
 		$options = get_option( 'cwp_settings' );
 		?>
@@ -115,7 +115,7 @@ class Settings {
 	/**
 	 * Render the options page opt-in field
 	 */
-	function cwp_optin_render() {
+	function cwpOptInRender() {
 
 		$options = get_option( 'cwp_settings' );
 		?>
@@ -127,7 +127,7 @@ class Settings {
 	/**
 	 * Render the options page template field
 	 */
-	function cwp_template_render() {
+	function cwpTemplateRender() {
 
 		$options = get_option( 'cwp_settings' );
 		?>
@@ -140,7 +140,7 @@ class Settings {
 	/**
 	 * The function to be called to output the content for this page
 	 */
-	function cwp_options_page() {
+	function cwpOptionsPage() {
 
 		?>
         <form action='options.php' method='post'>
@@ -148,8 +148,8 @@ class Settings {
             <h2>Custom WP Notify</h2>
 
 			<?php
-			settings_fields( 'cwpOptions' );
-			do_settings_sections( 'cwpOptions' );
+			settings_fields( 'cwp_options' );
+			do_settings_sections( 'cwp_options' );
 			submit_button();
 			?>
 
@@ -164,7 +164,7 @@ class Settings {
 	 *
 	 * @return string
 	 */
-	function cwp_shortcode( $atts ) {
+	function cwpShortCode( $atts ) {
 
 		// Get the users stored preference
 		$user_id = get_current_user_id();
@@ -185,7 +185,7 @@ class Settings {
 }
 
 
-function cwp_opt_in() {
+function cwpOptIn() {
 
 	// Save save opt-in preference on form submission
 	if ( isset( $_POST['cwp-opt-in'] ) ) {
