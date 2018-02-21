@@ -10,19 +10,20 @@
  *
  * @package         Custom_Wp_Notify
  */
+require_once __DIR__ . '/autoloader.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
-require_once __DIR__ . '/autoloader.php';
-require_once __DIR__ . '/vendor/autoload.php';
 
 /**
  * Check the user has the right permissions
  */
-if ( array( $this, 'current_user_can( "manage_options" )' ) ) {
+if ( [ $this, 'current_user_can( "manage_options" )' ] ) {
 	new \BCcampus\Settings();
 	new \BCcampus\Shortcode();
 } else {
 	return;
 }
+

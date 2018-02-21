@@ -10,16 +10,15 @@
 
 namespace BCcampus;
 
-
 class Settings {
 
 	/**
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_action( 'admin_menu', array( $this, 'cwpAddAdminMenu' ) );
-		add_action( 'admin_init', array( $this, 'cwpSettingsInit' ) );
-		add_shortcode( 'cwp_notify', array( $this, 'cwpShortCode' ) );
+		add_action( 'admin_menu', [ $this, 'cwpAddAdminMenu' ] );
+		add_action( 'admin_init', [ $this, 'cwpSettingsInit' ] );
+		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
 	}
 
 	/**
@@ -27,10 +26,10 @@ class Settings {
 	 */
 	function cwpAddAdminMenu() {
 
-		add_options_page( 'Custom WP Notify', 'Custom WP Notify', 'manage_options', 'custom-wp-notify', array(
+		add_options_page( 'Custom WP Notify', 'Custom WP Notify', 'manage_options', 'custom-wp-notify', [
 			$this,
-			'cwpOptionsPage'
-		) );
+			'cwpOptionsPage',
+		] );
 
 	}
 
@@ -43,44 +42,42 @@ class Settings {
 
 		add_settings_section(
 			'cwp_pluginPage_section',
-			__( '', 'wordpress' ),
+			__( '', 'WordPress' ),
 			'',
 			'cwp_options'
 		);
 
 		add_settings_field(
 			'cwp_enable',
-			__( 'Enable Notifications', 'wordpress' ),
-			array( $this, 'cwpEnableRender' ),
+			__( 'Enable Notifications', 'WordPress' ),
+			[ $this, 'cwpEnableRender' ],
 			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_frequency',
-			__( 'Notification Frequency', 'wordpress' ),
-			array( $this, 'cwpFrequencyRender' ),
+			__( 'Notification Frequency', 'WordPress' ),
+			[ $this, 'cwpFrequencyRender' ],
 			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_optin',
-			__( 'Subscribe text:', 'wordpress' ),
-			array( $this, 'cwpOptInRender' ),
+			__( 'Subscribe text:', 'WordPress' ),
+			[ $this, 'cwpOptInRender' ],
 			'cwp_options',
 			'cwp_pluginPage_section'
 		);
 
 		add_settings_field(
 			'cwp_template',
-			__( 'Notification Template:', 'wordpress' ),
-			array( $this, 'cwpTemplateRender' ),
+			__( 'Notification Template:', 'WordPress' ),
+			[ $this, 'cwpTemplateRender' ],
 			'cwp_options',
 			'cwp_pluginPage_section'
 		);
-
-
 	}
 
 	/**
@@ -89,10 +86,9 @@ class Settings {
 	function cwpEnableRender() {
 
 		$options = get_option( 'cwp_settings' );
-		?>
-        <input type='checkbox' name='cwp_settings[cwp_enable]' <?php checked( $options['cwp_enable'], 1 ); ?> value='1'>
-		<?php
-
+		?><input
+        type='checkbox' name='cwp_settings[cwp_enable]' <?php checked( $options['cwp_enable'], 1 ); ?>
+        value='1'><?php
 	}
 
 	/**

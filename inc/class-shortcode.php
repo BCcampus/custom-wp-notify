@@ -10,14 +10,13 @@
 
 namespace BCcampus;
 
-
 class Shortcode {
 
 	/**
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_shortcode( 'cwp_notify', array( $this, 'cwpShortCode' ) );
+		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
 	}
 
 	/**
@@ -37,7 +36,7 @@ class Shortcode {
 		// Get prefix text for checkbox from the plugin options
 		$getoptions = get_option( 'cwp_settings' );
 		// Set default prefix text for the checkbox if none exists
-		( $getoptions['cwp_notify'] ) ? $usertext = $getoptions['cwp_notify'] : $usertext = "Subscribe to Notifications";
+		( $getoptions['cwp_notify'] ) ? $usertext = $getoptions['cwp_notify'] : $usertext = 'Subscribe to Notifications';
 
 		// The checkbox with prefix text from options page, and the user value of cwp_notify
 		$html = $usertext . '<input type="checkbox" name="cwp-opt-in" value="' . $prefvalue . '">';
