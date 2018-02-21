@@ -20,7 +20,27 @@ class Users {
 
 	}
 
-	protected function getUserList(){
+	/**
+	 * Retrieve names and emails of folks who have opted in.
+	 *
+	 * @return array
+	 */
+	public function getUserList(){
+		// loop through all users who have opted in
+		$args = [ 'meta_key' => 'cwp_notify', 'meta_value' => 1 ];
+		$list = [];
+		$users = get_users( $args );
+
+		foreach ( $users as $user ) {
+			// skip over spam users, or those not yet registered
+			if( "0" !== $user->data->user_status){
+				continue;
+			}
+
+			$list[ $user->data->user_email ] = $user->data->display_name;
+		}
+
+		return $list;
 
 	}
 }

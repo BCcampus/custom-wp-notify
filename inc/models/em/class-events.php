@@ -45,10 +45,11 @@ LIMIT %d OFFSET 0", $today, $limit );
 	}
 
 	/**
+	 * Given and array of post ids will retrieve titles and links
 	 *
 	 * @param array $post_ids
 	 *
-	 * @return array
+	 * @return array of titles (key) and links (val)
 	 */
 	public function getTitlesAndLinks( array $post_ids ) {
 		$posts = [];
