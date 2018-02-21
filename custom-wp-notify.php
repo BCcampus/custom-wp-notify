@@ -11,4 +11,10 @@
  * @package         Custom_Wp_Notify
  */
 
-// Your code starts here.
+if ( ! defined( 'ABSPATH' ) ) {
+	die();
+}
+require_once __DIR__ . '/autoloader.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+new \BCcampus\Settings();
