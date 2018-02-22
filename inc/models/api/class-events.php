@@ -44,7 +44,8 @@ class Events {
 		return $json;
 	}
 
-	public function getTitlesAndLinks( array $post_ids ) {
+	public function getTitlesAndLinks( array $posts ) {
+		// TODO
 
 	}
 }

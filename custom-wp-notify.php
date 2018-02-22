@@ -42,6 +42,7 @@ require_once CWP_DIR . 'vendor/autoload.php';
 |
 |
 */
+
 add_action( 'init', function () {
 
 	$slug = 'rest_routes';
