@@ -40,6 +40,7 @@ class Shortcode {
 
 		// The checkbox with prefix text from options page, and the user value of cwp_notify
 		$html = $usertext . '<input type="checkbox" name="cwp-opt-in" value="' . $prefvalue . '">';
+		$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
 
 		return $html;
 	}
@@ -51,7 +52,7 @@ class Shortcode {
 	function cwpOptIn() {
 
 		// Save save opt-in preference on form submission
-		if ( isset( $_POST['cwp-opt-in'] ) ) {
+		if ( isset( $_POST['cwp-opt-in'] ) && check_admin_referer( 'notify_preference', 'submit_notify_preference' ) ) {
 			$user_id = get_current_user_id();
 			$opt     = $_POST['cwp-opt-in'];
 
