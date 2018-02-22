@@ -1,8 +1,9 @@
 *~
 .DS_Store
 .idea
-vendor/
-node_modules/i
-Homestead.yaml
-after.sh
-aliases
+!vendor
+vendor/*
+!vendor/autoload.php
+!vendor/composer
+!vendor/bccampus
+node_modules/
