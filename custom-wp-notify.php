@@ -73,3 +73,12 @@ function notify_the_queue() {
 	$m = new BCcampus\Processors\Mail( $q );
 	$m->maybeRun();
 }
+
+/**
+ * Check the user has the right permissions
+ */
+if ( [ $this, 'current_user_can( "manage_options" )' ] ) {
+	new \BCcampus\Settings();
+	new \BCcampus\Shortcode();
+}
+
