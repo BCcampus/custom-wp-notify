@@ -43,4 +43,18 @@ class Users {
 		return $list;
 
 	}
+
+	public function updateUserList(){
+		// loop through all users who have opted in
+		$users = get_users();
+
+		foreach ( $users as $user ) {
+			// skip over spam users, or those not yet registered
+			if( "0" !== $user->data->user_status){
+				continue;
+			}
+
+			update_user_meta($user->data->ID, 'cwp_notify', 1 );
+		}
+	}
 }

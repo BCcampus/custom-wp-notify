@@ -61,3 +61,11 @@ add_action( 'init', function () {
 	}
 } );
 
+
+function notify_the_queue(){
+	$u = new BCcampus\Models\Wp\Users();
+	$q = new BCcampus\Processors\Queue( $u );
+	$q->maybeBuild();
+	$m = new BCcampus\Processors\Mail( $q );
+	$m->run();
+}

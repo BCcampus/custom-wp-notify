@@ -43,17 +43,23 @@ class Queue {
 	 * @return bool
 	 */
 	private function verify() {
-		$ok = true;
+		$ok            = true;
+		$already_built = get_option( 'cwp_queue' );
+
 		// have new events since the last mailout?
-		if ( is_empty( $this->events ) ) {
-			$ok = false;
+		if ( empty( $this->events ) ) {
+			return false;
 		}
 		// have a list of emails?
 		if ( empty( $this->users->getUserList() ) ) {
-			$ok = false;
+			return false;
 		}
 		// have valid templates?
 		// TODO include validation for template readiness
+
+		if ( $already_built['safe_to_rebuild'] === false ) {
+			return false;
+		}
 
 		return $ok;
 	}
@@ -61,18 +67,20 @@ class Queue {
 	/**
 	 * build the queue
 	 */
-	public function build() {
+	public function maybeBuild() {
 		if ( false === $this->verify() ) {
 			return;
 		}
+
 		$events = $this->events->getTitlesAndLinks( $this->events->getRecentEvents() );
 
 		$queue = [
-			'queue'      => 'cwp_notify',
-			'attempts'   => 0,
-			'created_at' => time(),
-			'list'       => $this->users->getUserList(),
-			'payload'    => $events
+			'queue'           => 'cwp_notify',
+			'attempts'        => 0,
+			'safe_to_rebuild' => false,
+			'created_at'      => time(),
+			'list'            => $this->users->getUserList(),
+			'payload'         => $events
 		];
 
 		update_option( 'cwp_queue', $queue );
@@ -82,11 +90,20 @@ class Queue {
 	/**
 	 * @return mixed
 	 */
-	public function getQueue() {
+	public function getQueueOptions() {
 		$queue = get_option( 'cwp_queue' );
 
 		return $queue;
 
+	}
+
+	/**
+	 * @param $option
+	 */
+	public function updateQueueOptions( $option ) {
+		if ( is_array( $option ) ) {
+			update_option( 'cwp_queue', $option );
+		}
 	}
 
 
