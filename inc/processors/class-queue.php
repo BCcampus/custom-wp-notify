@@ -57,6 +57,7 @@ class Queue {
 		// have valid templates?
 		// TODO include validation for template readiness
 
+		// don't build if we're in the middle of iterating through a queue
 		if ( $already_built['safe_to_rebuild'] === false ) {
 			return false;
 		}

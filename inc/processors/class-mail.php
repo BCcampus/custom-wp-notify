@@ -14,6 +14,9 @@
 namespace BCcampus\Processors;
 
 class Mail {
+	/**
+	 * @var Queue
+	 */
 	private $queue;
 
 	/**
@@ -25,11 +28,15 @@ class Mail {
 		$this->queue = $queue;
 	}
 
-
+	/**
+	 * @return bool
+	 */
 	private function verify() {
-		$ok = true;
-		// have a queue?
-		if ( empty( $this->queue->getQueueOptions() ) ) {
+		$ok      = true;
+		$options = $this->queue->getQueueOptions();
+
+		// have jobs?
+		if ( empty( $options['list'] ) || true === $options['safe_to_rebuild'] ) {
 			return false;
 		}
 
@@ -42,7 +49,7 @@ class Mail {
 	/**
 	 *
 	 */
-	public function run() {
+	public function maybeRun() {
 		if ( false === $this->verify() ) {
 			return;
 		}

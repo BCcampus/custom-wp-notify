@@ -67,5 +67,5 @@ function notify_the_queue(){
 	$q = new BCcampus\Processors\Queue( $u );
 	$q->maybeBuild();
 	$m = new BCcampus\Processors\Mail( $q );
-	$m->run();
+	$m->maybeRun();
 }
