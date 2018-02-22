@@ -14,25 +14,34 @@
 namespace BCcampus\Processors;
 
 class Mail {
-
 	private $queue;
 
 	/**
-	 * MailWorker constructor.
-	 *
-	 * @param Queue $queue
+	 * MailWorker constructor
 	 */
-	public function __construct( Queue $queue ) {
-
-		$this->queue = $queue;
+	public function __construct() {
+		$this->queue = wp_option( 'cwp_queue' );
 	}
 
 
 	private function verify() {
+		$ok = true;
 		// have a queue?
+		if ( is_empty( $this->queue ) ) {
+			$ok = false;
+		}
+
+		return $ok;
+
 	}
 
 	public function run() {
+		if ( false === $this->verify() ) {
+			return;
+		}
+
+
+
 
 	}
 }
