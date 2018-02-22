@@ -77,7 +77,7 @@ function notify_the_queue() {
 /**
  * Check the user has the right permissions
  */
-if ( [ $this, 'current_user_can( "manage_options" )' ] ) {
+if ( is_admin() ) {
 	new \BCcampus\Settings();
 	new \BCcampus\Shortcode();
 }
