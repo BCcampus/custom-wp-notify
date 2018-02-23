@@ -62,8 +62,35 @@ add_action( 'init', function () {
 } );
 
 
-//echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
+/*
+|--------------------------------------------------------------------------
+| Deactivation
+|--------------------------------------------------------------------------
+|
+| clear all cron jobs when plugin deactivated
+|
+|
+*/
+register_deactivation_hook( __FILE__, function () {
+	$b_timestamp = wp_next_scheduled( 'cwp_cron_b_hook' );
+	wp_unschedule_event( $b_timestamp, 'cwp_cron_b_hook' );
 
+	$m_timestamp = wp_next_scheduled( 'cwp_cron_m_hook' );
+	wp_unschedule_event( $m_timestamp, 'cwp_cron_m_hook' );
+
+} );
+
+/*
+|--------------------------------------------------------------------------
+| Cron Instance
+|--------------------------------------------------------------------------
+|
+| singleton
+|
+|
+*/
+\BCcampus\Cron::getInstance();
+//echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
 
 /**
  * Check the user has the right permissions

@@ -17,16 +17,30 @@ use BCcampus\Models\Wp;
 use BCcampus\Processors;
 
 class Cron {
+	/**
+	 * @var
+	 */
+	private static $instance;
+
+	/**
+	 * gets the instance via lazy initialization (created on first usage)
+	 */
+	public static function getInstance() {
+		if ( null === static::$instance ) {
+			static::$instance = new static();
+		}
+
+		return static::$instance;
+	}
 
 	/**
 	 * Cron constructor
 	 */
-	public function __construct() {
-		add_action( 'cwp_cron_mail_hook', [ $this, 'notifyTheQueue' ] );
+	private function __construct() {
+		add_action( 'cwp_cron_notify_hook', [ $this, 'notifyTheQueue' ] );
 		add_action( 'cwp_cron_build_hook', [ $this, 'buildTheQueue' ] );
 		add_action( 'init', [ $this, 'scheduleEvents' ] );
 		add_filter( 'cron_schedules', [ $this, 'mailInterval' ] );
-
 
 	}
 
@@ -38,7 +52,7 @@ class Cron {
 	public function mailInterval( $schedules ) {
 		$schedules['cwp_five_minutes'] = [
 			'interval' => ( MINUTE_IN_SECONDS * 5 ),
-			'display'  => __( 'Every Five Minutes', 'cwp_notify' ),
+			'display'  => esc_html__( 'Every Five Minutes', 'cwp_notify' ),
 		];
 
 		return $schedules;
@@ -73,12 +87,12 @@ class Cron {
 			wp_schedule_event( time(), 'daily', 'cwp_cron_build_hook' );
 		}
 
-		$m_timestamp = wp_next_scheduled( 'cwp_cron_mail_hook' );
+		$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
 
 		if ( ! $m_timestamp ) {
-			wp_schedule_event( time(), 'cwp_five_minutes', 'cwp_cron_mail_hook' );
+			wp_schedule_event( time(), 'cwp_five_minutes', 'cwp_cron_notify_hook' );
 		}
-
 	}
 
 }
+
