@@ -8,19 +8,6 @@
 
     $(document).ready(function () {
 
-        // Ajax data
-        var data = {
-            'action': 'cwpOptIn',
-            'optin': $('input[name=cwp-opt-in]').val()
-        };
-
-        // State of checkbox based on the user meta
-        if (data.optin === 0) {
-            $('input[name=cwp-opt-in]').prop('checked', true);
-        } else {
-            $('input[name=cwp-opt-in]').prop('checked', false);
-        }
-
         // Handle the changes
         $('.cwp-notify').on('change', '.notifiable', function (event) {
 
@@ -30,6 +17,11 @@
             // temporarily disable to prevent accidental additional clicks
             $('.notifiable').prop("disabled", true);
 
+            // Ajax data
+            var data = {
+                'action': 'cwpOptIn',
+                'optin': $('input[name=cwp-opt-in]').val()
+            };
             // Response
             $.post(settings.ajaxurl, data, function (response) {
 

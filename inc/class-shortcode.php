@@ -37,7 +37,7 @@ class Shortcode {
 
 		// The checkbox with prefix text from options page, and the user value of cwp_notify
 		$html = '<div class="cwp-notify">';
-		$html .= $usertext . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="' . $this->cwpUserOpted('') . '">';
+		$html .= $usertext . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="' . $this->cwpUserOpted() . '">';
 		$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
 		$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
 		$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
@@ -52,20 +52,19 @@ class Shortcode {
 	function cwpOptInCallback() {
 		$new_preference = $_POST['cwp-opt-in'];
 		$this->cwpUserOpted( $new_preference );
-
 		wp_send_json_success( __( 'Success', 'cwpOptIn' ) );
-
 	}
 
 	/**
 	 * @param $preference
 	 * Gets and sets the value of cwp_notify meta for logged in users
 	 * Sets the default to 0
-	 * @return mixed|string
+	 *
+	 * @return int|mixed
 	 */
-	function cwpUserOpted( $preference ) {
+	function cwpUserOpted( $preference = '' ) {
 		// If it's not a new preference, get the one from the user meta
-		if ( is_user_logged_in() && $preference == '') {
+		if ( is_user_logged_in() && $preference === '' ) {
 			// Get the users stored preference
 			$user_id = get_current_user_id();
 			$pref    = get_user_meta( $user_id, 'cwp_notify', true );
@@ -82,6 +81,7 @@ class Shortcode {
 		} else if ( is_user_logged_in() ) {
 			$user_id = get_current_user_id();
 			update_user_meta( $user_id, 'cwp_notify', $preference );
+
 			return $preference;
 			// if they aren't logged in, return 0
 		} else {
