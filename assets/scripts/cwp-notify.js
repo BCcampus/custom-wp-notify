@@ -8,6 +8,20 @@
 
     $(document).ready(function () {
 
+        // Ajax data
+        var data = {
+            'action': 'cwpOptIn',
+            'optin': $('input[name=cwp-opt-in]').val()
+        };
+
+        // State of checkbox based on the user meta
+        if (data.optin === 0) {
+            $('input[name=cwp-opt-in]').prop('checked', true);
+        } else {
+            $('input[name=cwp-opt-in]').prop('checked', false);
+        }
+
+        // Handle the changes
         $('.cwp-notify').on('change', '.notifiable', function (event) {
 
             // let the user know something is loading
@@ -16,30 +30,29 @@
             // temporarily disable to prevent accidental additional clicks
             $('.notifiable').prop("disabled", true);
 
-            // set ajax data
-            var data = {
-                'action': 'cwpOptIn',
-                'optin': $('.notifiable').val()
-            };
-
             // Response
             $.post(settings.ajaxurl, data, function (response) {
-                // remove the loading message
-
-                $('.cwp-loading').hide();
 
                 if (response.success === true) {
-                    // value of notifiable
-                    console.log(data.optin);
+
+                    if ($('.notifiable').is(':checked')) {
+                        $('input[name=cwp-opt-in]').val('1');
+                        console.log('checked');
+                    } else {
+                        $('input[name=cwp-opt-in]').val('0');
+                        console.log('unchecked');
+                    }
 
                     // show the success message
                     $('.cwp-message').slideDown('slow').fadeOut('slow');
 
-                    // enable the checkbox
-                    $('.notifiable').prop("disabled", false);
                 } else {
-
+                    console.log('false');
                 }
+
+                // End loading message and re-enable checkbox
+                $('.cwp-loading').hide();
+                $('.notifiable').prop("disabled", false);
             });
         })
     });

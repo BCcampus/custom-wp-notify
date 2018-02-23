@@ -18,8 +18,8 @@ class Shortcode {
 	function __construct() {
 		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'cwpScripts' ] );
-		add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'cwpOptIn' ] );
-		add_action( 'wp_ajax_cwpOptIn', [ $this, 'cwpOptIn' ] );
+		add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
+		add_action( 'wp_ajax_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
 	}
 
 	/**
@@ -30,12 +30,6 @@ class Shortcode {
 	 */
 	function cwpShortCode( $atts ) {
 
-		// Get the users stored preference
-		$user_id = get_current_user_id();
-		$pref    = get_user_meta( $user_id, 'cwp_notify', true );
-		// Get the value, set to 0 as default
-		( $pref ) ? $prefvalue = $pref : $prefvalue = 0;
-
 		// Get prefix text for checkbox from the plugin options
 		$getoptions = get_option( 'cwp_settings' );
 		// Set default prefix text for the checkbox if none exists
@@ -43,7 +37,7 @@ class Shortcode {
 
 		// The checkbox with prefix text from options page, and the user value of cwp_notify
 		$html = '<div class="cwp-notify">';
-		$html .= $usertext . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="' . $prefvalue . '">';
+		$html .= $usertext . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="' . $this->cwpUserOpted('') . '">';
 		$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
 		$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
 		$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
@@ -55,20 +49,46 @@ class Shortcode {
 	/**
 	 *  AJAX callback to update/create user meta
 	 */
-	function cwpOptIn() {
+	function cwpOptInCallback() {
+		$new_preference = $_POST['cwp-opt-in'];
+		$this->cwpUserOpted( $new_preference );
 
-		// Check nonce is valid and save opt-in preference if user is logged in
-		if ( is_user_logged_in() && isset( $_POST['cwp-opt-in'] ) && check_admin_referer( 'notify_preference', 'submit_notify_preference' ) ) {
+		wp_send_json_success( __( 'Success', 'cwpOptIn' ) );
+
+	}
+
+	/**
+	 * @param $preference
+	 * Gets and sets the value of cwp_notify meta for logged in users
+	 * Sets the default to 0
+	 * @return mixed|string
+	 */
+	function cwpUserOpted( $preference ) {
+		// If it's not a new preference, get the one from the user meta
+		if ( is_user_logged_in() && $preference == '') {
+			// Get the users stored preference
 			$user_id = get_current_user_id();
-			$opt     = $_POST['cwp-opt-in'];
-			// create or update meta
-			update_user_meta( $user_id, 'cwp_notify', $opt );
-			wp_send_json_success( __( 'Thanks for subscribing!', 'cwpOptIn' ) );
-		} else {
-			wp_send_json_success( __( 'Please Log in or Register to use this feature.', 'cwpOptIn' ) );
-		}
+			$pref    = get_user_meta( $user_id, 'cwp_notify', true );
 
-		return;
+			// Get the value, set to 0 as default if none existed
+			( $pref ) ? $prefvalue = $pref : $prefvalue = '0';
+
+			// create or update meta
+			update_user_meta( $user_id, 'cwp_notify', $prefvalue );
+
+			return $prefvalue;
+
+			// If there's a new preference provided, set that as user meta
+		} else if ( is_user_logged_in() ) {
+			$user_id = get_current_user_id();
+			update_user_meta( $user_id, 'cwp_notify', $preference );
+			return $preference;
+			// if they aren't logged in, return 0
+		} else {
+			$prefvalue = '0';
+
+			return $prefvalue;
+		}
 	}
 
 	/**
