@@ -18,8 +18,8 @@ class Shortcode {
 	function __construct() {
 		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'cwpScripts' ] );
-		add_action( 'wp_ajax_nopriv_save_notification', [ $this, 'cwpOptIn' ] );
-		add_action( 'wp_ajax_save_notification', [ $this, 'cwpOptIn' ] );
+		add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'cwpOptIn' ] );
+		add_action( 'wp_ajax_cwpOptIn', [ $this, 'cwpOptIn' ] );
 	}
 
 	/**
@@ -41,16 +41,13 @@ class Shortcode {
 		// Set default prefix text for the checkbox if none exists
 		( $getoptions['cwp_notify'] ) ? $usertext = $getoptions['cwp_notify'] : $usertext = 'Subscribe to Notifications';
 
-		// Compatible AJAX request for WordPress
-		$url = admin_url( 'admin-ajax.php' );
-
 		// The checkbox with prefix text from options page, and the user value of cwp_notify
-		$html = '<form class="cwp-notify" method="post" action="' . $url . '">';
-		$html .= $usertext . '<input class="notify" type="checkbox" name="cwp-opt-in" value="' . $prefvalue . '">';
-		$html .= '<p class="cwp-notify-response"></p>';
-		$html .= '<input type="hidden" name="action" value="custom_action">';
+		$html = '<div class="cwp-notify">';
+		$html .= $usertext . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="' . $prefvalue . '">';
+		$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
+		$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
 		$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
-		$html .= '<button>Send</button>';
+		$html .= '</div>';
 
 		return $html;
 	}
@@ -66,23 +63,20 @@ class Shortcode {
 			$opt     = $_POST['cwp-opt-in'];
 			// create or update meta
 			update_user_meta( $user_id, 'cwp_notify', $opt );
-
-			wp_send_json_success( __( 'Thanks for subscribing!', 'reportabug' ) );
-
+			wp_send_json_success( __( 'Thanks for subscribing!', 'cwpOptIn' ) );
 		} else {
-
-			wp_send_json_success( __( 'Please Log in or Register to use this feature.', 'reportabug' ) );
+			wp_send_json_success( __( 'Please Log in or Register to use this feature.', 'cwpOptIn' ) );
 		}
 
 		return;
 	}
 
 	/**
-	 * Enqueue scripts and styles
+	 * Enqueue scripts, styles, and ajax
 	 */
 	function cwpScripts() {
-		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __FILE__ ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
-		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __FILE__ ) . 'assets/css/style.css' );
+		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
+		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
 		wp_localize_script( 'cwp-notify', 'settings', [ 'ajaxurl' => admin_url( 'admin-ajax.php' ) ] );
 	}
 }
