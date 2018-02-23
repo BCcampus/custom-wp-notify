@@ -75,10 +75,13 @@ function notify_the_queue() {
 }
 
 /**
- * Check the user has the right permissions
+ * Check the user has the right permissions for the options page
  */
 if ( is_admin() ) {
 	new \BCcampus\Settings();
-	new \BCcampus\Shortcode();
 }
 
+/**
+ * The shortcode can be placed anywhere
+ */
+new \BCcampus\Shortcode();
