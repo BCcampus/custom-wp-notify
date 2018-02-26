@@ -61,18 +61,36 @@ add_action( 'init', function () {
 	}
 } );
 
-function build_the_queue() {
-	$u = new BCcampus\Models\Wp\Users();
-	$q = new BCcampus\Processors\Queue( $u );
-	$q->maybeBuild();
-}
 
-function notify_the_queue() {
-	$u = new BCcampus\Models\Wp\Users();
-	$q = new BCcampus\Processors\Queue( $u );
-	$m = new BCcampus\Processors\Mail( $q );
-	$m->maybeRun();
-}
+/*
+|--------------------------------------------------------------------------
+| Deactivation
+|--------------------------------------------------------------------------
+|
+| clear all cron jobs when plugin deactivated
+|
+|
+*/
+register_deactivation_hook( __FILE__, function () {
+	$b_timestamp = wp_next_scheduled( 'cwp_cron_b_hook' );
+	wp_unschedule_event( $b_timestamp, 'cwp_cron_b_hook' );
+
+	$m_timestamp = wp_next_scheduled( 'cwp_cron_m_hook' );
+	wp_unschedule_event( $m_timestamp, 'cwp_cron_m_hook' );
+
+} );
+
+/*
+|--------------------------------------------------------------------------
+| Cron Instance
+|--------------------------------------------------------------------------
+|
+| singleton
+|
+|
+*/
+\BCcampus\Cron::getInstance();
+//echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
 
 /**
  * Check the user has the right permissions for the options page
