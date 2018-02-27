@@ -8,38 +8,41 @@
 
     $(document).ready(function () {
 
+
         // Handle the changes
         $('.cwp-notify').on('change', '.notifiable', function (event) {
+
+            // todo: set the checkbox state based on the settings.is_checked
+            $(console.log(settings.checkstate));
 
             // let the user know something is loading
             $('.cwp-loading').show().fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300);
 
-            // temporarily disable to prevent accidental additional clicks
+            // temporarily disable to prevent accidental or additional clicks
             $('.notifiable').prop("disabled", true);
+
+            // set the value depending on if it's checked or not
+            if ($('.notifiable').is(':checked')) {
+                $new_value = 1;
+            } else {
+                $new_value = 0;
+            }
 
             // Ajax data
             var data = {
                 'action': 'cwpOptIn',
-                'optin': $('input[name=cwp-opt-in]').val()
+                'new_value': $new_value
             };
             // Response
             $.post(settings.ajaxurl, data, function (response) {
 
                 if (response.success === true) {
 
-                    if ($('.notifiable').is(':checked')) {
-                        $('input[name=cwp-opt-in]').val('1');
-                        console.log('checked');
-                    } else {
-                        $('input[name=cwp-opt-in]').val('0');
-                        console.log('unchecked');
-                    }
-
                     // show the success message
                     $('.cwp-message').slideDown('slow').fadeOut('slow');
 
                 } else {
-                    console.log('false');
+
                 }
 
                 // End loading message and re-enable checkbox
