@@ -1,4 +1,3 @@
-.cwp-notify-response {
+.cwp-message, .cwp-loading {
     display: none;
-    margin-top: 1em;
 }
