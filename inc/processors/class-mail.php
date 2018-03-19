@@ -32,8 +32,14 @@ class Mail {
 	 * @return bool
 	 */
 	private function verify() {
-		$ok      = true;
-		$options = $this->queue->getQueueOptions();
+		$ok       = true;
+		$options  = $this->queue->getQueueOptions();
+		$settings = get_option( 'cwp_settings' );
+
+		// admin has disabled?
+		if ( $settings['cwp_enable'] === 0 ) {
+			return false;
+		}
 
 		// have jobs?
 		if ( empty( $options['list'] ) || true === $options['safe_to_rebuild'] ) {
@@ -57,15 +63,24 @@ class Mail {
 		$limit    = 20;
 		$jobs     = $this->queue->getQueueOptions();
 		$attempts = $jobs['attempts'];
-		$message  = $this->applyTemplates( $jobs['payload'] );
 
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
-			$to      = $email;
-			$sub     = $subject;
-			$msg     = $message;
-			$headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: My Site Name &lt;no-reply@example.com' ];
+			$to       = $email;
+			$sub      = $subject;
+			$msg      = $this->applyTemplates( $jobs['payload'], $name );
+			$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+				$sitename = substr( $sitename, 4 );
+			}
+			$headers = [
+				'content-type' => 'text/html',
+				'from'         => "{$sitename}<no-reply@{$sitename}>",
+			];
 
+			if ( ! function_exists( 'wp_mail' ) ) {
+				include( ABSPATH . 'wp-includes/pluggable.php' );
+			}
 			$ok = \wp_mail( $to, $sub, $msg, $headers );
 
 			// take the recipient out of the list if it's been successful
@@ -96,18 +111,25 @@ class Mail {
 	 *
 	 * @return string
 	 */
-	private function applyTemplates( $payload ) {
-		//$settings = get_option('cwp_settings');
-		//$settings['cwp_template'];
+	private function applyTemplates( $payload, $name ) {
+		$settings = get_option( 'cwp_settings' );
+		$vars     = [
+			'events'           => $payload,
+			'template'         => $settings['cwp_template'],
+			'name'             => $name,
+			'style'            => '',
+			'title'            => '',
+			'unsubscribe_link' => ''
+		];
 
-		$html = '<ul>';
 
-		foreach ( $payload as $event ) {
-			$html .= "<li><a href='{$event['link']}'>{$event['title'] }</a></li>";
+		ob_start();
+		extract( $vars );
+		include( 'templates/html.php' );
+		$output = ob_get_contents();
+		ob_end_clean();
 
-		}
-		$html .= '</ul>';
+		return $output;
 
-		return $html;
 	}
 }
