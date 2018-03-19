@@ -93,16 +93,6 @@ register_deactivation_hook( __FILE__, function () {
 \BCcampus\Cron::getInstance();
 //echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
 
-$u = new Wp\Users();
-$q = new Processors\Queue( $u );
-$q->maybeBuild();
-
-
-$u = new Wp\Users();
-$q = new Processors\Queue( $u );
-$m = new Processors\Mail( $q );
-$m->maybeRun();
-
 /**
  * Check the user has the right permissions for the options page
  */
