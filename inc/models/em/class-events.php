@@ -56,7 +56,7 @@ LIMIT %d OFFSET 0", $today, $limit );
 		foreach ( $post_ids as $v ) {
 			$p                               = get_post( $v['post_id'] );
 			$posts[ $v['post_id'] ]['title'] = $p->post_title;
-			$posts[ $v['post_id'] ]['link']  = $p->guid;
+			$posts[ $v['post_id'] ]['link']  = urlencode( $p->guid );
 		}
 
 		return $posts;
