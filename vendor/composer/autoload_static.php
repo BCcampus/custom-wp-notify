@@ -9,7 +9,6 @@ class ComposerStaticInit6013140dcad32d82e60a4a26d5706705
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
-        'bd6f585921bb33b95eca0f91ab8bbf1d' => __DIR__ . '/..' . '/bccampus/custom-rest-routes/custom-rest-routes.php',
     );
 
     public static $prefixLengthsPsr4 = array (

@@ -64,8 +64,18 @@ class Mail {
 			$to      = $email;
 			$sub     = $subject;
 			$msg     = $message;
-			$headers = [ 'Content-Type: text/html; charset=UTF-8', 'From: My Site Name &lt;no-reply@example.com' ];
+			$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+				$sitename = substr( $sitename, 4 );
+			}
+			$headers = [
+				'content-type' => 'text/html',
+				'from' => "{$sitename}<no-reply@{$sitename}>",
+				];
 
+			if ( ! function_exists( 'wp_mail' ) ) {
+				include( ABSPATH . 'wp-includes/pluggable.php' );
+			}
 			$ok = \wp_mail( $to, $sub, $msg, $headers );
 
 			// take the recipient out of the list if it's been successful
