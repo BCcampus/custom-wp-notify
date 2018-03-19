@@ -10,8 +10,7 @@
  *
  * @package         Custom_Wp_Notify
  */
-use BCcampus\Models\Wp;
-use BCcampus\Processors;
+
 // Your code starts here.
 if ( ! defined( 'ABSPATH' ) ) {
 	die();
