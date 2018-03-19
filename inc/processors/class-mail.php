@@ -34,6 +34,12 @@ class Mail {
 	private function verify() {
 		$ok      = true;
 		$options = $this->queue->getQueueOptions();
+		$settings = get_option('cwp_settings');
+
+		// admin has disabled?
+		if( $settings['cwp_enable'] === 0 ){
+			return false;
+		}
 
 		// have jobs?
 		if ( empty( $options['list'] ) || true === $options['safe_to_rebuild'] ) {
