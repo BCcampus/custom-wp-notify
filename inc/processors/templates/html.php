@@ -3,8 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<title></title>
-	<style></style>
+	<title><?php echo $title; ?></title>
+	<style><?php echo $style; ?></style>
 </head>
 <body>
 <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
@@ -40,4 +40,4 @@
 	</tr>
 </table>
 </body>
-</html>;
+</html>
