@@ -4,7 +4,6 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<title><?php echo $title; ?></title>
-	<style><?php echo $style; ?></style>
 </head>
 <body>
 <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
@@ -26,7 +25,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td align="center" valign="top">
+					<td align="left" valign="top">
 						<?php echo $template; ?>
 					</td>
 				</tr>
