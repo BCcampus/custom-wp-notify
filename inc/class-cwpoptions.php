@@ -10,7 +10,7 @@
 
 namespace BCcampus;
 
-class Settings {
+class CwpOptions {
 
 	/**
 	 * Add appropriate hooks

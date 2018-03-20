@@ -10,17 +10,17 @@
 
 namespace BCcampus;
 
-class Shortcode {
+class CwpShortcode {
 
 	/**
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'cwpScripts' ] );
+		add_shortcode( 'cwp_notify', [ $this, 'shortCode' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'scripts' ] );
 		if ( is_admin() ) {
-			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
-			add_action( 'wp_ajax_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
+			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
+			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
 		}
 	}
 
@@ -30,7 +30,7 @@ class Shortcode {
 	 *
 	 * @return string
 	 */
-	function cwpShortCode( $atts ) {
+	function shortCode( $atts ) {
 
 		// Get prefix text for our checkbox from the plugin options
 		$getoptions = get_option( 'cwp_settings' );
@@ -65,7 +65,7 @@ class Shortcode {
 	/**
 	 *  AJAX callback to update/create user meta
 	 */
-	function cwpOptInCallback() {
+	function optInCallback() {
 		// Get the user ID, and existing value.
 		$new_value  = $_POST['new_value'];
 		$user_id    = get_current_user_id();
@@ -84,7 +84,7 @@ class Shortcode {
 	 * @return string
 	 */
 
-	function cwpCheckboxState() {
+	function checkboxState() {
 		if ( is_user_logged_in() ) {
 			$user_id    = get_current_user_id();
 			$user_value = get_user_meta( $user_id, 'cwp_notify', true );
@@ -99,12 +99,12 @@ class Shortcode {
 	/**
 	 * Enqueue scripts, styles, and ajax
 	 */
-	function cwpScripts() {
+	function scripts() {
 		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
 		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
 		wp_localize_script( 'cwp-notify', 'settings', [
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'checkstate' => $this->cwpCheckboxState()
+			'checkstate' => $this->checkboxState()
 		] );
 	}
 }
