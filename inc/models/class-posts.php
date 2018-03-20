@@ -11,10 +11,10 @@
  * @copyright (c) Brad Payne
  */
 
-namespace BCcampus\Models\Em;
+namespace BCcampus\Models\Posts;
 
 
-class Events {
+class CwpPosts {
 
 
 	public function __construct() {
@@ -40,6 +40,28 @@ ORDER BY event_start_date ASC, event_start_time ASC, event_name ASC
 LIMIT %d OFFSET 0", $today, $limit );
 
 		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+
+		return $results;
+	}
+
+
+	/**
+	 * Get posts
+	 *
+	 * Will return an associative array of posts
+	 *
+	 * @return array
+	 */
+	public function getRecentPosts() {
+
+		// post args
+		$args = [
+			'posts_per_page' => 5,
+			'offset'         => 0,
+		];
+
+		// post query
+		$results = get_posts( $args );
 
 		return $results;
 	}

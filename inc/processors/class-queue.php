@@ -14,7 +14,7 @@
 namespace BCcampus\Processors;
 
 use BCcampus\Models\Wp;
-use BCcampus\Models\Em;
+use BCcampus\Models\Posts;
 use BCcampus\Models\Api;
 
 /**
@@ -23,7 +23,7 @@ use BCcampus\Models\Api;
  */
 class Queue {
 	private $users;
-	private $events;
+	private $posts;
 
 	/**
 	 * Queue constructor.
@@ -32,11 +32,14 @@ class Queue {
 	 */
 	public function __construct( Wp\Users $users ) {
 		$this->users = $users;
-		$em_events   = new Em\Events();
-		if ( $em_events->getRecentEvents() ) {
-			$this->events = $em_events;
+		$new_posts   = new Posts\CwpPosts();
+		if ( $new_posts->getRecentEvents() ) {
+			$this->posts = $new_posts;
 		}
-		// TODO add else to get API Events
+		if ( $new_posts->getRecentPosts() ) {
+			$this->posts = $new_posts;
+		}
+		// TODO add else to get API posts
 	}
 
 	/**
@@ -46,8 +49,8 @@ class Queue {
 		$ok            = true;
 		$already_built = get_option( 'cwp_queue' );
 
-		// have new events since the last mailout?
-		if ( empty( $this->events ) ) {
+		// have new posts since the last mailout?
+		if ( empty( $this->posts ) ) {
 			return false;
 		}
 		// have a list of emails?
@@ -73,7 +76,7 @@ class Queue {
 			return;
 		}
 
-		$events = $this->events->getTitlesAndLinks( $this->events->getRecentEvents() );
+		$posts = $this->posts->getTitlesAndLinks( $this->posts->getRecentEvents() );
 
 		$queue = [
 			'queue'           => 'cwp_notify',
@@ -81,7 +84,7 @@ class Queue {
 			'safe_to_rebuild' => false,
 			'created_at'      => time(),
 			'list'            => $this->users->getUserList(),
-			'payload'         => $events
+			'payload'         => $posts
 		];
 
 		update_option( 'cwp_queue', $queue );
