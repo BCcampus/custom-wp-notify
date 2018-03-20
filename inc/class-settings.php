@@ -16,132 +16,176 @@ class Settings {
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_action( 'admin_menu', [ $this, 'cwpAddAdminMenu' ] );
-		add_action( 'admin_init', [ $this, 'cwpSettingsInit' ] );
-		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
+		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
+		add_action( 'admin_init', [ $this, 'settingsInit' ] );
 	}
 
 	/**
 	 * Add admin menu to dashboard
 	 */
-	function cwpAddAdminMenu() {
+	function addAdminMenu() {
 
-		add_options_page( 'Custom WP Notify', 'Custom WP Notify', 'manage_options', 'custom-wp-notify', [
-			$this,
-			'cwpOptionsPage',
-		] );
+		add_options_page(
+			'Custom WP Notify',
+			'Custom WP Notify',
+			'manage_options',
+			'custom-wp-notify',
+			[ $this, 'optionsPage', ]
+		);
 
 	}
 
 	/**
 	 * Register the plugin settings, create fields
 	 */
-	function cwpSettingsInit() {
+	function settingsInit() {
+		$page = $options = 'cwp_options';
 
-		register_setting( 'cwp_options', 'cwp_settings' );
+		register_setting(
+			$options,
+			'cwp_settings',
+			[ $this, 'sanitize' ]
+		);
 
 		add_settings_section(
-			'cwp_pluginPage_section',
+			$options . '_section',
 			__( '', 'WordPress' ),
 			'',
-			'cwp_options'
+			$page
 		);
 
 		add_settings_field(
 			'cwp_enable',
 			__( 'Enable Notifications', 'WordPress' ),
-			[ $this, 'cwpEnableRender' ],
-			'cwp_options',
-			'cwp_pluginPage_section'
+			[ $this, 'enableRender' ],
+			$page,
+			$options . '_section'
 		);
 
 		add_settings_field(
 			'cwp_frequency',
 			__( 'Notification Frequency', 'WordPress' ),
-			[ $this, 'cwpFrequencyRender' ],
-			'cwp_options',
-			'cwp_pluginPage_section'
+			[ $this, 'frequencyRender' ],
+			$page,
+			$options . '_section'
 		);
 
 		add_settings_field(
 			'cwp_optin',
 			__( 'Subscribe text:', 'WordPress' ),
-			[ $this, 'cwpOptInRender' ],
-			'cwp_options',
-			'cwp_pluginPage_section'
+			[ $this, 'optInTextRender' ],
+			$page,
+			$options . '_section'
 		);
 
 		add_settings_field(
 			'cwp_template',
 			__( 'Notification Template:', 'WordPress' ),
-			[ $this, 'cwpTemplateRender' ],
-			'cwp_options',
-			'cwp_pluginPage_section'
+			[ $this, 'templateRender' ],
+			$page,
+			$options . '_section'
 		);
+	}
+
+	function sanitize( $settings ) {
+		$integers  = [ 'cwp_enable' ];
+		$text_only = [ 'cwp_notify' ];
+		$esc_html  = [ 'cwp_template' ];
+
+
+		// integers
+		foreach ( $integers as $int ) {
+			$settings[ $int ] = absint( $settings[ $int ] );
+		}
+
+		// text
+		foreach ( $text_only as $text ) {
+			$settings[ $text ] = sanitize_text_field( $settings[ $text ] );
+		}
+
+		// esc html
+		foreach ( $esc_html as $html ) {
+			$settings[ $html ] = esc_html( $settings[ $html ] );
+		}
+
+		return $settings;
 	}
 
 	/**
 	 * Render the options page enable field
 	 */
-	function cwpEnableRender() {
+	function enableRender() {
 
 		$options = get_option( 'cwp_settings' );
-		?><input
-        type='checkbox' name='cwp_settings[cwp_enable]' <?php checked( $options['cwp_enable'], 1 ); ?>
-        value='1'><?php
+
+		// add default
+		if ( ! isset( $options['cwp_enable'] ) ) {
+			$options['cwp_enable'] = 0;
+		}
+
+		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, false ) . " value='1'>";
 	}
 
 	/**
 	 * Render the options page frequency field
 	 */
-	function cwpFrequencyRender() {
+	function frequencyRender() {
 
 		$options = get_option( 'cwp_settings' );
-		?>
-        <select name='cwp_settings[cwp_frequency]'>
-            <option value='1' <?php selected( $options['cwp_frequency'], 1 ); ?>>Daily</option>
-            <option value='2' <?php selected( $options['cwp_frequency'], 2 ); ?>>Weekly</option>
-            <option value='3' <?php selected( $options['cwp_frequency'], 3 ); ?>>Monthly</option>
-        </select>
+		// add default
+		if ( ! isset( $options['cwp_frequency'] ) ) {
+			$options['cwp_frequency'] = 1;
+		}
 
-		<?php
+		echo "<select name='cwp_settings[cwp_frequency]'>
+			<option value='1'" . selected( $options['cwp_frequency'], 1, false ) . ">Daily</option>
+			<option value='2'" . selected( $options['cwp_frequency'], 2, false ) . ">Weekly</option>
+			<option value='3'" . selected( $options['cwp_frequency'], 3, false ) . ">Monthly</option>
+		</select>";
 
 	}
 
 	/**
 	 * Render the options page opt-in field
 	 */
-	function cwpOptInRender() {
+	function optInTextRender() {
 
 		$options = get_option( 'cwp_settings' );
-		?>
-        <input type="text" name="cwp_settings[cwp_notify]" value="<?php echo $options['cwp_notify']; ?>">
-		<?php
+
+		// add default
+		if ( ! isset( $options['cwp_notify'] ) ) {
+			$options['cwp_notify'] = 'Subscribe to Notifications';
+		}
+
+		echo "<input type='text' name='cwp_settings[cwp_notify]' value='{$options['cwp_notify']}'>";
 
 	}
 
 	/**
 	 * Render the options page template field
 	 */
-	function cwpTemplateRender() {
+	function templateRender() {
 
 		$options = get_option( 'cwp_settings' );
-		?>
-        <textarea cols='60' rows='15'
-                  name='cwp_settings[cwp_template]'><?php echo $options['cwp_template']; ?></textarea>
-		<?php
+
+		// add default
+		if ( ! isset( $options['cwp_notify'] ) ) {
+			$options['cwp_notify'] = '';
+		}
+
+		echo "<textarea cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
 
 	}
 
 	/**
 	 * The function to be called to output the content for this page
 	 */
-	function cwpOptionsPage() {
+	function optionsPage() {
 
 		?>
-        <form action='options.php' method='post'>
+		<form action='options.php' method='post'>
 
-            <h2>Custom WP Notify</h2>
+			<h2>Custom WP Notify</h2>
 
 			<?php
 			settings_fields( 'cwp_options' );
@@ -149,7 +193,7 @@ class Settings {
 			submit_button();
 			?>
 
-        </form>
+		</form>
 		<?php
 
 	}
