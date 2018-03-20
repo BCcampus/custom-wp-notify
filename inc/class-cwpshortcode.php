@@ -36,12 +36,14 @@ class CwpShortcode {
 		$getoptions = get_option( 'cwp_settings' );
 
 		if ( is_user_logged_in() ) {
+			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify', true );
+
 			// Set default prefix text for the checkbox if none exists
 			( $getoptions['cwp_notify'] ) ? $opt_in_text = $getoptions['cwp_notify'] : $opt_in_text = 'Subscribe to Notifications';
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
 			$html = '<div class="cwp-notify">';
-			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="">';
+			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">';
 			$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
 			$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
