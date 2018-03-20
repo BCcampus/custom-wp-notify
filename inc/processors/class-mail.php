@@ -37,7 +37,7 @@ class Mail {
 		$settings = get_option( 'cwp_settings' );
 
 		// admin has disabled?
-		if ( ! isset( $setting['cwp_enable']) || ! $settings['cwp_enable'] === 1 ) {
+		if ( ! isset( $settings['cwp_enable'] ) || ! $settings['cwp_enable'] === 1 ) {
 			return false;
 		}
 
@@ -73,7 +73,7 @@ class Mail {
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
-			$headers = [ 'Content-Type: text/html; charset=UTF-8'];
+			$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
 				include( ABSPATH . 'wp-includes/pluggable.php' );
@@ -98,8 +98,9 @@ class Mail {
 		} else {
 			// update the queue for the next round
 			$jobs['attempts'] = $attempts + 1;
-			$this->queue->updateQueueOptions( $jobs );
 		}
+
+		$this->queue->updateQueueOptions( $jobs );
 
 	}
 

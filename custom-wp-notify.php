@@ -90,7 +90,21 @@ register_deactivation_hook( __FILE__, function () {
 |
 */
 \BCcampus\Cron::getInstance();
+
+/*
+|--------------------------------------------------------------------------
+| For Dev Only
+|--------------------------------------------------------------------------
+|
+| Delete eventually
+|
+|
+*/
 //echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
+//$u = new \BCcampus\Models\Wp\Users();
+//$q = new \BCcampus\Processors\Queue( $u );
+//$m = new \BCcampus\Processors\Mail( $q );
+//$m->maybeRun();
 
 /**
  * Check the user has the right permissions for the options page
