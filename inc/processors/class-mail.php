@@ -132,10 +132,7 @@ class Mail {
 		ob_end_clean();
 
 		$convert = $inline_styles->convert( $output, $css_file );
-		echo "<pre>";
-		print_r( $convert );
-		echo "</pre>";
-		die();
+
 		return $convert;
 
 	}
