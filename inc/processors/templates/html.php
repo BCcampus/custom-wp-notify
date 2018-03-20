@@ -5,6 +5,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<title><?php echo $title; ?></title>
 	<style><?php echo $style; ?></style>
+
 </head>
 <body>
 <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
@@ -12,9 +13,9 @@
 		<td align="center" valign="top">
 			<table border="0" cellpadding="20" cellspacing="0" width="600" id="emailContainer">
 				<tr>
-					<p>Hello <?php echo $name; ?>,</p>
-					<p>Have you seen these new events posted?</p>
 					<td align="left" valign="top">
+						<p>Hello <?php echo $name; ?>,</p>
+						<p>Have you seen these new events posted?</p>
 						<ul>
 							<?php
 							foreach ( $events as $event ) {
@@ -32,7 +33,7 @@
 				</tr>
 				<tr>
 					<td>
-						<p>Click here to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a></p>
+						<p>Do you wish to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a> from these updates?</p>
 					</td>
 				</tr>
 			</table>

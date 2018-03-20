@@ -13,6 +13,8 @@
 
 namespace BCcampus\Processors;
 
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
+
 class Mail {
 	/**
 	 * @var Queue
@@ -116,10 +118,12 @@ class Mail {
 			'template'         => $settings['cwp_template'],
 			'name'             => $name,
 			'style'            => '',
-			'title'            => '',
+			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => ''
-		];
+		];;
+		$css_file = file_get_contents( $this->getStyleSheetPath() );
 
+		$inline_styles = new CssToInlineStyles();
 
 		ob_start();
 		extract( $vars );
@@ -127,7 +131,21 @@ class Mail {
 		$output = ob_get_contents();
 		ob_end_clean();
 
-		return $output;
+		$convert = $inline_styles->convert( $output, $css_file );
 
+		return $convert;
+
+	}
+
+	private function getStyleSheetPath() {
+		$filename = get_stylesheet_directory() . '/dist/styles/main.css';
+
+		if ( file_exists( $filename ) ) {
+			$path = $filename;
+		} else {
+			$path = get_stylesheet_directory() . '/style.css';
+		}
+
+		return $path;
 	}
 }

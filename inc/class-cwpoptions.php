@@ -56,7 +56,7 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_enable',
-			__( 'Enable Notifications', 'WordPress' ),
+			__( 'Enable Notifications:', 'custom-wp-notify' ),
 			[ $this, 'enableRender' ],
 			$page,
 			$options . '_section'
@@ -64,7 +64,7 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_frequency',
-			__( 'Notification Frequency', 'WordPress' ),
+			__( 'Notification Frequency:', 'custom-wp-notify' ),
 			[ $this, 'frequencyRender' ],
 			$page,
 			$options . '_section'
@@ -72,7 +72,7 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_optin',
-			__( 'Subscribe text:', 'WordPress' ),
+			__( 'Subscribe text:', 'custom-wp-notify' ),
 			[ $this, 'optInTextRender' ],
 			$page,
 			$options . '_section'
@@ -80,18 +80,27 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_template',
-			__( 'Notification Template:', 'WordPress' ),
+			__( 'Notification Template:', 'custom-wp-notify' ),
 			[ $this, 'templateRender' ],
 			$page,
 			$options . '_section'
 		);
+
+		add_settings_field(
+			'cwp_unsubscribe',
+			__( 'Unsubscribe Link:', 'custom-wp-notify' ),
+			[ $this, 'unsubscribeRender' ],
+			$page,
+			$options . '_section'
+		);
+
 	}
 
 	function sanitize( $settings ) {
 		$integers  = [ 'cwp_enable' ];
 		$text_only = [ 'cwp_notify' ];
 		$esc_html  = [ 'cwp_template' ];
-
+		$esc_url   = [ 'cwp_unsubscribe' ];
 
 		// integers
 		foreach ( $integers as $int ) {
@@ -108,7 +117,27 @@ class CwpOptions {
 			$settings[ $html ] = esc_html( $settings[ $html ] );
 		}
 
+		// esc html
+		foreach ( $esc_url as $url ) {
+			$settings[ $url ] = esc_url( $settings[ $url ] );
+		}
+
 		return $settings;
+	}
+
+	/**
+	 * Customize the value of the unsubscribe link
+	 */
+	function unsubscribeRender() {
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_unsubscribe'] ) ) {
+			$options['cwp_unsubscribe'] = '';
+		}
+
+		echo "<input type='text' name='cwp_settings[cwp_unsubscribe]' value='{$options['cwp_unsubscribe']}'>";
+
 	}
 
 	/**
