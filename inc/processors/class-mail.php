@@ -116,7 +116,7 @@ class Mail {
 			'template'         => $settings['cwp_template'],
 			'name'             => $name,
 			'style'            => '',
-			'title'            => '',
+			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => ''
 		];
 

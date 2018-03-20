@@ -12,9 +12,9 @@
 		<td align="center" valign="top">
 			<table border="0" cellpadding="20" cellspacing="0" width="600" id="emailContainer">
 				<tr>
-					<p>Hello <?php echo $name; ?>,</p>
-					<p>Have you seen these new events posted?</p>
 					<td align="left" valign="top">
+						<p>Hello <?php echo $name; ?>,</p>
+						<p>Have you seen these new events posted?</p>
 						<ul>
 							<?php
 							foreach ( $events as $event ) {
@@ -26,13 +26,13 @@
 					</td>
 				</tr>
 				<tr>
-					<td align="left" valign="top">
+					<td align="center" valign="top">
 						<?php echo $template; ?>
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<p>Click here to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a></p>
+						<p>Do you wish to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a> from these updates?</p>
 					</td>
 				</tr>
 			</table>
