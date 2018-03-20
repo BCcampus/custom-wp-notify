@@ -31,6 +31,7 @@ class CwpOptions {
 
 			wp_enqueue_script( 'wp-codemirror' );
 			wp_enqueue_script( 'htmlhint' );
+			wp_enqueue_script( 'csslint' );
 			wp_enqueue_style( 'wp-codemirror' );
 		}
 
@@ -110,12 +111,25 @@ class CwpOptions {
 			$options . '_section'
 		);
 
+		add_settings_field(
+			'cwp_css',
+			__( 'Custom CSS:', 'custom-wp-notify' ),
+			[ $this, 'cssRender' ],
+			$page,
+			$options . '_section'
+		);
+
 	}
 
+	/**
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitize( $settings ) {
 		$integers  = [ 'cwp_enable' ];
 		$text_only = [ 'cwp_notify' ];
-		$esc_html  = [ 'cwp_template' ];
+		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_url   = [ 'cwp_unsubscribe' ];
 
 		// integers
@@ -139,6 +153,21 @@ class CwpOptions {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Custom CSS
+	 */
+	function cssRender() {
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_css'] ) ) {
+			$options['cwp_css'] = '#emailContainer{}';
+		}
+
+		echo "<textarea id='cwp_css' cols='60' rows='15' name='cwp_settings[cwp_css]'>{$options['cwp_css']}</textarea>";
+
 	}
 
 	/**
@@ -241,6 +270,11 @@ class CwpOptions {
 					lineNumbers: true,
 					matchBrackets: true,
 					mode: 'text/html'
+				});
+				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/css'
 				});
 			})(window.jQuery, window.wp);
 		</script>

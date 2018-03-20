@@ -109,6 +109,8 @@ class Mail {
 	/**
 	 * @param $payload
 	 *
+	 * @param $name
+	 *
 	 * @return string
 	 */
 	private function applyTemplates( $payload, $name ) {
@@ -117,9 +119,9 @@ class Mail {
 			'events'           => $payload,
 			'template'         => $settings['cwp_template'],
 			'name'             => $name,
-			'style'            => '',
+			'style'            => $settings['cwp_css'],
 			'title'            => 'Custom Notifications',
-			'unsubscribe_link' => ''
+			'unsubscribe_link' => $settings['cwp_unsubscribe']
 		];;
 		$css_file = file_get_contents( $this->getStyleSheetPath() );
 
