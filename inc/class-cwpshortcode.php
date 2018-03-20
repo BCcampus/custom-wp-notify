@@ -10,17 +10,17 @@
 
 namespace BCcampus;
 
-class Shortcode {
+class CwpShortcode {
 
 	/**
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_shortcode( 'cwp_notify', [ $this, 'cwpShortCode' ] );
-		add_action( 'wp_enqueue_scripts', [ $this, 'cwpScripts' ] );
+		add_shortcode( 'cwp_notify', [ $this, 'shortCode' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'scripts' ] );
 		if ( is_admin() ) {
-			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
-			add_action( 'wp_ajax_cwpOptIn', [ $this, 'cwpOptInCallback' ] );
+			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
+			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
 		}
 	}
 
@@ -30,18 +30,20 @@ class Shortcode {
 	 *
 	 * @return string
 	 */
-	function cwpShortCode( $atts ) {
+	function shortCode( $atts ) {
 
 		// Get prefix text for our checkbox from the plugin options
 		$getoptions = get_option( 'cwp_settings' );
 
 		if ( is_user_logged_in() ) {
+			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify', true );
+
 			// Set default prefix text for the checkbox if none exists
 			( $getoptions['cwp_notify'] ) ? $opt_in_text = $getoptions['cwp_notify'] : $opt_in_text = 'Subscribe to Notifications';
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
 			$html = '<div class="cwp-notify">';
-			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="">';
+			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">';
 			$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
 			$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
@@ -65,7 +67,7 @@ class Shortcode {
 	/**
 	 *  AJAX callback to update/create user meta
 	 */
-	function cwpOptInCallback() {
+	function optInCallback() {
 		// Get the user ID, and existing value.
 		$new_value  = $_POST['new_value'];
 		$user_id    = get_current_user_id();
@@ -84,7 +86,7 @@ class Shortcode {
 	 * @return string
 	 */
 
-	function cwpCheckboxState() {
+	function checkboxState() {
 		if ( is_user_logged_in() ) {
 			$user_id    = get_current_user_id();
 			$user_value = get_user_meta( $user_id, 'cwp_notify', true );
@@ -99,12 +101,12 @@ class Shortcode {
 	/**
 	 * Enqueue scripts, styles, and ajax
 	 */
-	function cwpScripts() {
+	function scripts() {
 		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
 		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
 		wp_localize_script( 'cwp-notify', 'settings', [
 			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'checkstate' => $this->cwpCheckboxState()
+			'checkstate' => $this->checkboxState()
 		] );
 	}
 }
