@@ -37,7 +37,7 @@ class Mail {
 		$settings = get_option( 'cwp_settings' );
 
 		// admin has disabled?
-		if ( $settings['cwp_enable'] === 0 ) {
+		if ( ! isset( $setting['cwp_enable']) || ! $settings['cwp_enable'] === 1 ) {
 			return false;
 		}
 
@@ -73,10 +73,7 @@ class Mail {
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
-			$headers = [
-				'content-type' => 'text/html',
-				'from'         => "{$sitename}<no-reply@{$sitename}>",
-			];
+			$headers = [ 'Content-Type: text/html; charset=UTF-8'];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
 				include( ABSPATH . 'wp-includes/pluggable.php' );

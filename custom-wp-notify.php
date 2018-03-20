@@ -72,11 +72,11 @@ add_action( 'init', function () {
 |
 */
 register_deactivation_hook( __FILE__, function () {
-	$b_timestamp = wp_next_scheduled( 'cwp_cron_b_hook' );
-	wp_unschedule_event( $b_timestamp, 'cwp_cron_b_hook' );
+	$b_timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
+	wp_unschedule_event( $b_timestamp, 'cwp_cron_build_hook' );
 
-	$m_timestamp = wp_next_scheduled( 'cwp_cron_m_hook' );
-	wp_unschedule_event( $m_timestamp, 'cwp_cron_m_hook' );
+	$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
+	wp_unschedule_event( $m_timestamp, 'cwp_cron_notify_hook' );
 
 } );
 

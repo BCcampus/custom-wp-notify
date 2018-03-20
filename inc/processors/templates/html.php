@@ -32,7 +32,7 @@
 				</tr>
 				<tr>
 					<td>
-						<p>Click here to <a href="{<?php echo $unsubscribe_link; ?>}">unsubscribe</a></p>
+						<p>Click here to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a></p>
 					</td>
 				</tr>
 			</table>
