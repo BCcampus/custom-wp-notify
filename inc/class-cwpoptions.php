@@ -11,6 +11,7 @@
 namespace BCcampus;
 
 class CwpOptions {
+	CONST PAGE = 'custom-wp-notify';
 
 	/**
 	 * Add appropriate hooks
@@ -18,6 +19,21 @@ class CwpOptions {
 	function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
+	}
+
+	/**
+	 * add html and css syntax highlighting
+	 */
+	function codeMirror() {
+		// Code Mirror
+		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
+
+			wp_enqueue_script( 'wp-codemirror' );
+			wp_enqueue_script( 'htmlhint' );
+			wp_enqueue_style( 'wp-codemirror' );
+		}
+
 	}
 
 	/**
@@ -29,7 +45,7 @@ class CwpOptions {
 			'Custom WP Notify',
 			'Custom WP Notify',
 			'manage_options',
-			'custom-wp-notify',
+			$this::PAGE,
 			[ $this, 'optionsPage', ]
 		);
 
@@ -202,7 +218,7 @@ class CwpOptions {
 			$options['cwp_notify'] = '';
 		}
 
-		echo "<textarea cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
+		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
 
 	}
 
@@ -211,20 +227,24 @@ class CwpOptions {
 	 */
 	function optionsPage() {
 
+		echo "<h2>Custom WP Notify</h2><form action='options.php' method='post'>";
+
+		settings_fields( 'cwp_options' );
+		do_settings_sections( 'cwp_options' );
+		submit_button();
+
+		echo "</form>";
 		?>
-		<form action='options.php' method='post'>
-
-			<h2>Custom WP Notify</h2>
-
-			<?php
-			settings_fields( 'cwp_options' );
-			do_settings_sections( 'cwp_options' );
-			submit_button();
-			?>
-
-		</form>
+		<script>
+			(function ($, wp) {
+				var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/html'
+				});
+			})(window.jQuery, window.wp);
+		</script>
 		<?php
-
 	}
 }
 
