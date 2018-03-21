@@ -11,6 +11,7 @@
 namespace BCcampus;
 
 class CwpOptions {
+	CONST PAGE = 'custom-wp-notify';
 
 	/**
 	 * Add appropriate hooks
@@ -18,6 +19,22 @@ class CwpOptions {
 	function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
+	}
+
+	/**
+	 * add html and css syntax highlighting
+	 */
+	function codeMirror() {
+		// Code Mirror
+		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
+
+			wp_enqueue_script( 'wp-codemirror' );
+			wp_enqueue_script( 'htmlhint' );
+			wp_enqueue_script( 'csslint' );
+			wp_enqueue_style( 'wp-codemirror' );
+		}
+
 	}
 
 	/**
@@ -29,7 +46,7 @@ class CwpOptions {
 			'Custom WP Notify',
 			'Custom WP Notify',
 			'manage_options',
-			'custom-wp-notify',
+			$this::PAGE,
 			[ $this, 'optionsPage', ]
 		);
 
@@ -94,12 +111,25 @@ class CwpOptions {
 			$options . '_section'
 		);
 
+		add_settings_field(
+			'cwp_css',
+			__( 'Custom CSS:', 'custom-wp-notify' ),
+			[ $this, 'cssRender' ],
+			$page,
+			$options . '_section'
+		);
+
 	}
 
+	/**
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitize( $settings ) {
 		$integers  = [ 'cwp_enable' ];
 		$text_only = [ 'cwp_notify' ];
-		$esc_html  = [ 'cwp_template' ];
+		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_url   = [ 'cwp_unsubscribe' ];
 
 		// integers
@@ -123,6 +153,21 @@ class CwpOptions {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Custom CSS
+	 */
+	function cssRender() {
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_css'] ) ) {
+			$options['cwp_css'] = '#emailContainer{}';
+		}
+
+		echo "<textarea id='cwp_css' cols='60' rows='15' name='cwp_settings[cwp_css]'>{$options['cwp_css']}</textarea>";
+
 	}
 
 	/**
@@ -202,7 +247,7 @@ class CwpOptions {
 			$options['cwp_notify'] = '';
 		}
 
-		echo "<textarea cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
+		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
 
 	}
 
@@ -211,20 +256,29 @@ class CwpOptions {
 	 */
 	function optionsPage() {
 
+		echo "<h2>Custom WP Notify</h2><form action='options.php' method='post'>";
+
+		settings_fields( 'cwp_options' );
+		do_settings_sections( 'cwp_options' );
+		submit_button();
+
+		echo "</form>";
 		?>
-		<form action='options.php' method='post'>
-
-			<h2>Custom WP Notify</h2>
-
-			<?php
-			settings_fields( 'cwp_options' );
-			do_settings_sections( 'cwp_options' );
-			submit_button();
-			?>
-
-		</form>
+		<script>
+			(function ($, wp) {
+				var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/html'
+				});
+				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/css'
+				});
+			})(window.jQuery, window.wp);
+		</script>
 		<?php
-
 	}
 
 }
