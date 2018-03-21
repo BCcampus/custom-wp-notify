@@ -72,10 +72,15 @@ class Mail {
 			$sub      = $subject;
 			$msg      = $this->applyTemplates( $jobs['payload'], $name );
 			$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
-			$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
+
+			$headers = [
+				'Content-Type: text/html; charset=UTF-8',
+				'From: Custom WP Notifications <no-reply@' . $sitename . '>'
+			];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
 				include( ABSPATH . 'wp-includes/pluggable.php' );
