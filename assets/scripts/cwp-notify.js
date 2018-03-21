@@ -12,9 +12,6 @@
         // Handle the changes
         $('.cwp-notify').on('change', '.notifiable', function (event) {
 
-            // todo: set the checkbox state based on the settings.is_checked
-            $(console.log(settings.checkstate));
-
             // let the user know something is loading
             $('.cwp-loading').show().fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300);
 
@@ -28,10 +25,13 @@
                 $new_value = 0;
             }
 
+            $security = settings.security
+
             // Ajax data
             var data = {
                 'action': 'cwpOptIn',
-                'new_value': $new_value
+                'new_value': $new_value,
+                'security': $security
             };
             // Response
             $.post(settings.ajaxurl, data, function (response) {
@@ -42,6 +42,9 @@
                     $('.cwp-message').slideDown('slow').fadeOut('slow');
 
                 } else {
+
+                    // show the error message
+                    $('.cwp-message-error').slideDown('slow').fadeOut('slow');
 
                 }
 

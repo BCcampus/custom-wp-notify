@@ -46,7 +46,7 @@ class CwpShortcode {
 			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">';
 			$html .= '<span class="cwp-loading">' . __( '...', 'cwp_notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'cwp_notify' ) . '</span>';
-			$html .= wp_nonce_field( 'notify_preference', 'submit_notify_preference' );
+			$html .= '<span class="cwp-message-error">' . __( 'Error', 'cwp_notify' ) . '</span>';
 			$html .= '</div>';
 
 
@@ -68,34 +68,26 @@ class CwpShortcode {
 	 *  AJAX callback to update/create user meta
 	 */
 	function optInCallback() {
-		// Get the user ID, and existing value.
-		$new_value  = $_POST['new_value'];
-		$user_id    = get_current_user_id();
-		$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 
-		// The new value shouldn't match the stored value
-		if ( $user_value != $new_value ) {
-			$response = update_user_meta( $user_id, 'cwp_notify', $new_value );
-			// send back the new value
-			wp_send_json_success( $response );
-		}
+		// Check for nonce security
+		$nonce = $_POST['security'];
 
-	}
+		if ( ! wp_verify_nonce( $nonce, 'cwp_nonce' ) ) {
+			wp_send_json_error();
+		} else {
 
-	/**
-	 * @return string
-	 */
-
-	function checkboxState() {
-		if ( is_user_logged_in() ) {
+			// Get the user ID, and existing value.
+			$new_value  = $_POST['new_value'];
 			$user_id    = get_current_user_id();
 			$user_value = get_user_meta( $user_id, 'cwp_notify', true );
-			( $user_value === 0 ) ? $checked = '0' : $checked = '1';
-		} else {
-			$checked = '0';
-		}
 
-		return $checked;
+			// The new value shouldn't match the stored value
+			if ( $user_value != $new_value ) {
+				$response = update_user_meta( $user_id, 'cwp_notify', $new_value );
+				// send back the new value
+				wp_send_json_success( $response );
+			}
+		}
 	}
 
 	/**
@@ -105,8 +97,8 @@ class CwpShortcode {
 		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
 		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
 		wp_localize_script( 'cwp-notify', 'settings', [
-			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
-			'checkstate' => $this->checkboxState()
+			'ajaxurl'  => admin_url( 'admin-ajax.php' ),
+			'security' => wp_create_nonce( 'cwp_nonce' )
 		] );
 	}
 }
