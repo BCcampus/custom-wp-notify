@@ -35,7 +35,7 @@ class Queue {
 		if ( $em_events->getRecentEvents() ) {
 			$this->events = $em_events;
 		}
-		// TODO add else to get API Events
+		// TODO add else to get API Events or WP Recent Posts
 	}
 
 	/**
