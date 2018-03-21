@@ -25,7 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 |
 |
 */
-
 if ( ! defined( 'CWP_DIR' ) ) {
 	define( 'CWP_DIR', __DIR__ . '/' );
 }
@@ -42,7 +41,6 @@ require_once CWP_DIR . 'vendor/autoload.php';
 |
 |
 */
-
 add_action( 'init', function () {
 
 	$slug = 'rest_routes';
@@ -61,6 +59,23 @@ add_action( 'init', function () {
 	}
 } );
 
+/*
+|--------------------------------------------------------------------------
+| Dependencies
+|--------------------------------------------------------------------------
+|
+| Admin Notification
+|
+|
+*/
+add_action( 'admin_notices', function () {
+	if ( ! is_plugin_active( 'events-manager/events-manager.php' ) ) {
+		$class   = 'notice notice-error';
+		$message = __( 'Custom WP Notify: Please install the Events Manager plugin.', 'custom-wp-notify' );
+
+		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+	}
+} );
 
 /*
 |--------------------------------------------------------------------------

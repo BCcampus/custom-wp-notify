@@ -226,5 +226,8 @@ class CwpOptions {
 		<?php
 
 	}
+
 }
+
+
 
