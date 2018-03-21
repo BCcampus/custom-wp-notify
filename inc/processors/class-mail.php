@@ -75,7 +75,10 @@ class Mail {
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
-			$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
+			$headers = [
+				'Content-Type: text/html; charset=UTF-8',
+				'From: Custom WP Notifications <no-reply@' . $sitename . '>'
+			];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
 				include( ABSPATH . 'wp-includes/pluggable.php' );
@@ -124,7 +127,6 @@ class Mail {
 			'unsubscribe_link' => $settings['cwp_unsubscribe']
 		];
 		$css_file = file_get_contents( $this->getStyleSheetPath() );
-
 		$inline_styles = new CssToInlineStyles();
 
 		ob_start();
@@ -133,9 +135,15 @@ class Mail {
 		$output = ob_get_contents();
 		ob_end_clean();
 
-		$convert = $inline_styles->convert( $output, $css_file );
-
-		return $convert;
+		// file_get_contents might fail
+		if ( false !== $css_file ) {
+			$convert = $inline_styles->convert( $output, $css_file );
+			if ( $convert ) {
+				return $convert;
+			}
+		} else {
+			return $output;
+		}
 
 	}
 

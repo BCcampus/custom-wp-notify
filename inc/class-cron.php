@@ -98,7 +98,7 @@ class Cron {
 		$prefix = 'cwp_';
 		$sub = substr( $hook, 0, 4 );
 
-		// restrict d-registering events to our own
+		// restrict de-registering events to our own
 		if ( 0 === strcmp( $prefix, $sub ) ) {
 			$timestamp = wp_next_scheduled( $hook );
 			wp_unschedule_event( $timestamp, $hook );
