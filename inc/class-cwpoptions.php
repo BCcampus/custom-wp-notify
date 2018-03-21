@@ -18,7 +18,6 @@ class CwpOptions {
 	function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
-		add_action( 'admin_notices', [ $this, 'dependencyCheck' ] );
 	}
 
 	/**
@@ -213,9 +212,9 @@ class CwpOptions {
 	function optionsPage() {
 
 		?>
-        <form action='options.php' method='post'>
+		<form action='options.php' method='post'>
 
-            <h2>Custom WP Notify</h2>
+			<h2>Custom WP Notify</h2>
 
 			<?php
 			settings_fields( 'cwp_options' );
@@ -223,26 +222,9 @@ class CwpOptions {
 			submit_button();
 			?>
 
-        </form>
+		</form>
 		<?php
 
-	}
-
-	/**
-	 * Detects Events manager plugin
-	 * Displays admin notice in admin area if not detected
-	 */
-	function dependencyCheck() {
-
-		if ( ! is_plugin_active( 'events-manager/events-manager.php' ) ) {
-			$class = 'notice notice-error';
-
-			$message = __( 'Custom WP Notify: Please install the Events Manager plugin.' );
-
-			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
-		}
-
-		return;
 	}
 
 }
