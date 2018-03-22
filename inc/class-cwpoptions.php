@@ -212,9 +212,18 @@ class CwpOptions {
 			$settings[ $html ] = esc_html( $settings[ $html ] );
 		}
 
-		// esc html
+		// esc url
 		foreach ( $esc_url as $url ) {
 			$settings[ $url ] = esc_url( $settings[ $url ] );
+		}
+
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === wp_http_validate_url( $settings['cwp_unsubscribe'] ) ) {
+			add_settings_error(
+				'cwp_options',
+				'settings_updated',
+				'Please enter a valid url in UNSUBSCRIBE LINK below where people can unsubscribe.',
+				'error'
+			);
 		}
 
 		return $settings;
