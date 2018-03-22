@@ -357,7 +357,7 @@ class CwpOptions {
 		// display next build time
 		$timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
 		if ( ! empty ( $timestamp ) ) {
-			echo "<p>next scheduled build: " . date( 'F d, Y g:i A (T)' ) . "</p>";
+			echo "<p>next scheduled build: " . date( 'F d, Y g:i A (T)', $timestamp ) . "</p>";
 		}
 	}
 
