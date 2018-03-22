@@ -19,6 +19,7 @@ class CwpOptions {
 	function __construct() {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
+		add_action( 'admin_init', [ $this, 'settingsUat' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
 	}
 
@@ -52,6 +53,70 @@ class CwpOptions {
 
 	}
 
+	/*
+	|--------------------------------------------------------------------------
+	| UAT Settings
+	|--------------------------------------------------------------------------
+	|
+	| Testing the output
+	|
+	|
+	*/
+	/**
+	 *
+	 */
+	function settingsUat() {
+		$page = $options = 'cwp_uat_settings';
+
+		register_setting(
+			$options,
+			$options,
+			[ $this, 'sanitizeUat' ]
+		);
+
+		add_settings_section(
+			$options . '_section',
+			__( 'User Acceptance', 'custom-wp-notify' ),
+			'',
+			$page
+		);
+
+		add_settings_field(
+			'test_send',
+			__( 'Send Test Email:', 'custom-wp-notify' ),
+			[ $this, 'testSend' ],
+			$page,
+			$options . '_section'
+		);
+	}
+
+	function sanitizeUat( $settings ) {
+		// TODO: sanitize for valid email
+		return $settings;
+	}
+
+	function testSend() {
+		$options = get_option( 'cwp_uat_settings' );
+
+		// add default
+		if ( ! isset( $options['test_send'] ) ) {
+			$options['test_send'] = '';
+		}
+
+		echo "<input type='text' name='cwp_uat_settings[test_send]' value='{$options['test_send']}'>";
+
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| General Settings
+	|--------------------------------------------------------------------------
+	|
+	| Enable/Disable plus Template
+	| Nothing happens without this section
+	|
+	|
+	*/
 	/**
 	 * Register the plugin settings, create fields
 	 */
@@ -66,7 +131,7 @@ class CwpOptions {
 
 		add_settings_section(
 			$options . '_section',
-			__( '', 'WordPress' ),
+			__( 'General Template Settings', 'custom-wp-notify' ),
 			'',
 			$page
 		);
@@ -255,11 +320,52 @@ class CwpOptions {
 	 * The function to be called to output the content for this page
 	 */
 	function optionsPage() {
+		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'template';
+		?>
 
-		echo "<h2>Custom WP Notify</h2><form action='options.php' method='post'>";
+		<h2>Custom WP Notify</h2>
+		<div id="icon-options-general" class="icon32"></div>
+		<h2 class="nav-tab-wrapper">
+			<a href="?page=custom-wp-notify&tab=template"
+			   class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+			<a href="?page=custom-wp-notify&tab=testing"
+			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+			<a href="?page=custom-wp-notify&tab=user"
+			   class="nav-tab <?php echo $active_tab == 'user' ? 'nav-tab-active' : ''; ?>">Subscription Management</a>
+			<a href="?page=custom-wp-notify&tab=logs"
+			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+		</h2>
 
-		settings_fields( 'cwp_options' );
-		do_settings_sections( 'cwp_options' );
+		<form action="options.php" method="post">
+		<?php
+
+		switch ( $active_tab ) {
+
+			case 'template':
+
+				settings_fields( 'cwp_options' );
+				do_settings_sections( 'cwp_options' );
+
+				break;
+			case 'testing':
+
+				settings_fields( 'cwp_uat_settings' );
+				do_settings_sections( 'cwp_uat_settings' );
+
+				break;
+			case 'user':
+
+				settings_fields( 'cwp_user_settings' );
+				do_settings_sections( 'cwp_user_settings' );
+
+				break;
+
+			case 'logs':
+
+				settings_fields( 'cwp_log_settings' );
+				do_settings_sections( 'cwp_log_settings' );
+		}
+
 		submit_button();
 
 		echo "</form>";
