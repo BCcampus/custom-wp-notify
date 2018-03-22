@@ -40,7 +40,10 @@ class Cron {
 		add_action( 'cwp_cron_notify_hook', [ $this, 'notifyTheQueue' ] );
 		add_action( 'cwp_cron_build_hook', [ $this, 'buildTheQueue' ] );
 		add_action( 'init', [ $this, 'scheduleEvents' ] );
+		add_action( 'init', [ $this, 'unScheduleEvents' ] );
+		add_action( 'init', [ $this, 'scheduleEventCustomInterval' ] );
 		add_filter( 'cron_schedules', [ $this, 'mailInterval' ] );
+		add_filter( 'cron_schedules', [ $this, 'weeklyInterval' ] );
 
 	}
 
@@ -52,7 +55,21 @@ class Cron {
 	public function mailInterval( $schedules ) {
 		$schedules['cwp_two_minutes'] = [
 			'interval' => ( MINUTE_IN_SECONDS * 2 ),
-			'display'  => esc_html__( 'Every Two Minutes', 'cwp_notify' ),
+			'display'  => __( 'Every Two Minutes', 'custom-wp-notify' ),
+		];
+
+		return $schedules;
+	}
+
+	/**
+	 * @param $schedules
+	 *
+	 * @return mixed
+	 */
+	public function weeklyInterval( $schedules ) {
+		$schedules['cwp_weekly'] = [
+			'interval' => ( WEEK_IN_SECONDS ),
+			'display'  => __( 'Every Week', 'custom-wp-notify' ),
 		];
 
 		return $schedules;
@@ -81,11 +98,6 @@ class Cron {
 	 *
 	 */
 	public function scheduleEvents() {
-		$b_timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
-
-		if ( ! $b_timestamp ) {
-			wp_schedule_event( time(), 'daily', 'cwp_cron_build_hook' );
-		}
 
 		$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
 
@@ -94,14 +106,34 @@ class Cron {
 		}
 	}
 
-	public function unScheduleEvents( $hook ){
+	public function unScheduleEvents( $hook ) {
+		if ( empty( $hook ) ) {
+			return;
+		}
 		$prefix = 'cwp_';
-		$sub = substr( $hook, 0, 4 );
+		$sub    = substr( $hook, 0, 4 );
 
-		// restrict d-registering events to our own
+		// restrict de-registering events to our own
 		if ( 0 === strcmp( $prefix, $sub ) ) {
 			$timestamp = wp_next_scheduled( $hook );
 			wp_unschedule_event( $timestamp, $hook );
+		}
+	}
+
+	public function scheduleEventCustomInterval( $hook, $interval ) {
+		if ( empty( $hook ) || empty( $interval ) ) {
+			return;
+		}
+		$prefix = 'cwp_';
+		$sub    = substr( $hook, 0, 4 );
+
+		// restrict de-registering events to our own
+		if ( 0 === strcmp( $prefix, $sub ) ) {
+			$timestamp = wp_next_scheduled( $hook );
+
+			if ( ! $timestamp ) {
+				wp_schedule_event( time() + MINUTE_IN_SECONDS, $interval, $hook );
+			}
 		}
 	}
 }

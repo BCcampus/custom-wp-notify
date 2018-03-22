@@ -10,6 +10,7 @@
 
 namespace BCcampus;
 
+use BCcampus;
 use BCcampus\Models\Wp;
 use BCcampus\Processors;
 
@@ -35,7 +36,6 @@ class CwpOptions {
 	function codeMirror() {
 		// Code Mirror
 		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
-
 			wp_enqueue_script( 'wp-codemirror' );
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
@@ -239,7 +239,9 @@ class CwpOptions {
 		$text_only = [ 'cwp_notify' ];
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_url   = [ 'cwp_unsubscribe' ];
-		$enum      = [ 'daily', 'weekly' ];
+		$enum      = [ 'daily', 'cwp_weekly' ];
+		$options   = get_option( 'cwp_settings' );
+
 
 		// integers
 		foreach ( $integers as $int ) {
@@ -280,6 +282,12 @@ class CwpOptions {
 				'Could not find that Notification Frequency',
 				'error'
 			);
+		} else {
+			// check for a change in the stored value
+			if ( 0 !== strcmp( $_POST['cwp_settings']['cwp_frequency'], $options['cwp_frequency'] ) ) {
+				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( 'cwp_cron_build_hook', $_POST['cwp_settings']['cwp_frequency'] );
+			}
 		}
 
 		return $settings;
@@ -343,9 +351,14 @@ class CwpOptions {
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
-			<option value='weekly'" . selected( $options['cwp_frequency'], 'weekly', false ) . ">Weekly</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
 		</select>";
 
+		// display next build time
+		$timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
+		if ( ! empty ( $timestamp ) ) {
+			echo "<p>next scheduled build: " . date( 'F d, Y g:i A (T)' ) . "</p>";
+		}
 	}
 
 	/**
