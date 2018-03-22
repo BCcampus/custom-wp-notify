@@ -135,3 +135,10 @@ if ( is_admin() ) {
  * The shortcode can be placed anywhere
  */
 new \BCcampus\CwpShortcode();
+
+/**
+ * Add support for BP registration page
+ */
+if ( function_exists( 'bp_is_active' ) ) {
+	new \BCcampus\CwpBp();
+}
