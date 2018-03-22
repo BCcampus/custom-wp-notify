@@ -10,7 +10,13 @@
 
 namespace BCcampus;
 
+use BCcampus\Models\Wp;
+use BCcampus\Processors;
+
 class CwpOptions {
+	/**
+	 *
+	 */
 	CONST PAGE = 'custom-wp-notify';
 
 	/**
@@ -62,8 +68,9 @@ class CwpOptions {
 	|
 	|
 	*/
+
 	/**
-	 *
+	 * User Acceptance Testing Settings
 	 */
 	function settingsUat() {
 		$page = $options = 'cwp_uat_settings';
@@ -90,11 +97,47 @@ class CwpOptions {
 		);
 	}
 
+	/**
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitizeUat( $settings ) {
-		// TODO: sanitize for valid email
+		$email       = [ 'test_send' ];
+		$success_msg = 'Email sent. Please check your inbox';
+
+		foreach ( $settings[ $email ] as $valid ) {
+			$settings[ $valid ] = is_email( $valid );
+		}
+
+		if ( false === $settings['test_send'] || empty( $settings['test_send'] ) ) {
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				'Email field is not a valid email address',
+				'error'
+			);
+		} else {
+			$u = new Wp\Users();
+			$q = new Processors\Queue( $u );
+			$m = new Processors\Mail( $q );
+			$m->runJustOne( $settings['test_send'] );
+
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				$success_msg,
+				'updated'
+			);
+		}
+
 		return $settings;
 	}
 
+	/**
+	 *
+	 */
 	function testSend() {
 		$options = get_option( 'cwp_uat_settings' );
 
@@ -212,9 +255,18 @@ class CwpOptions {
 			$settings[ $html ] = esc_html( $settings[ $html ] );
 		}
 
-		// esc html
+		// esc url
 		foreach ( $esc_url as $url ) {
 			$settings[ $url ] = esc_url( $settings[ $url ] );
+		}
+
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === wp_http_validate_url( $settings['cwp_unsubscribe'] ) ) {
+			add_settings_error(
+				'cwp_options',
+				'settings_updated',
+				'Please enter a valid url in UNSUBSCRIBE LINK below where people can unsubscribe.',
+				'error'
+			);
 		}
 
 		return $settings;
