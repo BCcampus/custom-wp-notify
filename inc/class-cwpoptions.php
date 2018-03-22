@@ -62,8 +62,9 @@ class CwpOptions {
 	|
 	|
 	*/
+
 	/**
-	 *
+	 * User Acceptance Testing Settings
 	 */
 	function settingsUat() {
 		$page = $options = 'cwp_uat_settings';
@@ -90,11 +91,43 @@ class CwpOptions {
 		);
 	}
 
+	/**
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitizeUat( $settings ) {
-		// TODO: sanitize for valid email
+		$email       = [ 'test_send' ];
+		$success_msg = 'Email sent. Check your inbox';
+
+		foreach ( $settings[ $email ] as $valid ) {
+			$settings[ $valid ] = is_email( $valid );
+		}
+
+		if ( false === $settings['test_send'] || empty( $settings['test_send'] ) ) {
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				'Email field is not a valid email address',
+				'error'
+			);
+		} else {
+			// TODO: add routine to send template to one email
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				$success_msg,
+				'updated'
+			);
+		}
+
 		return $settings;
 	}
 
+	/**
+	 *
+	 */
 	function testSend() {
 		$options = get_option( 'cwp_uat_settings' );
 
