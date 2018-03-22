@@ -10,7 +10,13 @@
 
 namespace BCcampus;
 
+use BCcampus\Models\Wp;
+use BCcampus\Processors;
+
 class CwpOptions {
+	/**
+	 *
+	 */
 	CONST PAGE = 'custom-wp-notify';
 
 	/**
@@ -99,7 +105,7 @@ class CwpOptions {
 	 */
 	function sanitizeUat( $settings ) {
 		$email       = [ 'test_send' ];
-		$success_msg = 'Email sent. Check your inbox';
+		$success_msg = 'Email sent. Please check your inbox';
 
 		foreach ( $settings[ $email ] as $valid ) {
 			$settings[ $valid ] = is_email( $valid );
@@ -114,6 +120,11 @@ class CwpOptions {
 			);
 		} else {
 			// TODO: add routine to send template to one email
+			$u = new Wp\Users();
+			$q = new Processors\Queue( $u );
+			$m = new Processors\Mail( $q );
+			$m->runJustOne( $settings[ 'test_send' ] );
+
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',

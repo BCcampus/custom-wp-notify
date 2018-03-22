@@ -91,7 +91,7 @@ class Mail {
 			if ( $ok ) {
 				unset( $jobs['list'][ $email ] );
 			} else {
-				\error_log( '\BCcampus\Processors\Mail->run failed to send a message to ' . $email );
+				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email );
 			}
 
 			if ( -- $limit == 0 ) {
@@ -108,6 +108,45 @@ class Mail {
 		}
 
 		$this->queue->updateQueueOptions( $jobs );
+
+	}
+
+	/**
+	 * For testing, sends an email to one address
+	 *
+	 * @param $email
+	 */
+	public function runJustOne( $email ) {
+		if ( false === is_email( $email ) ) {
+			return;
+		}
+
+		$name     = 'Tester';
+		$subject  = 'Test Recent Events';
+		$jobs     = $this->queue->getQueueOptions();
+		$to       = $email;
+		$sub      = $subject;
+		$msg      = $this->applyTemplates( $jobs['payload'], $name );
+		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+
+		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+			$sitename = substr( $sitename, 4 );
+		}
+
+		$headers = [
+			'Content-Type: text/html; charset=UTF-8',
+			'From: Custom WP Notifications <no-reply@' . $sitename . '>'
+		];
+
+		if ( ! function_exists( 'wp_mail' ) ) {
+			include( ABSPATH . 'wp-includes/pluggable.php' );
+		}
+		$ok = \wp_mail( $to, $sub, $msg, $headers );
+
+		// take the recipient out of the list if it's been successful
+		if ( ! $ok ) {
+			\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $email );
+		}
 
 	}
 
