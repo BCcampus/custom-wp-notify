@@ -50,9 +50,9 @@ class Cron {
 	 * @return mixed
 	 */
 	public function mailInterval( $schedules ) {
-		$schedules['cwp_five_minutes'] = [
-			'interval' => ( MINUTE_IN_SECONDS * 5 ),
-			'display'  => esc_html__( 'Every Five Minutes', 'cwp_notify' ),
+		$schedules['cwp_two_minutes'] = [
+			'interval' => ( MINUTE_IN_SECONDS * 2 ),
+			'display'  => esc_html__( 'Every Two Minutes', 'cwp_notify' ),
 		];
 
 		return $schedules;
@@ -90,7 +90,7 @@ class Cron {
 		$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
 
 		if ( ! $m_timestamp ) {
-			wp_schedule_event( time(), 'cwp_five_minutes', 'cwp_cron_notify_hook' );
+			wp_schedule_event( time(), 'cwp_two_minutes', 'cwp_cron_notify_hook' );
 		}
 	}
 

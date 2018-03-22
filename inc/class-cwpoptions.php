@@ -239,6 +239,7 @@ class CwpOptions {
 		$text_only = [ 'cwp_notify' ];
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_url   = [ 'cwp_unsubscribe' ];
+		$enum      = [ 'daily', 'weekly' ];
 
 		// integers
 		foreach ( $integers as $int ) {
@@ -265,6 +266,18 @@ class CwpOptions {
 				'cwp_options',
 				'settings_updated',
 				'Please enter a valid url in UNSUBSCRIBE LINK below where people can unsubscribe.',
+				'error'
+			);
+		}
+
+		// enumeration
+		if ( ! in_array( $settings['cwp_frequency'], $enum ) ) {
+			unset ( $settings['cwp_frequency'] );
+
+			add_settings_error(
+				'cwp_options',
+				'settings_frequency_updated',
+				'Could not find that Notification Frequency',
 				'error'
 			);
 		}
@@ -325,13 +338,12 @@ class CwpOptions {
 		$options = get_option( 'cwp_settings' );
 		// add default
 		if ( ! isset( $options['cwp_frequency'] ) ) {
-			$options['cwp_frequency'] = 1;
+			$options['cwp_frequency'] = 'weekly';
 		}
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
-			<option value='1'" . selected( $options['cwp_frequency'], 1, false ) . ">Daily</option>
-			<option value='2'" . selected( $options['cwp_frequency'], 2, false ) . ">Weekly</option>
-			<option value='3'" . selected( $options['cwp_frequency'], 3, false ) . ">Monthly</option>
+			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
+			<option value='weekly'" . selected( $options['cwp_frequency'], 'weekly', false ) . ">Weekly</option>
 		</select>";
 
 	}
