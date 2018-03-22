@@ -27,6 +27,7 @@ class CwpOptions {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
 		add_action( 'admin_init', [ $this, 'settingsUat' ] );
+		add_action( 'admin_init', [ $this, 'settingsLogs' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
 	}
 
@@ -54,11 +55,67 @@ class CwpOptions {
 			'Custom WP Notify',
 			'manage_options',
 			$this::PAGE,
-			[ $this, 'optionsPage', ]
+			[ $this, 'optionsPage' ]
 		);
 
 	}
 
+	/*
+	|--------------------------------------------------------------------------
+	| Log Settings
+	|--------------------------------------------------------------------------
+	|
+	|
+	|
+	|
+	*/
+
+	/**
+	 *
+	 */
+	function settingsLogs() {
+		$page = $options = 'cwp_log_settings';
+
+		register_setting(
+			$options,
+			$options
+		);
+
+		add_settings_section(
+			$options . '_section',
+			__( 'Logs', 'custom-wp-notify' ),
+			[ $this, 'cronLogs' ],
+			$page
+		);
+
+	}
+
+	/**
+	 *
+	 */
+	function cronLogs() {
+		$options       = get_option( 'cwp_queue' );
+		$last_build    = date( 'F d, Y g:i A (T)', $options['created_at'] );
+		$remaining     = count( $options['list'] );
+		$attempts      = $options['attempts'];
+		$recent_events = count( $options['payload'] );
+		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
+		if ( ! empty ( $timestamp ) ) {
+			$next = date( 'F d, Y g:i A (T)', $timestamp );
+		} else {
+			$next = 'none scheduled';
+		}
+
+		$html = '<table>';
+		$html .= '<tr><td><b>Last build:</b></td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Next scheduled:</b></td><td>' . $next . '</td></tr>';
+		$html .= '<tr><td><b>Remaining notifications:</b></td><td>' . $remaining . '</td></tr>';
+		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b></td><td>' . $attempts . '</td></tr>';
+		$html .= '<tr><td><b>Number of published events:</b></td><td>' . $recent_events . '</td></tr>';
+		$html .= '</table>';
+
+		echo $html;
+	}
 	/*
 	|--------------------------------------------------------------------------
 	| UAT Settings
