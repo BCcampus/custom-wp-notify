@@ -119,11 +119,10 @@ class CwpOptions {
 				'error'
 			);
 		} else {
-			// TODO: add routine to send template to one email
 			$u = new Wp\Users();
 			$q = new Processors\Queue( $u );
 			$m = new Processors\Mail( $q );
-			$m->runJustOne( $settings[ 'test_send' ] );
+			$m->runJustOne( $settings['test_send'] );
 
 			add_settings_error(
 				'cwp_uat_settings',
