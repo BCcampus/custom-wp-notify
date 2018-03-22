@@ -332,7 +332,7 @@ class CwpOptions {
 			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
 			<a href="?page=custom-wp-notify&tab=user"
 			   class="nav-tab <?php echo $active_tab == 'user' ? 'nav-tab-active' : ''; ?>">Subscription Management</a>
-			<a href="?page=custom-wp-notify&tab=testing"
+			<a href="?page=custom-wp-notify&tab=logs"
 			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
 		</h2>
 
