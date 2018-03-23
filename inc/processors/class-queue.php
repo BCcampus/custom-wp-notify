@@ -80,7 +80,7 @@ class Queue {
 			'safe_to_rebuild' => false,
 			'created_at'      => time(),
 			'list'            => $this->users->getUserList(),
-			'payload'         => $events
+			'payload'         => $events,
 		];
 
 		update_option( 'cwp_queue', $queue );

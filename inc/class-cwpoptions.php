@@ -18,7 +18,7 @@ class CwpOptions {
 	/**
 	 *
 	 */
-	CONST PAGE = 'custom-wp-notify';
+	const PAGE = 'custom-wp-notify';
 
 	/**
 	 * Add appropriate hooks
@@ -100,7 +100,7 @@ class CwpOptions {
 		$attempts      = $options['attempts'];
 		$recent_events = count( $options['payload'] );
 		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
-		if ( ! empty ( $timestamp ) ) {
+		if ( ! empty( $timestamp ) ) {
 			$next = date( 'F d, Y g:i A (T)', $timestamp );
 		} else {
 			$next = 'none scheduled';
@@ -166,7 +166,7 @@ class CwpOptions {
 		$valid = is_email( $settings['test_send'] );
 
 		if ( false === $valid ) {
-			unset ( $settings['test_send'] );
+			unset( $settings['test_send'] );
 
 			add_settings_error(
 				'cwp_uat_settings',
@@ -298,7 +298,6 @@ class CwpOptions {
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 
-
 		// integers
 		foreach ( $integers as $int ) {
 			$settings[ $int ] = absint( $settings[ $int ] );
@@ -330,7 +329,7 @@ class CwpOptions {
 
 		// enumeration
 		if ( ! in_array( $settings['cwp_frequency'], $enum ) ) {
-			unset ( $settings['cwp_frequency'] );
+			unset( $settings['cwp_frequency'] );
 
 			add_settings_error(
 				'cwp_options',
@@ -407,9 +406,9 @@ class CwpOptions {
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
-			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . '>Weekly</option>
 		</select>
-		<small><i>NOTE: Changing the <b>Notification Frequency</b> triggers notifications to be sent immediately.</i></small>";
+		<small><i>NOTE: Changing the <b>Notification Frequency</b> triggers notifications to be sent immediately.</i></small>';
 	}
 
 	/**
@@ -470,21 +469,18 @@ class CwpOptions {
 		switch ( $active_tab ) {
 
 			case 'template':
-
 				settings_fields( 'cwp_options' );
 				do_settings_sections( 'cwp_options' );
 				submit_button();
 
 				break;
 			case 'testing':
-
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
-				submit_button('Send Now' );
+				submit_button( 'Send Now' );
 
 				break;
 			case 'user':
-
 				settings_fields( 'cwp_user_settings' );
 				do_settings_sections( 'cwp_user_settings' );
 				submit_button();
@@ -492,13 +488,11 @@ class CwpOptions {
 				break;
 
 			case 'logs':
-
 				settings_fields( 'cwp_log_settings' );
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-
-		echo "</form>";
+		echo '</form>';
 		?>
 		<script>
 			(function ($, wp) {

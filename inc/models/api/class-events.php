@@ -13,7 +13,6 @@
 
 namespace BCcampus\Models\Api;
 
-
 class Events {
 	private $path = '/wp-json/wp/v2/event/';
 	private $host = '';

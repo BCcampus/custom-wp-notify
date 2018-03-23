@@ -49,7 +49,6 @@ class CwpShortcode {
 			$html .= '<span class="cwp-message-error">' . __( 'Error', 'cwp_notify' ) . '</span>';
 			$html .= '</div>';
 
-
 		} else {
 			// Not logged in, disable the checkbox with a message
 
@@ -96,10 +95,12 @@ class CwpShortcode {
 	function scripts() {
 		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
 		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
-		wp_localize_script( 'cwp-notify', 'settings', [
-			'ajaxurl'  => admin_url( 'admin-ajax.php' ),
-			'security' => wp_create_nonce( 'cwp_nonce' )
-		] );
+		wp_localize_script(
+			'cwp-notify', 'settings', [
+				'ajaxurl'  => admin_url( 'admin-ajax.php' ),
+				'security' => wp_create_nonce( 'cwp_nonce' ),
+			]
+		);
 	}
 }
 

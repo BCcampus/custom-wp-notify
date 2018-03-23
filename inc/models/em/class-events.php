@@ -13,7 +13,6 @@
 
 namespace BCcampus\Models\Em;
 
-
 class Events {
 
 
@@ -33,11 +32,13 @@ class Events {
 		$today = date( 'Y-m-d', time() );
 		$limit = 4;
 
-		$sanitized_query = $wpdb->prepare( "SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events
+		$sanitized_query = $wpdb->prepare(
+			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events
   LEFT JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_locations.location_id={$wpdb->prefix}em_events.location_id
 WHERE (`event_status`=1) AND (`recurrence`!=1 OR `recurrence` IS NULL) AND (`event_private`=0 OR (`event_private`=1 AND (`group_id` IS NULL OR `group_id` = 0)) OR (`event_private`=1 AND `group_id` IN (1))) AND  (event_start_date > CAST(%s AS DATE))
 ORDER BY event_start_date ASC, event_start_time ASC, event_name ASC
-LIMIT %d OFFSET 0", $today, $limit );
+LIMIT %d OFFSET 0", $today, $limit
+		);
 
 		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
 

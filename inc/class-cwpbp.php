@@ -33,7 +33,7 @@ class CwpBp {
 
 		<div id="notify-field">
 			<label for="cwp_bp_notify">
-				<span class="bp-required-field-label"><?php echo $label ?></span>
+				<span class="bp-required-field-label"><?php echo $label; ?></span>
 			</label>
 			<?php do_action( 'bp_notify_errors' ); ?>
 			<input type="radio" id="cwp_bp_notify" name="cwp_bp_notify" value="1" checked/> Yes
@@ -57,7 +57,7 @@ class CwpBp {
 			}
 
 			// input can only be 1 or 0
-			if ( ! ( $_POST['cwp_bp_notify'] == "1" || $_POST['cwp_bp_notify'] == "0" ) ) {
+			if ( ! ( $_POST['cwp_bp_notify'] == '1' || $_POST['cwp_bp_notify'] == '0' ) ) {
 				if ( ! isset( $bp->signup->errors ) ) {
 					$bp->signup->errors = [];
 				}
@@ -79,7 +79,11 @@ class CwpBp {
 
 		global $notify_field_value;
 
-		return array_merge( [ 'cwp_bp_notify' => $notify_field_value ], $usermeta );
+		return array_merge(
+			[
+				'cwp_bp_notify' => $notify_field_value,
+			], $usermeta
+		);
 	}
 
 

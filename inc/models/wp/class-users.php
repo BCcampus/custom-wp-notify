@@ -13,7 +13,6 @@
 
 namespace BCcampus\Models\Wp;
 
-
 class Users {
 
 	public function __construct() {
@@ -25,15 +24,18 @@ class Users {
 	 *
 	 * @return array
 	 */
-	public function getUserList(){
+	public function getUserList() {
 		// loop through all users who have opted in
-		$args = [ 'meta_key' => 'cwp_notify', 'meta_value' => 1 ];
+		$args = [
+			'meta_key' => 'cwp_notify',
+			'meta_value' => 1,
+		];
 		$list = [];
 		$users = get_users( $args );
 
 		foreach ( $users as $user ) {
 			// skip over spam users, or those not yet registered
-			if( "0" !== $user->data->user_status){
+			if ( '0' !== $user->data->user_status ) {
 				continue;
 			}
 
@@ -44,17 +46,17 @@ class Users {
 
 	}
 
-	public function updateUserList(){
+	public function updateUserList() {
 		// loop through all users who have opted in
 		$users = get_users();
 
 		foreach ( $users as $user ) {
 			// skip over spam users, or those not yet registered
-			if( "0" !== $user->data->user_status){
+			if ( '0' !== $user->data->user_status ) {
 				continue;
 			}
 
-			update_user_meta($user->data->ID, 'cwp_notify', 1 );
+			update_user_meta( $user->data->ID, 'cwp_notify', 1 );
 		}
 	}
 }

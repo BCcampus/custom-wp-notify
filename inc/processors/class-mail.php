@@ -79,7 +79,7 @@ class Mail {
 
 			$headers = [
 				'Content-Type: text/html; charset=UTF-8',
-				'From: Custom WP Notifications <no-reply@' . $sitename . '>'
+				'From: Custom WP Notifications <no-reply@' . $sitename . '>',
 			];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
@@ -136,7 +136,7 @@ class Mail {
 
 		$headers = [
 			'Content-Type: text/html; charset=UTF-8',
-			'From: Custom WP Notifications <no-reply@' . $sitename . '>'
+			'From: Custom WP Notifications <no-reply@' . $sitename . '>',
 		];
 
 		if ( ! function_exists( 'wp_mail' ) ) {
@@ -168,7 +168,7 @@ class Mail {
 			'style'            => $settings['cwp_css'],
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $settings['cwp_unsubscribe'],
-			'blogname'         => $current_blog
+			'blogname'         => $current_blog,
 		];
 		$css_file     = file_get_contents( $this->getStyleSheetPath() );
 
