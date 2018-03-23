@@ -28,13 +28,13 @@ class CwpBp {
 	function bpRegister() {
 		?>
 
-        <div class="editfield field_notify required-field visibility-public field_type_text" id="notify-field">
+        <div id="notify-field">
             <label for="notify"><?php _e( 'Notify', 'cwp_notify' ); ?>
                 <span class="bp-required-field-label"><?php _e( '(required)', 'cwp_notify' ); ?></span>
             </label>
 			<?php do_action( 'bp_notify_errors' ); ?>
-            <input type="radio" id="notify" name="notify" value="Yes" checked/> Yes
-            <input type="radio" id="notify" name="notify" value="No"/> No
+            <input type="radio" id="notify" name="notify" value="1" checked/> Yes
+            <input type="radio" id="notify" name="notify" value="0"/> No
         </div>
 
 		<?php
@@ -53,8 +53,8 @@ class CwpBp {
 				return;
 			}
 
-			// validate
-			if ( strlen( $_POST['notify'] ) > 3 || ! trim( $_POST['notify'] ) ) {
+			// input can only be 1 or 0
+			if ( ! ( $_POST['notify'] == "1" || $_POST['notify'] == "0" ) ) {
 				if ( ! isset( $bp->signup->errors ) ) {
 					$bp->signup->errors = [];
 				}
@@ -86,8 +86,6 @@ class CwpBp {
 	function bpActivated( $user_id, $key, $user ) {
 
 		$tag = 'notify';
-
-		update_user_meta( $user_id, 'cwp_notify', $new_value );
 
 		if ( $user_id && ! empty( $user['meta'][ $tag ] ) ) {
 			return update_user_meta( $user_id, "cwp_{$tag}", $user['meta'][ $tag ] );
