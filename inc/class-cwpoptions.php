@@ -163,7 +163,7 @@ class CwpOptions {
 	function sanitizeUat( $settings ) {
 		$success_msg = 'Email sent. Please check your inbox';
 
-		$valid = is_email( $settings[ 'test_send'] );
+		$valid = is_email( $settings['test_send'] );
 
 		if ( false === $valid ) {
 			unset ( $settings['test_send'] );
@@ -408,7 +408,8 @@ class CwpOptions {
 		echo "<select name='cwp_settings[cwp_frequency]'>
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
 			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
-		</select>";
+		</select>
+		<small><i>NOTE: Changing the <b>Notification Frequency</b> triggers notifications to be sent immediately.</i></small>";
 	}
 
 	/**
@@ -472,18 +473,21 @@ class CwpOptions {
 
 				settings_fields( 'cwp_options' );
 				do_settings_sections( 'cwp_options' );
+				submit_button();
 
 				break;
 			case 'testing':
 
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
+				submit_button('Send Now' );
 
 				break;
 			case 'user':
 
 				settings_fields( 'cwp_user_settings' );
 				do_settings_sections( 'cwp_user_settings' );
+				submit_button();
 
 				break;
 
@@ -493,9 +497,6 @@ class CwpOptions {
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-		if ( ! in_array( $active_tab, [ 'logs' ] ) ) {
-			submit_button();
-		}
 
 		echo "</form>";
 		?>
