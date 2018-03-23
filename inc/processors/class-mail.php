@@ -159,16 +159,18 @@ class Mail {
 	 * @return string
 	 */
 	private function applyTemplates( $payload, $name ) {
-		$settings = get_option( 'cwp_settings' );
-		$vars     = [
+		$settings     = get_option( 'cwp_settings' );
+		$current_blog = get_option( 'blogname' );
+		$vars         = [
 			'events'           => $payload,
 			'template'         => html_entity_decode( $settings['cwp_template'] ),
 			'name'             => $name,
 			'style'            => $settings['cwp_css'],
 			'title'            => 'Custom Notifications',
-			'unsubscribe_link' => $settings['cwp_unsubscribe']
+			'unsubscribe_link' => $settings['cwp_unsubscribe'],
+			'blogname'         => $current_blog
 		];
-		$css_file = file_get_contents( $this->getStyleSheetPath() );
+		$css_file     = file_get_contents( $this->getStyleSheetPath() );
 
 		$inline_styles = new CssToInlineStyles();
 

@@ -14,13 +14,13 @@
 			<table border="0" cellpadding="20" cellspacing="0" width="600" id="emailContainer">
 				<tr>
 					<td align="left" valign="top">
+						<h2><?php echo $blogname; ?></h2>
 						<p>Hello <?php echo $name; ?>,</p>
 						<p>Have you seen these new events posted?</p>
 						<ul>
 							<?php
 							foreach ( $events as $event ) {
-								echo "<li><a href='{$event['link']}'>{$event['title'] }</a></li>";
-
+								echo '<li><a href="' . $event['link'] . '">' . $event['title'] . '</a></li>';
 							}
 							?>
 						</ul>
@@ -33,7 +33,8 @@
 				</tr>
 				<tr>
 					<td>
-						<p>Do you wish to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a> from these updates?</p>
+						<p>Do you wish to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a> from these updates?
+						</p>
 					</td>
 				</tr>
 			</table>
