@@ -10,7 +10,14 @@
 
 namespace BCcampus;
 
+use BCcampus;
+use BCcampus\Models\Wp;
+use BCcampus\Processors;
+
 class CwpOptions {
+	/**
+	 *
+	 */
 	CONST PAGE = 'custom-wp-notify';
 
 	/**
@@ -20,6 +27,7 @@ class CwpOptions {
 		add_action( 'admin_menu', [ $this, 'addAdminMenu' ] );
 		add_action( 'admin_init', [ $this, 'settingsInit' ] );
 		add_action( 'admin_init', [ $this, 'settingsUat' ] );
+		add_action( 'admin_init', [ $this, 'settingsLogs' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
 	}
 
@@ -29,7 +37,6 @@ class CwpOptions {
 	function codeMirror() {
 		// Code Mirror
 		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
-
 			wp_enqueue_script( 'wp-codemirror' );
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
@@ -48,11 +55,67 @@ class CwpOptions {
 			'Custom WP Notify',
 			'manage_options',
 			$this::PAGE,
-			[ $this, 'optionsPage', ]
+			[ $this, 'optionsPage' ]
 		);
 
 	}
 
+	/*
+	|--------------------------------------------------------------------------
+	| Log Settings
+	|--------------------------------------------------------------------------
+	|
+	|
+	|
+	|
+	*/
+
+	/**
+	 *
+	 */
+	function settingsLogs() {
+		$page = $options = 'cwp_log_settings';
+
+		register_setting(
+			$options,
+			$options
+		);
+
+		add_settings_section(
+			$options . '_section',
+			__( 'Logs', 'custom-wp-notify' ),
+			[ $this, 'cronLogs' ],
+			$page
+		);
+
+	}
+
+	/**
+	 *
+	 */
+	function cronLogs() {
+		$options       = get_option( 'cwp_queue' );
+		$last_build    = date( 'F d, Y g:i A (T)', $options['created_at'] );
+		$remaining     = count( $options['list'] );
+		$attempts      = $options['attempts'];
+		$recent_events = count( $options['payload'] );
+		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
+		if ( ! empty ( $timestamp ) ) {
+			$next = date( 'F d, Y g:i A (T)', $timestamp );
+		} else {
+			$next = 'none scheduled';
+		}
+
+		$html = '<table>';
+		$html .= '<tr><td><b>Last build:</b></td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Next scheduled:</b></td><td>' . $next . '</td></tr>';
+		$html .= '<tr><td><b>Remaining notifications:</b></td><td>' . $remaining . '</td></tr>';
+		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b></td><td>' . $attempts . '</td></tr>';
+		$html .= '<tr><td><b>Number of published events:</b></td><td>' . $recent_events . '</td></tr>';
+		$html .= '</table>';
+
+		echo $html;
+	}
 	/*
 	|--------------------------------------------------------------------------
 	| UAT Settings
@@ -62,8 +125,9 @@ class CwpOptions {
 	|
 	|
 	*/
+
 	/**
-	 *
+	 * User Acceptance Testing Settings
 	 */
 	function settingsUat() {
 		$page = $options = 'cwp_uat_settings';
@@ -90,11 +154,47 @@ class CwpOptions {
 		);
 	}
 
+	/**
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitizeUat( $settings ) {
-		// TODO: sanitize for valid email
+		$email       = [ 'test_send' ];
+		$success_msg = 'Email sent. Please check your inbox';
+
+		foreach ( $settings[ $email ] as $valid ) {
+			$settings[ $valid ] = is_email( $valid );
+		}
+
+		if ( false === $settings['test_send'] || empty( $settings['test_send'] ) ) {
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				'Email field is not a valid email address',
+				'error'
+			);
+		} else {
+			$u = new Wp\Users();
+			$q = new Processors\Queue( $u );
+			$m = new Processors\Mail( $q );
+			$m->runJustOne( $settings['test_send'] );
+
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				$success_msg,
+				'updated'
+			);
+		}
+
 		return $settings;
 	}
 
+	/**
+	 *
+	 */
 	function testSend() {
 		$options = get_option( 'cwp_uat_settings' );
 
@@ -196,6 +296,9 @@ class CwpOptions {
 		$text_only = [ 'cwp_notify' ];
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_url   = [ 'cwp_unsubscribe' ];
+		$enum      = [ 'daily', 'cwp_weekly' ];
+		$options   = get_option( 'cwp_settings' );
+
 
 		// integers
 		foreach ( $integers as $int ) {
@@ -212,9 +315,36 @@ class CwpOptions {
 			$settings[ $html ] = esc_html( $settings[ $html ] );
 		}
 
-		// esc html
+		// esc url
 		foreach ( $esc_url as $url ) {
 			$settings[ $url ] = esc_url( $settings[ $url ] );
+		}
+
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === wp_http_validate_url( $settings['cwp_unsubscribe'] ) ) {
+			add_settings_error(
+				'cwp_options',
+				'settings_updated',
+				'Please enter a valid url in UNSUBSCRIBE LINK below where people can unsubscribe.',
+				'error'
+			);
+		}
+
+		// enumeration
+		if ( ! in_array( $settings['cwp_frequency'], $enum ) ) {
+			unset ( $settings['cwp_frequency'] );
+
+			add_settings_error(
+				'cwp_options',
+				'settings_frequency_updated',
+				'Could not find that Notification Frequency',
+				'error'
+			);
+		} elseif ( isset( $_POST['cwp_settings']['cwp_frequency'] ) ) {
+			// check for a change in the stored value
+			if ( 0 !== strcmp( $_POST['cwp_settings']['cwp_frequency'], $options['cwp_frequency'] ) ) {
+				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $_POST['cwp_settings']['cwp_frequency'] );
+			}
 		}
 
 		return $settings;
@@ -273,15 +403,13 @@ class CwpOptions {
 		$options = get_option( 'cwp_settings' );
 		// add default
 		if ( ! isset( $options['cwp_frequency'] ) ) {
-			$options['cwp_frequency'] = 1;
+			$options['cwp_frequency'] = 'weekly';
 		}
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
-			<option value='1'" . selected( $options['cwp_frequency'], 1, false ) . ">Daily</option>
-			<option value='2'" . selected( $options['cwp_frequency'], 2, false ) . ">Weekly</option>
-			<option value='3'" . selected( $options['cwp_frequency'], 3, false ) . ">Monthly</option>
+			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
 		</select>";
-
 	}
 
 	/**
@@ -366,7 +494,9 @@ class CwpOptions {
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-		submit_button();
+		if ( ! in_array( $active_tab, [ 'logs' ] ) ) {
+			submit_button();
+		}
 
 		echo "</form>";
 		?>
