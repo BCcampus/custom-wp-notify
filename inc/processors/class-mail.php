@@ -102,6 +102,7 @@ class Mail {
 		// flag the queue as safe to rebuild
 		if ( empty( $jobs['list'] ) ) {
 			$jobs['safe_to_rebuild'] = true;
+			$jobs['attempts']        = 0;
 		} else {
 			// update the queue for the next round
 			$jobs['attempts'] = $attempts + 1;
@@ -159,7 +160,7 @@ class Mail {
 	 */
 	private function applyTemplates( $payload, $name ) {
 		$settings = get_option( 'cwp_settings' );
-		$vars = [
+		$vars     = [
 			'events'           => $payload,
 			'template'         => html_entity_decode( $settings['cwp_template'] ),
 			'name'             => $name,

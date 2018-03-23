@@ -41,7 +41,7 @@ class Cron {
 		add_action( 'cwp_cron_build_hook', [ $this, 'buildTheQueue' ] );
 		add_action( 'init', [ $this, 'scheduleEvents' ] );
 		add_action( 'init', [ $this, 'unScheduleEvents' ] );
-		add_action( 'init', [ $this, 'scheduleEventCustomInterval' ] );
+		add_action( 'init', [ $this, 'scheduleEventCustomInterval' ], 10, 1 );
 		add_filter( 'cron_schedules', [ $this, 'mailInterval' ] );
 		add_filter( 'cron_schedules', [ $this, 'weeklyInterval' ] );
 
@@ -106,6 +106,9 @@ class Cron {
 		}
 	}
 
+	/**
+	 * @param $hook
+	 */
 	public function unScheduleEvents( $hook ) {
 		if ( empty( $hook ) ) {
 			return;
@@ -120,21 +123,22 @@ class Cron {
 		}
 	}
 
-	public function scheduleEventCustomInterval( $hook, $interval ) {
-		if ( empty( $hook ) || empty( $interval ) ) {
-			return;
+	/**
+	 *
+	 * @param $interval
+	 */
+	public function scheduleEventCustomInterval( $interval ) {
+		if ( empty( $interval ) ) {
+			$interval = 'cwp_weekly';
 		}
-		$prefix = 'cwp_';
-		$sub    = substr( $hook, 0, 4 );
+		$hook      = 'cwp_cron_build_hook';
+		$timestamp = wp_next_scheduled( $hook );
 
-		// restrict de-registering events to our own
-		if ( 0 === strcmp( $prefix, $sub ) ) {
-			$timestamp = wp_next_scheduled( $hook );
-
-			if ( ! $timestamp ) {
-				wp_schedule_event( time() + MINUTE_IN_SECONDS, $interval, $hook );
-			}
+		if ( ! $timestamp ) {
+			wp_schedule_event( time(), $interval, $hook );
 		}
+
 	}
+
 }
 

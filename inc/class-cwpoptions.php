@@ -339,11 +339,11 @@ class CwpOptions {
 				'Could not find that Notification Frequency',
 				'error'
 			);
-		} else {
+		} elseif ( isset( $_POST['cwp_settings']['cwp_frequency'] ) ) {
 			// check for a change in the stored value
 			if ( 0 !== strcmp( $_POST['cwp_settings']['cwp_frequency'], $options['cwp_frequency'] ) ) {
 				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
-				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( 'cwp_cron_build_hook', $_POST['cwp_settings']['cwp_frequency'] );
+				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $_POST['cwp_settings']['cwp_frequency'] );
 			}
 		}
 
@@ -410,12 +410,6 @@ class CwpOptions {
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
 			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
 		</select>";
-
-		// display next build time
-		$timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
-		if ( ! empty ( $timestamp ) ) {
-			echo "<p>next scheduled build: " . date( 'F d, Y g:i A (T)', $timestamp ) . "</p>";
-		}
 	}
 
 	/**
@@ -500,7 +494,9 @@ class CwpOptions {
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-		submit_button();
+		if ( ! in_array( $active_tab, [ 'logs' ] ) ) {
+			submit_button();
+		}
 
 		echo "</form>";
 		?>
