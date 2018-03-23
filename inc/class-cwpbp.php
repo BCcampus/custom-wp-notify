@@ -26,16 +26,19 @@ class CwpBp {
 	 * Add opt in to the BP registration page
 	 */
 	function bpRegister() {
+		$options = get_option( 'cwp_settings' );
+		$label   = ( ! empty( $options['cwp_notify'] ) ) ? $options['cwp_notify'] : 'Subscribe to Email Notifications';
+
 		?>
 
-        <div id="notify-field">
-            <label for="notify"><?php _e( 'Notify', 'cwp_notify' ); ?>
-                <span class="bp-required-field-label"><?php _e( '(required)', 'cwp_notify' ); ?></span>
-            </label>
+		<div id="notify-field">
+			<label for="cwp_bp_notify">
+				<span class="bp-required-field-label"><?php echo $label ?></span>
+			</label>
 			<?php do_action( 'bp_notify_errors' ); ?>
-            <input type="radio" id="notify" name="notify" value="1" checked/> Yes
-            <input type="radio" id="notify" name="notify" value="0"/> No
-        </div>
+			<input type="radio" id="cwp_bp_notify" name="cwp_bp_notify" value="1" checked/> Yes
+			<input type="radio" id="cwp_bp_notify" name="cwp_bp_notify" value="0"/> No
+		</div>
 
 		<?php
 	}
@@ -44,7 +47,7 @@ class CwpBp {
 	 * Validate and sanitize checkbox
 	 */
 	function bpValidate() {
-		if ( isset( $_POST['notify'] ) ) {
+		if ( isset( $_POST['cwp_bp_notify'] ) ) {
 
 			global $bp, $notify_field_value;
 
@@ -54,15 +57,15 @@ class CwpBp {
 			}
 
 			// input can only be 1 or 0
-			if ( ! ( $_POST['notify'] == "1" || $_POST['notify'] == "0" ) ) {
+			if ( ! ( $_POST['cwp_bp_notify'] == "1" || $_POST['cwp_bp_notify'] == "0" ) ) {
 				if ( ! isset( $bp->signup->errors ) ) {
 					$bp->signup->errors = [];
 				}
 				// error message
-				$bp->signup->errors['notify'] = __( 'Please choose yes or no', 'cwp_notify' );
+				$bp->signup->errors['cwp_bp_notify'] = __( 'Please choose yes or no', 'cwp_notify' );
 			} else {
 				// input looks good, proceed
-				$notify_field_value = sanitize_text_field( $_POST['notify'] );
+				$notify_field_value = sanitize_text_field( $_POST['cwp_bp_notify'] );
 			}
 		}
 
@@ -76,7 +79,7 @@ class CwpBp {
 
 		global $notify_field_value;
 
-		return array_merge( [ 'notify' => $notify_field_value ], $usermeta );
+		return array_merge( [ 'cwp_bp_notify' => $notify_field_value ], $usermeta );
 	}
 
 
