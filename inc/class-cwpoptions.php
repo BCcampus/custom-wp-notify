@@ -161,14 +161,13 @@ class CwpOptions {
 	 * @return mixed
 	 */
 	function sanitizeUat( $settings ) {
-		$email       = [ 'test_send' ];
 		$success_msg = 'Email sent. Please check your inbox';
 
-		foreach ( $settings[ $email ] as $valid ) {
-			$settings[ $valid ] = is_email( $valid );
-		}
+		$valid = is_email( $settings[ 'test_send'] );
 
-		if ( false === $settings['test_send'] || empty( $settings['test_send'] ) ) {
+		if ( false === $valid ) {
+			unset ( $settings['test_send'] );
+
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
