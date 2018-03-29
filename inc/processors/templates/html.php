@@ -16,7 +16,7 @@
 					<td align="left" valign="top">
 						<h2><?php echo $blogname; ?></h2>
 						<p>Hello <?php echo $name; ?>,</p>
-						<p>Have you seen these new events posted?</p>
+						<p>Have you seen these new training events on EYPD?</p>
 						<ul>
 							<?php
 							foreach ( $events as $event ) {
