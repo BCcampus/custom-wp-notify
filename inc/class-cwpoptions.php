@@ -434,7 +434,7 @@ class CwpOptions {
 			$settings[ $email ] = sanitize_email( $settings[ $email ] );
 		}
 
-		if ( empty( $settings['cwp_unsubscribe'] ) || false === wp_http_validate_url( $settings['cwp_unsubscribe'] ) ) {
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === is_email( $settings['cwp_unsubscribe'] ) ) {
 			add_settings_error(
 				'cwp_options',
 				'settings_updated',
