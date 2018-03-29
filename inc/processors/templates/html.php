@@ -33,7 +33,7 @@
 				</tr>
 				<tr>
 					<td>
-						<p>Do you wish to <a href="<?php echo $unsubscribe_link; ?>">unsubscribe</a> from these updates?
+						<p>Do you wish to <a href="mailto:<?php echo $unsubscribe_link; ?>?Subject=Unsubscribe">unsubscribe</a> from these updates?
 						</p>
 					</td>
 				</tr>

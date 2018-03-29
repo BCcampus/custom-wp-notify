@@ -385,7 +385,7 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_unsubscribe',
-			__( 'Unsubscribe Link:', 'custom-wp-notify' ),
+			__( 'Unsubscribe E-mail:', 'custom-wp-notify' ),
 			[ $this, 'unsubscribeRender' ],
 			$page,
 			$options . '_section'
@@ -409,7 +409,7 @@ class CwpOptions {
 		$integers  = [ 'cwp_enable' ];
 		$text_only = [ 'cwp_notify' ];
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
-		$esc_url   = [ 'cwp_unsubscribe' ];
+		$esc_email   = [ 'cwp_unsubscribe' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 
@@ -429,16 +429,16 @@ class CwpOptions {
 			$settings[ $html ] = esc_html( $settings[ $html ] );
 		}
 
-		// esc url
-		foreach ( $esc_url as $url ) {
-			$settings[ $url ] = esc_url( $settings[ $url ] );
+		// esc email
+		foreach ( $esc_email as $email ) {
+			$settings[ $email ] = sanitize_email( $settings[ $email ] );
 		}
 
 		if ( empty( $settings['cwp_unsubscribe'] ) || false === wp_http_validate_url( $settings['cwp_unsubscribe'] ) ) {
 			add_settings_error(
 				'cwp_options',
 				'settings_updated',
-				'Please enter a valid url in UNSUBSCRIBE LINK below where people can unsubscribe.',
+				'Please enter a valid email in UNSUBSCRIBE EMAIL below where people can reply to unsubscribe.',
 				'error'
 			);
 		}
