@@ -156,7 +156,7 @@ class CwpOptions {
 		$not_subscribed = get_users( [ 'meta_key' => 'cwp_notify', 'meta_value' => '1', 'meta_compare' => '!=' ] );
 
 		$html = "<div class='row'><div class='col-xs-5'>";
-		$html .= "<h2>Subscribed</h2>";
+		$html .= "<h5>Subscribed</h5>";
 		$html .= "<select name='yes[]' id='multiselect' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $subscribed as $user ) {
 			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
@@ -168,7 +168,7 @@ class CwpOptions {
 		$html .= "<button type='button' id='multiselect_leftSelected' class='btn btn-block'><i class='glyphicon glyphicon-chevron-left'></i></button>";
 		$html .= "<button type='button' id='multiselect_leftAll' class='btn btn-block'><i class='glyphicon glyphicon-backward'></i></button>";
 		$html .= "</div><div class='col-xs-5'>";
-		$html .= "<h2>Not Subscribed</h2>";
+		$html .= "<h5>Not Subscribed</h5>";
 		$html .= "<select name='no[]' id='multiselect_to' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $not_subscribed as $user ) {
 			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
