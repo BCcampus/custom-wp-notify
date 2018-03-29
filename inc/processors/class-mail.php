@@ -79,7 +79,7 @@ class Mail {
 
 			$headers = [
 				'Content-Type: text/html; charset=UTF-8',
-				'From: Custom WP Notifications <no-reply@' . $sitename . '>',
+				'From:' . $sitename . '<no-reply@' . $sitename . '>',
 			];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
