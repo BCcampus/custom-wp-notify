@@ -556,7 +556,7 @@ class CwpOptions {
 			$options['cwp_notify'] = '';
 		}
 
-		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
+		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea><small><dl><dt>{NAME}</dt><dd>Will be replaced with the name of the subscriber</dd><dt>{EVENTS}</dt><dd>An unordered list of recent events</dd><dt>{UNSUBSCRIBE}</dt><dd>Required unsubscribe link</dd></dl></small>";
 
 	}
 
