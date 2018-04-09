@@ -597,6 +597,7 @@ class CwpOptions {
 
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
+				submit_button( 'Send Test Email');
 
 				break;
 			case 'manage-users':
@@ -612,7 +613,7 @@ class CwpOptions {
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-		if ( ! in_array( $active_tab, [ 'logs' ] ) ) {
+		if ( ! in_array( $active_tab, [ 'logs', 'testing' ] ) ) {
 			submit_button();
 		}
 
