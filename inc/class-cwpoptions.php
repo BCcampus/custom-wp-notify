@@ -159,7 +159,7 @@ class CwpOptions {
 		$html .= "<h5>Subscribed</h5>";
 		$html .= "<select name='yes[]' id='multiselect' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
+				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
 		$html .= "</select></div>";
 		$html .= "<div class='col-xs-2'>";
@@ -171,7 +171,7 @@ class CwpOptions {
 		$html .= "<h5>Not Subscribed</h5>";
 		$html .= "<select name='no[]' id='multiselect_to' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $not_subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
+				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
 		$html .= "</select></div></div>";
 
@@ -641,7 +641,15 @@ class CwpOptions {
             if ($active_tab === 'manage-users') { ?>
                 <script type="text/javascript">
                     jQuery(document).ready(function($) {
-	                    $('#multiselect').multiselect();
+	                   $('#multiselect').multiselect({
+        search: {
+            left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+            right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+        },
+        fireSearch: function(value) {
+            return value.length > 3;
+        }
+    });
                 });
                 </script>
 		<?php
