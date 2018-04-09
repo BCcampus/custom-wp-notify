@@ -170,7 +170,10 @@ class Mail {
 			'unsubscribe_link' => $settings['cwp_unsubscribe'],
 			'blogname'         => $current_blog,
 		];
-		$css_file     = file_get_contents( $this->getStyleSheetPath() );
+
+		$vars = $this->placeHolders( $vars );
+
+		$css_file = file_get_contents( $this->getStyleSheetPath() );
 
 		$inline_styles = new CssToInlineStyles();
 
@@ -186,6 +189,9 @@ class Mail {
 
 	}
 
+	/**
+	 * @return string
+	 */
 	private function getStyleSheetPath() {
 		$filename = get_stylesheet_directory() . '/dist/styles/main.css';
 
@@ -196,5 +202,31 @@ class Mail {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * String replace for placeholders
+	 *
+	 * @param $vars
+	 *
+	 * @return mixed
+	 */
+	private function placeHolders( $vars ) {
+		// Events
+		$events = '<ul>';
+		foreach ( $vars['events'] as $event ) {
+			$events .= '<li><a href="' . $event['link'] . '">' . $event['title'] . '</a></li>';
+		}
+		$events .= '</ul>';
+
+		// Unsubscribe Link
+		$unsubscribe = "<a href='mailto:{$vars['unsubscribe_link']}?subject=remove'>Unsubscribe</a>";
+
+		// Preg Replace
+		$vars['template'] = preg_replace( '/{NAME}/', $vars['name'], $vars['template'] );
+		$vars['template'] = preg_replace( '/{UNSUBSCRIBE}/', $unsubscribe, $vars['template'] );
+		$vars['template'] = preg_replace( '/{EVENTS}/', $events, $vars['template'] );
+
+		return $vars;
 	}
 }

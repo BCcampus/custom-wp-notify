@@ -15,26 +15,11 @@
 				<tr>
 					<td align="left" valign="top">
 						<h2><?php echo $blogname; ?></h2>
-						<p>Hello <?php echo $name; ?>,</p>
-						<p>Have you seen these new training events on EYPD?</p>
-						<ul>
-							<?php
-							foreach ( $events as $event ) {
-								echo '<li><a href="' . $event['link'] . '">' . $event['title'] . '</a></li>';
-							}
-							?>
-						</ul>
 					</td>
 				</tr>
 				<tr>
 					<td align="left" valign="top">
 						<?php echo $template; ?>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<p>To unsubscribe from these updates, please send an <a href="mailto:<?php echo $unsubscribe_link; ?>?Subject=Remove">email</a>
-						</p>
 					</td>
 				</tr>
 			</table>
