@@ -18,7 +18,7 @@ class CwpOptions {
 	/**
 	 *
 	 */
-	CONST PAGE = 'custom-wp-notify';
+	const PAGE = 'custom-wp-notify';
 
 	/**
 	 * Add appropriate hooks
@@ -93,45 +93,40 @@ class CwpOptions {
 
 	}
 
-/**
-*
- */
-			function updateUsers (){
-	    if (isset($_POST['yes']) | isset($_POST['no'])) {
+	/**
+	*
+	*/
+	function updateUsers() {
 
-	      if (isset($_POST['no'])) {
-	      foreach ($_POST['no'] as $username){
-	          // Get the user object by login name
-	           $userobject = get_user_by('login', $username);
-                // Get the user ID
-	           $user_id = $userobject->ID;
-	           // Get the existing preference if any
-               $user_value = get_user_meta( $user_id, 'cwp_notify', true );
-                // Update their preference only if it's different
-        	    if ( $user_value != "0" ) {
-				update_user_meta( $user_id, 'cwp_notify', "0" );
-	      }
-	      }
-	      }
+		if ( isset( $_POST['no'] ) ) {
+			foreach ( $_POST['no'] as $username ) {
+				// Get the user object by login name
+				 $userobject = get_user_by( 'login', $username );
+				  // Get the user ID
+				 $user_id = $userobject->ID;
+				 // Get the existing preference if any
+				 $user_value = get_user_meta( $user_id, 'cwp_notify', true );
+				  // Update their preference only if it's different
+				if ( $user_value != '0' ) {
+					update_user_meta( $user_id, 'cwp_notify', '0' );
+				}
+			}
+		}
 
-	      	      if (isset($_POST['yes'])) {
-	      foreach ($_POST['yes'] as $username){
-	          // Get the user object by login name
-	           $userobject = get_user_by('login', $username);
-                // Get the user ID
-	           $user_id = $userobject->ID;
-	           // Get the existing preference if any
-               $user_value = get_user_meta( $user_id, 'cwp_notify', true );
-                // Update their preference only if it's different
-        	    if ( $user_value != "1" ) {
-				update_user_meta( $user_id, 'cwp_notify', "1" );
-	      }
-	      }
-	      }
-
-	    } else {
-	        return;
-	    }
+		if ( isset( $_POST['yes'] ) ) {
+			foreach ( $_POST['yes'] as $username ) {
+				// Get the user object by login name
+				 $userobject = get_user_by( 'login', $username );
+				  // Get the user ID
+				 $user_id = $userobject->ID;
+				 // Get the existing preference if any
+				 $user_value = get_user_meta( $user_id, 'cwp_notify', true );
+				  // Update their preference only if it's different
+				if ( $user_value != '1' ) {
+					update_user_meta( $user_id, 'cwp_notify', '1' );
+				}
+			}
+		}
 	}
 
 	/**
@@ -147,33 +142,44 @@ class CwpOptions {
 			$user_preference = get_user_meta( $user->ID, 'cwp_notify', true );
 
 			// If a preference doesn't already exist, create it with default to 0
-			if ( ! ( $user_preference == "1" || $user_preference == "0" ) ) {
-				update_user_meta( $all_users->ID, 'cwp_notify', "0" );
+			if ( ! ( $user_preference == '1' || $user_preference == '0' ) ) {
+				update_user_meta( $all_users->ID, 'cwp_notify', '0' );
 			}
 		}
 
-		$subscribed     = get_users( [ 'meta_key' => 'cwp_notify', 'meta_value' => '1' ] );
-		$not_subscribed = get_users( [ 'meta_key' => 'cwp_notify', 'meta_value' => '1', 'meta_compare' => '!=' ] );
+		$subscribed     = get_users(
+			[
+				'meta_key' => 'cwp_notify',
+				'meta_value' => '1',
+			]
+		);
+		$not_subscribed = get_users(
+			[
+				'meta_key' => 'cwp_notify',
+				'meta_value' => '1',
+				'meta_compare' => '!=',
+			]
+		);
 
 		$html = "<div class='row'><div class='col-xs-5'>";
-		$html .= "<h5>Subscribed</h5>";
+		$html .= '<h5>Subscribed</h5>';
 		$html .= "<select name='yes[]' id='multiselect' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
+				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
-		$html .= "</select></div>";
+		$html .= '</select></div>';
 		$html .= "<div class='col-xs-2'>";
 		$html .= "<button type='button' id='multiselect_rightAll' class='btn btn-block'><i class='glyphicon glyphicon-forward'></i></button>";
 		$html .= "<button type='button' id='multiselect_rightSelected' class='btn btn-block'><i class='glyphicon glyphicon-chevron-right'></i></button>";
 		$html .= "<button type='button' id='multiselect_leftSelected' class='btn btn-block'><i class='glyphicon glyphicon-chevron-left'></i></button>";
 		$html .= "<button type='button' id='multiselect_leftAll' class='btn btn-block'><i class='glyphicon glyphicon-backward'></i></button>";
 		$html .= "</div><div class='col-xs-5'>";
-		$html .= "<h5>Not Subscribed</h5>";
+		$html .= '<h5>Not Subscribed</h5>';
 		$html .= "<select name='no[]' id='multiselect_to' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $not_subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>{$user->user_login}</option>";
+				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
-		$html .= "</select></div></div>";
+		$html .= '</select></div></div>';
 
 		echo $html;
 
@@ -218,7 +224,7 @@ class CwpOptions {
 		$attempts      = $options['attempts'];
 		$recent_events = count( $options['payload'] );
 		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
-		if ( ! empty ( $timestamp ) ) {
+		if ( ! empty( $timestamp ) ) {
 			$next = date( 'F d, Y g:i A (T)', $timestamp );
 		} else {
 			$next = 'none scheduled';
@@ -284,7 +290,7 @@ class CwpOptions {
 		$valid = is_email( $settings['test_send'] );
 
 		if ( false === $valid ) {
-			unset ( $settings['test_send'] );
+			unset( $settings['test_send'] );
 
 			add_settings_error(
 				'cwp_uat_settings',
@@ -415,7 +421,6 @@ class CwpOptions {
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 
-
 		// integers
 		foreach ( $integers as $int ) {
 			$settings[ $int ] = absint( $settings[ $int ] );
@@ -447,7 +452,7 @@ class CwpOptions {
 
 		// enumeration
 		if ( ! in_array( $settings['cwp_frequency'], $enum ) ) {
-			unset ( $settings['cwp_frequency'] );
+			unset( $settings['cwp_frequency'] );
 
 			add_settings_error(
 				'cwp_options',
@@ -524,8 +529,8 @@ class CwpOptions {
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
-			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . ">Weekly</option>
-		</select>";
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . '>Weekly</option>
+		</select>';
 	}
 
 	/**
@@ -567,47 +572,43 @@ class CwpOptions {
 		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'template';
 		?>
 		<!-- Bootstrap styling -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <h2>Custom WP Notify</h2>
-        <div id="icon-options-general" class="icon32"></div>
-        <h2 class="nav-tab-wrapper">
-            <a href="?page=custom-wp-notify&tab=template"
-               class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
-            <a href="?page=custom-wp-notify&tab=testing"
-               class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
-            <a href="?page=custom-wp-notify&tab=manage-users"
-               class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
-                Management</a>
-            <a href="?page=custom-wp-notify&tab=logs"
-               class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
-        </h2>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<h2>Custom WP Notify</h2>
+		<div id="icon-options-general" class="icon32"></div>
+		<h2 class="nav-tab-wrapper">
+			<a href="?page=custom-wp-notify&tab=template"
+			   class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+			<a href="?page=custom-wp-notify&tab=testing"
+			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+			<a href="?page=custom-wp-notify&tab=manage-users"
+			   class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
+				Management</a>
+			<a href="?page=custom-wp-notify&tab=logs"
+			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+		</h2>
 
-        <form action="options.php" method="post">
+		<form action="options.php" method="post">
 		<?php
 
 		switch ( $active_tab ) {
 
 			case 'template':
-
 				settings_fields( 'cwp_options' );
 				do_settings_sections( 'cwp_options' );
 
 				break;
 			case 'testing':
-
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
 
 				break;
 			case 'manage-users':
-
 				settings_fields( 'cwp_manage_users' );
 				do_settings_sections( 'cwp_manage_users' );
 
 				break;
 
 			case 'logs':
-
 				settings_fields( 'cwp_log_settings' );
 				do_settings_sections( 'cwp_log_settings' );
 		}
@@ -616,37 +617,47 @@ class CwpOptions {
 			submit_button();
 		}
 
-		echo "</form>";
+		echo '</form>';
 
-        // Do the CodeMirror JS in the appropriate tab to avoid console errors
+		// Do the CodeMirror JS in the appropriate tab to avoid console errors
 
-        if ($active_tab === 'template') { ?>
-	        <script type="text/javascript">
-	         (function ($, wp) {
-		         var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
-                    lineNumbers: true,
-                    matchBrackets: true,
-                    mode: 'text/html'
-                });
-                var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
-                    lineNumbers: true,
-                    matchBrackets: true,
-                    mode: 'text/css'
-                });
-            })(window.jQuery, window.wp);
-	        </script>
+		if ( $active_tab === 'template' ) {
+		?>
+			<script type="text/javascript">
+			 (function ($, wp) {
+				 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/html'
+				});
+				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/css'
+				});
+			})(window.jQuery, window.wp);
+			</script>
 		<?php
-    }
-        // Do the MultiSelect JS in the appropriate tab only
-            if ($active_tab === 'manage-users') { ?>
-                <script type="text/javascript">
-                    jQuery(document).ready(function($) {
-	                    $('#multiselect').multiselect();
-                });
-                </script>
+		}
+		// Do the MultiSelect JS in the appropriate tab only
+		if ( $active_tab === 'manage-users' ) {
+			?>
+				<script type="text/javascript">
+					jQuery(document).ready(function($) {
+					   $('#multiselect').multiselect({
+		search: {
+			left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+			right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+		},
+		fireSearch: function(value) {
+			return value.length > 3;
+		}
+	});
+				});
+				</script>
 		<?php
-    }
-  }
+		}
+	}
 }
 
 
