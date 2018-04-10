@@ -215,7 +215,8 @@ class Mail {
 		// Events
 		$events = '<ul>';
 		foreach ( $vars['events'] as $event ) {
-			$events .= "<li><a href='{$event['link']}?pk_campaign=Custom-WP-Notify&pk_kwd={$event['title']}'>{$event['title']}</a></li>";
+			$event_title = urlencode(str_replace(' ', '-', $event['title']));
+			$events .= "<li><a href='{$event['link']}?pk_campaign=Custom-WP-Notify&pk_kwd={$event_title}'>{$event['title']}</a></li>";
 		}
 		$events .= '</ul>';
 
