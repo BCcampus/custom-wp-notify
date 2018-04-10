@@ -561,7 +561,7 @@ class CwpOptions {
 			$options['cwp_notify'] = '';
 		}
 
-		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]'>{$options['cwp_template']}</textarea>";
+		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]' placeholder='<p>Hello {NAME}</p>, \n Here are the latest: \n {EVENTS} \n To Unsubscribe {UNSUBSCRIBE}'>{$options['cwp_template']}</textarea><small><dl><dt>{NAME}</dt><dd>Will be replaced with the name of the subscriber</dd><dt>{EVENTS}</dt><dd>An unordered list of recent events</dd><dt>{UNSUBSCRIBE}</dt><dd>Required unsubscribe link</dd></dl></small>";
 
 	}
 
@@ -600,6 +600,7 @@ class CwpOptions {
 			case 'testing':
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
+				submit_button( 'Send Test Email');
 
 				break;
 			case 'manage-users':
@@ -613,7 +614,7 @@ class CwpOptions {
 				do_settings_sections( 'cwp_log_settings' );
 		}
 
-		if ( ! in_array( $active_tab, [ 'logs' ] ) ) {
+		if ( ! in_array( $active_tab, [ 'logs', 'testing' ] ) ) {
 			submit_button();
 		}
 
