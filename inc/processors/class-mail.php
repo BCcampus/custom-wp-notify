@@ -169,6 +169,7 @@ class Mail {
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $settings['cwp_unsubscribe'],
 			'blogname'         => $current_blog,
+			'param'            => $settings['cwp_param'],
 		];
 
 		$vars = $this->placeHolders( $vars );
@@ -216,7 +217,7 @@ class Mail {
 		$events = '<ul>';
 		foreach ( $vars['events'] as $event ) {
 			$event_title = urlencode(str_replace(' ', '-', $event['title']));
-			$events .= "<li><a href='{$event['link']}?pk_campaign=Custom-WP-Notify&pk_kwd={$event_title}'>{$event['title']}</a></li>";
+			$events .= "<li><a href='{$event['link']}?pk_campaign={$vars['param']}&pk_kwd={$event_title}'>{$event['title']}</a></li>";
 		}
 		$events .= '</ul>';
 

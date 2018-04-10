@@ -409,7 +409,7 @@ class CwpOptions {
 
 				add_settings_field(
 			'cwp_param',
-			__( 'Tracking URL Parameter', 'custom-wp-notify' ),
+			__( 'Tracking Campaign Parameter (Matamo/Piwik)', 'custom-wp-notify' ),
 			[ $this, 'paramRender' ],
 			$page,
 			$options . '_section'
