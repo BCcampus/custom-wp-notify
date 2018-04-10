@@ -406,6 +406,14 @@ class CwpOptions {
 			$page,
 			$options . '_section'
 		);
+
+				add_settings_field(
+			'cwp_param',
+			__( 'Tracking URL Parameter', 'custom-wp-notify' ),
+			[ $this, 'paramRender' ],
+			$page,
+			$options . '_section'
+		);
 	}
 
 	/**
@@ -415,7 +423,7 @@ class CwpOptions {
 	 */
 	function sanitize( $settings ) {
 		$integers  = [ 'cwp_enable' ];
-		$text_only = [ 'cwp_notify' ];
+		$text_only = [ 'cwp_notify', 'cwp_param' ];
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_email   = [ 'cwp_unsubscribe' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
@@ -564,6 +572,20 @@ class CwpOptions {
 		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]' placeholder='<p>Hello {NAME}</p>, \n Here are the latest: \n {EVENTS} \n To Unsubscribe {UNSUBSCRIBE}'>{$options['cwp_template']}</textarea><small><dl><dt>{NAME}</dt><dd>Will be replaced with the name of the subscriber</dd><dt>{EVENTS}</dt><dd>An unordered list of recent events</dd><dt>{UNSUBSCRIBE}</dt><dd>Required unsubscribe link</dd></dl></small>";
 
 	}
+
+	/**
+	 * Customize the value of the unsubscribe link
+	 */
+	function paramRender() {
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_param'] ) ) {
+			$options['cwp_param'] = '';
+		}
+
+		echo "<input type='text' name='cwp_settings[cwp_param]' value='{$options['cwp_param']}'>";
+    }
 
 	/**
 	 * The function to be called to output the content for this page
