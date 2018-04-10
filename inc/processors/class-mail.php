@@ -215,9 +215,10 @@ class Mail {
 	private function placeHolders( $vars ) {
 		// Events
 		$events = '<ul>';
+		$time = current_time( 'y-m-d');
 		foreach ( $vars['events'] as $event ) {
 			$event_title = urlencode(str_replace(' ', '-', $event['title']));
-			$events .= "<li><a href='{$event['link']}?pk_campaign={$vars['param']}&pk_kwd={$event_title}'>{$event['title']}</a></li>";
+			$events .= "<li><a href='{$event['link']}?pk_campaign={$vars['param']}-{$time}&pk_kwd={$event_title}'>{$event['title']}</a></li>";
 		}
 		$events .= '</ul>';
 
