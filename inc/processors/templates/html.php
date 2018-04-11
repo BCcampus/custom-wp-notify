@@ -11,7 +11,7 @@
 <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable">
 	<tr>
 		<td align="center" valign="top">
-			<table border="0" cellpadding="20" cellspacing="0" width="600" id="emailContainer">
+			<table border="0" cellpadding="10" cellspacing="0" width="600" id="emailContainer">
 				<tr>
 					<td align="left" valign="top">
 						<h2><?php echo $blogname; ?></h2>
