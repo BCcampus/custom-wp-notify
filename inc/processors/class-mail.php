@@ -160,15 +160,17 @@ class Mail {
 	 */
 	private function applyTemplates( $payload, $name ) {
 		$settings     = get_option( 'cwp_settings' );
+		$template     = get_option( 'cwp_template_settings' );
 		$current_blog = get_option( 'blogname' );
 		$vars         = [
 			'events'           => $payload,
-			'template'         => html_entity_decode( $settings['cwp_template'] ),
+			'template'         => html_entity_decode( $template['cwp_template'] ),
 			'name'             => $name,
-			'style'            => $settings['cwp_css'],
+			'style'            => $template['cwp_css'],
 			'title'            => 'Custom Notifications',
-			'unsubscribe_link' => $settings['cwp_unsubscribe'],
+			'unsubscribe_link' => $template['cwp_unsubscribe'],
 			'blogname'         => $current_blog,
+			'param'            => $settings['cwp_param'],
 		];
 
 		$vars = $this->placeHolders( $vars );
@@ -214,8 +216,11 @@ class Mail {
 	private function placeHolders( $vars ) {
 		// Events
 		$events = '<ul>';
+		$time = current_time( 'y-m-d');
 		foreach ( $vars['events'] as $event ) {
-			$events .= '<li><a href="' . $event['link'] . '">' . $event['title'] . '</a></li>';
+			$event_title = urlencode(str_replace(' ', '-', $event['title']));
+			$campaign = ( $vars['cwp_param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}'>{$event['title']}";
+			$events .= "<li><a href='{$event['link']}</a></li>$campaign";
 		}
 		$events .= '</ul>';
 
