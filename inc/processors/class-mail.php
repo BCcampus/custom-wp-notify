@@ -119,9 +119,6 @@ class Mail {
 	 * @param $email
 	 */
 	public function runJustOne( $email ) {
-		if ( FALSE === is_email( $email ) ) {
-			return;
-		}
 
 		$name     = 'Tester';
 		$subject  = 'Test Recent Events';
