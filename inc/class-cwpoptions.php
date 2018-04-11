@@ -15,6 +15,7 @@ use BCcampus\Models\Wp;
 use BCcampus\Processors;
 
 class CwpOptions {
+
 	/**
 	 *
 	 */
@@ -29,31 +30,21 @@ class CwpOptions {
 		add_action( 'admin_init', [ $this, 'settingsUat' ] );
 		add_action( 'admin_init', [ $this, 'settingsLogs' ] );
 		add_action( 'admin_init', [ $this, 'settingsManage' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'codeMirror' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'multiSelect' ] );
+		add_action( 'admin_init', [ $this, 'settingsTemplate' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'adminScripts' ] );
 	}
 
 	/**
 	 * add html and css syntax highlighting
 	 */
-	function codeMirror() {
+	function adminScripts() {
 		// Code Mirror
 		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
 			wp_enqueue_script( 'wp-codemirror' );
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
 			wp_enqueue_style( 'wp-codemirror' );
-		}
-
-	}
-
-	/**
-	 * Add multi select jQuery plugin
-	 * http://crlcu.github.io/multiselect/
-	 */
-	function multiSelect() {
-		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
-			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
+			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], NULL, TRUE );
 		}
 	}
 
@@ -72,7 +63,15 @@ class CwpOptions {
 
 	}
 
-
+	/*
+	|--------------------------------------------------------------------------
+	| Manage User Config
+	|--------------------------------------------------------------------------
+	|
+	| Interface for selecting subscription options
+	|
+	|
+	*/
 	/**
 	 *
 	 */
@@ -94,19 +93,19 @@ class CwpOptions {
 	}
 
 	/**
-	*
-	*/
+	 *
+	 */
 	function updateUsers() {
 
 		if ( isset( $_POST['no'] ) ) {
 			foreach ( $_POST['no'] as $username ) {
 				// Get the user object by login name
-				 $userobject = get_user_by( 'login', $username );
-				  // Get the user ID
-				 $user_id = $userobject->ID;
-				 // Get the existing preference if any
-				 $user_value = get_user_meta( $user_id, 'cwp_notify', true );
-				  // Update their preference only if it's different
+				$userobject = get_user_by( 'login', $username );
+				// Get the user ID
+				$user_id = $userobject->ID;
+				// Get the existing preference if any
+				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				// Update their preference only if it's different
 				if ( $user_value != '0' ) {
 					update_user_meta( $user_id, 'cwp_notify', '0' );
 				}
@@ -116,12 +115,12 @@ class CwpOptions {
 		if ( isset( $_POST['yes'] ) ) {
 			foreach ( $_POST['yes'] as $username ) {
 				// Get the user object by login name
-				 $userobject = get_user_by( 'login', $username );
-				  // Get the user ID
-				 $user_id = $userobject->ID;
-				 // Get the existing preference if any
-				 $user_value = get_user_meta( $user_id, 'cwp_notify', true );
-				  // Update their preference only if it's different
+				$userobject = get_user_by( 'login', $username );
+				// Get the user ID
+				$user_id = $userobject->ID;
+				// Get the existing preference if any
+				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				// Update their preference only if it's different
 				if ( $user_value != '1' ) {
 					update_user_meta( $user_id, 'cwp_notify', '1' );
 				}
@@ -139,7 +138,7 @@ class CwpOptions {
 		// To build the listboxes, we need to check for the value of cwp_notify, so let's make sure it exists.
 		foreach ( $all_users as $user ) {
 			// get the existing meta values
-			$user_preference = get_user_meta( $user->ID, 'cwp_notify', true );
+			$user_preference = get_user_meta( $user->ID, 'cwp_notify', TRUE );
 
 			// If a preference doesn't already exist, create it with default to 0
 			if ( ! ( $user_preference == '1' || $user_preference == '0' ) ) {
@@ -149,14 +148,14 @@ class CwpOptions {
 
 		$subscribed     = get_users(
 			[
-				'meta_key' => 'cwp_notify',
+				'meta_key'   => 'cwp_notify',
 				'meta_value' => '1',
 			]
 		);
 		$not_subscribed = get_users(
 			[
-				'meta_key' => 'cwp_notify',
-				'meta_value' => '1',
+				'meta_key'     => 'cwp_notify',
+				'meta_value'   => '1',
 				'meta_compare' => '!=',
 			]
 		);
@@ -165,7 +164,7 @@ class CwpOptions {
 		$html .= '<h5>Subscribed</h5>';
 		$html .= "<select name='yes[]' id='multiselect' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $subscribed as $user ) {
-				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
+			$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
 		$html .= '</select></div>';
 		$html .= "<div class='col-xs-2'>";
@@ -177,7 +176,7 @@ class CwpOptions {
 		$html .= '<h5>Not Subscribed</h5>';
 		$html .= "<select name='no[]' id='multiselect_to' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $not_subscribed as $user ) {
-				$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
+			$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
 		}
 		$html .= '</select></div></div>';
 
@@ -189,7 +188,7 @@ class CwpOptions {
 	| Log Settings
 	|--------------------------------------------------------------------------
 	|
-	|
+	| Admin interface for viewing log files
 	|
 	|
 	*/
@@ -240,12 +239,13 @@ class CwpOptions {
 
 		echo $html;
 	}
+
 	/*
 	|--------------------------------------------------------------------------
 	| UAT Settings
 	|--------------------------------------------------------------------------
 	|
-	| Testing the output
+	| Testing the output of the template
 	|
 	|
 	*/
@@ -289,7 +289,7 @@ class CwpOptions {
 
 		$valid = is_email( $settings['test_send'] );
 
-		if ( false === $valid ) {
+		if ( FALSE === $valid ) {
 			unset( $settings['test_send'] );
 
 			add_settings_error(
@@ -340,6 +340,7 @@ class CwpOptions {
 	|
 	|
 	*/
+
 	/**
 	 * Register the plugin settings, create fields
 	 */
@@ -354,7 +355,7 @@ class CwpOptions {
 
 		add_settings_section(
 			$options . '_section',
-			__( 'General Template Settings', 'custom-wp-notify' ),
+			__( 'General Settings', 'custom-wp-notify' ),
 			'',
 			$page
 		);
@@ -384,30 +385,6 @@ class CwpOptions {
 		);
 
 		add_settings_field(
-			'cwp_template',
-			__( 'Notification Template:', 'custom-wp-notify' ),
-			[ $this, 'templateRender' ],
-			$page,
-			$options . '_section'
-		);
-
-		add_settings_field(
-			'cwp_unsubscribe',
-			__( 'Unsubscribe E-mail:', 'custom-wp-notify' ),
-			[ $this, 'unsubscribeRender' ],
-			$page,
-			$options . '_section'
-		);
-
-		add_settings_field(
-			'cwp_css',
-			__( 'Custom CSS:', 'custom-wp-notify' ),
-			[ $this, 'cssRender' ],
-			$page,
-			$options . '_section'
-		);
-
-				add_settings_field(
 			'cwp_param',
 			__( 'Tracking Campaign Parameter (Matamo/Piwik)', 'custom-wp-notify' ),
 			[ $this, 'paramRender' ],
@@ -417,15 +394,75 @@ class CwpOptions {
 	}
 
 	/**
+	 * Render the options page enable field
+	 */
+	function enableRender() {
+
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_enable'] ) ) {
+			$options['cwp_enable'] = 0;
+		}
+
+		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, FALSE ) . " value='1'>";
+	}
+
+	/**
+	 * Render the options page frequency field
+	 */
+	function frequencyRender() {
+
+		$options = get_option( 'cwp_settings' );
+		// add default
+		if ( ! isset( $options['cwp_frequency'] ) ) {
+			$options['cwp_frequency'] = 'weekly';
+		}
+
+		echo "<select name='cwp_settings[cwp_frequency]'>
+			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', FALSE ) . ">Daily</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', FALSE ) . '>Weekly</option>
+		</select><small> <i>NOTE: Changing the frequency triggers notifications to be sent out immediately</i></small>';
+	}
+
+	/**
+	 * Render the options page opt-in field
+	 */
+	function optInTextRender() {
+
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_notify'] ) ) {
+			$options['cwp_notify'] = 'Subscribe to Notifications';
+		}
+
+		echo "<input type='text' name='cwp_settings[cwp_notify]' value='{$options['cwp_notify']}'>";
+
+	}
+
+	/**
+	 * Customize the value of the unsubscribe link
+	 */
+	function paramRender() {
+		$options = get_option( 'cwp_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_param'] ) ) {
+			$options['cwp_param'] = 0;
+		}
+
+		echo "<input type='checkbox' name='cwp_settings[cwp_param]'" . checked( $options['cwp_param'], 1, FALSE ) . " value='1'>";
+	}
+
+	/**
 	 * @param $settings
 	 *
 	 * @return mixed
 	 */
 	function sanitize( $settings ) {
-		$integers  = [ 'cwp_enable' ];
-		$text_only = [ 'cwp_notify', 'cwp_param' ];
-		$esc_html  = [ 'cwp_template', 'cwp_css' ];
-		$esc_email   = [ 'cwp_unsubscribe' ];
+		$integers  = [ 'cwp_enable', 'cwp_param' ];
+		$text_only = [ 'cwp_notify' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 
@@ -437,25 +474,6 @@ class CwpOptions {
 		// text
 		foreach ( $text_only as $text ) {
 			$settings[ $text ] = sanitize_text_field( $settings[ $text ] );
-		}
-
-		// esc html
-		foreach ( $esc_html as $html ) {
-			$settings[ $html ] = esc_html( $settings[ $html ] );
-		}
-
-		// esc email
-		foreach ( $esc_email as $email ) {
-			$settings[ $email ] = sanitize_email( $settings[ $email ] );
-		}
-
-		if ( empty( $settings['cwp_unsubscribe'] ) || false === is_email( $settings['cwp_unsubscribe'] ) ) {
-			add_settings_error(
-				'cwp_options',
-				'settings_updated',
-				'Please enter a valid email in UNSUBSCRIBE EMAIL below where people can reply to unsubscribe.',
-				'error'
-			);
 		}
 
 		// enumeration
@@ -479,81 +497,58 @@ class CwpOptions {
 		return $settings;
 	}
 
-	/**
-	 * Custom CSS
-	 */
-	function cssRender() {
-		$options = get_option( 'cwp_settings' );
-
-		// add default
-		if ( ! isset( $options['cwp_css'] ) ) {
-			$options['cwp_css'] = '#emailContainer{}';
-		}
-
-		echo "<textarea id='cwp_css' cols='60' rows='15' name='cwp_settings[cwp_css]'>{$options['cwp_css']}</textarea>";
-
-	}
+	/*
+	|--------------------------------------------------------------------------
+	| Template Settings
+	|--------------------------------------------------------------------------
+	|
+	| Settings for the template
+	|
+	|
+	*/
 
 	/**
-	 * Customize the value of the unsubscribe link
+	 * Template Settings
 	 */
-	function unsubscribeRender() {
-		$options = get_option( 'cwp_settings' );
+	function settingsTemplate() {
+		$page = $options = 'cwp_template_settings';
 
-		// add default
-		if ( ! isset( $options['cwp_unsubscribe'] ) ) {
-			$options['cwp_unsubscribe'] = '';
-		}
+		register_setting(
+			$options,
+			$options,
+			[ $this, 'sanitizeTemplate' ]
+		);
 
-		echo "<input type='text' name='cwp_settings[cwp_unsubscribe]' value='{$options['cwp_unsubscribe']}'>";
+		add_settings_section(
+			$options . '_section',
+			__( 'Template Settings', 'custom-wp-notify' ),
+			'',
+			$page
+		);
 
-	}
+		add_settings_field(
+			'cwp_template',
+			__( 'Notification Template:', 'custom-wp-notify' ),
+			[ $this, 'templateRender' ],
+			$page,
+			$options . '_section'
+		);
 
-	/**
-	 * Render the options page enable field
-	 */
-	function enableRender() {
+		add_settings_field(
+			'cwp_unsubscribe',
+			__( 'Unsubscribe E-mail:', 'custom-wp-notify' ),
+			[ $this, 'unsubscribeRender' ],
+			$page,
+			$options . '_section'
+		);
 
-		$options = get_option( 'cwp_settings' );
-
-		// add default
-		if ( ! isset( $options['cwp_enable'] ) ) {
-			$options['cwp_enable'] = 0;
-		}
-
-		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, false ) . " value='1'>";
-	}
-
-	/**
-	 * Render the options page frequency field
-	 */
-	function frequencyRender() {
-
-		$options = get_option( 'cwp_settings' );
-		// add default
-		if ( ! isset( $options['cwp_frequency'] ) ) {
-			$options['cwp_frequency'] = 'weekly';
-		}
-
-		echo "<select name='cwp_settings[cwp_frequency]'>
-			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
-			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . '>Weekly</option>
-		</select>';
-	}
-
-	/**
-	 * Render the options page opt-in field
-	 */
-	function optInTextRender() {
-
-		$options = get_option( 'cwp_settings' );
-
-		// add default
-		if ( ! isset( $options['cwp_notify'] ) ) {
-			$options['cwp_notify'] = 'Subscribe to Notifications';
-		}
-
-		echo "<input type='text' name='cwp_settings[cwp_notify]' value='{$options['cwp_notify']}'>";
+		add_settings_field(
+			'cwp_css',
+			__( 'Custom CSS:', 'custom-wp-notify' ),
+			[ $this, 'cssRender' ],
+			$page,
+			$options . '_section'
+		);
 
 	}
 
@@ -562,30 +557,87 @@ class CwpOptions {
 	 */
 	function templateRender() {
 
-		$options = get_option( 'cwp_settings' );
+		$options = get_option( 'cwp_template_settings' );
 
 		// add default
-		if ( ! isset( $options['cwp_notify'] ) ) {
-			$options['cwp_notify'] = '';
+		if ( ! isset( $options['cwp_template'] ) ) {
+			$options['cwp_template'] = '';
 		}
 
-		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_settings[cwp_template]' placeholder='<p>Hello {NAME}</p>, \n Here are the latest: \n {EVENTS} \n To Unsubscribe {UNSUBSCRIBE}'>{$options['cwp_template']}</textarea><small><dl><dt>{NAME}</dt><dd>Will be replaced with the name of the subscriber</dd><dt>{EVENTS}</dt><dd>An unordered list of recent events</dd><dt>{UNSUBSCRIBE}</dt><dd>Required unsubscribe link</dd></dl></small>";
+		echo "<textarea id='cwp_template' cols='60' rows='15' name='cwp_template_settings[cwp_template]' placeholder='<p>Hello {NAME}</p>, \n Here are the latest: \n {EVENTS} \n To Unsubscribe {UNSUBSCRIBE}'>{$options['cwp_template']}</textarea><small><dl><dt>{NAME}</dt><dd>Will be replaced with the name of the subscriber</dd><dt>{EVENTS}</dt><dd>An unordered list of recent events</dd><dt>{UNSUBSCRIBE}</dt><dd>Required unsubscribe link</dd></dl></small>";
 
 	}
 
 	/**
 	 * Customize the value of the unsubscribe link
 	 */
-	function paramRender() {
-		$options = get_option( 'cwp_settings' );
+	function unsubscribeRender() {
+		$options = get_option( 'cwp_template_settings' );
 
 		// add default
-		if ( ! isset( $options['cwp_param'] ) ) {
-			$options['cwp_param'] = '';
+		if ( ! isset( $options['cwp_unsubscribe'] ) ) {
+			$options['cwp_unsubscribe'] = '';
 		}
 
-		echo "<input type='text' name='cwp_settings[cwp_param]' value='{$options['cwp_param']}'>";
-    }
+		echo "<input type='text' name='cwp_template_settings[cwp_unsubscribe]' value='{$options['cwp_unsubscribe']}'>";
+
+	}
+
+	/**
+	 * Custom CSS
+	 */
+	function cssRender() {
+		$options = get_option( 'cwp_template_settings' );
+
+		// add default
+		if ( ! isset( $options['cwp_css'] ) ) {
+			$options['cwp_css'] = '#emailContainer{}';
+		}
+
+		echo "<textarea id='cwp_css' cols='60' rows='15' name='cwp_template_settings[cwp_css]'>{$options['cwp_css']}</textarea>";
+
+	}
+
+	/**
+    * @param $settings
+    *
+    * @return mixed
+    */
+	function sanitizeTemplate( $settings ){
+	    $esc_html  = [ 'cwp_template', 'cwp_css' ];
+		$esc_email = [ 'cwp_unsubscribe' ];
+
+		// esc html
+		foreach ( $esc_html as $html ) {
+			$settings[ $html ] = esc_html( $settings[ $html ] );
+		}
+
+		// esc email
+		foreach ( $esc_email as $email ) {
+			$settings[ $email ] = sanitize_email( $settings[ $email ] );
+		}
+
+		if ( empty( $settings['cwp_unsubscribe'] ) || FALSE === is_email( $settings['cwp_unsubscribe'] ) ) {
+			add_settings_error(
+				'cwp_template_options',
+				'settings_updated',
+				'Please enter a valid email in UNSUBSCRIBE EMAIL below where people can reply to unsubscribe.',
+				'error'
+			);
+		}
+
+		return $settings;
+	}
+
+	/*
+	|--------------------------------------------------------------------------
+	| Options page
+	|--------------------------------------------------------------------------
+	|
+	| Admin Interface
+	|
+	|
+	*/
 
 	/**
 	 * The function to be called to output the content for this page
@@ -593,36 +645,46 @@ class CwpOptions {
 	function optionsPage() {
 		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'template';
 		?>
-		<!-- Bootstrap styling -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<h2>Custom WP Notify</h2>
-		<div id="icon-options-general" class="icon32"></div>
-		<h2 class="nav-tab-wrapper">
-			<a href="?page=custom-wp-notify&tab=template"
-			   class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
-			<a href="?page=custom-wp-notify&tab=testing"
-			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
-			<a href="?page=custom-wp-notify&tab=manage-users"
-			   class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
-				Management</a>
-			<a href="?page=custom-wp-notify&tab=logs"
-			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
-		</h2>
+        <!-- Bootstrap styling -->
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+              crossorigin="anonymous">
+        <h2>Custom WP Notify</h2>
+        <div id="icon-options-general" class="icon32"></div>
+        <h2 class="nav-tab-wrapper">
+            <a href="?page=custom-wp-notify&tab=general"
+               class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
+            <a href="?page=custom-wp-notify&tab=template"
+               class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+            <a href="?page=custom-wp-notify&tab=testing"
+               class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+            <a href="?page=custom-wp-notify&tab=manage-users"
+               class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
+                Management</a>
+            <a href="?page=custom-wp-notify&tab=logs"
+               class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+        </h2>
 
-		<form action="options.php" method="post">
+        <form action="options.php" method="post">
 		<?php
 
 		switch ( $active_tab ) {
 
-			case 'template':
+			case 'general':
 				settings_fields( 'cwp_options' );
 				do_settings_sections( 'cwp_options' );
+
+				break;
+			case 'template':
+				settings_fields( 'cwp_template_settings' );
+				do_settings_sections( 'cwp_template_settings' );
 
 				break;
 			case 'testing':
 				settings_fields( 'cwp_uat_settings' );
 				do_settings_sections( 'cwp_uat_settings' );
-				submit_button( 'Send Test Email');
+				submit_button( 'Send Test Email' );
 
 				break;
 			case 'manage-users':
@@ -645,40 +707,40 @@ class CwpOptions {
 		// Do the CodeMirror JS in the appropriate tab to avoid console errors
 
 		if ( $active_tab === 'template' ) {
-		?>
-			<script type="text/javascript">
-			 (function ($, wp) {
-				 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
-					lineNumbers: true,
-					matchBrackets: true,
-					mode: 'text/html'
-				});
-				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
-					lineNumbers: true,
-					matchBrackets: true,
-					mode: 'text/css'
-				});
-			})(window.jQuery, window.wp);
-			</script>
-		<?php
+			?>
+            <script type="text/javascript">
+             (function ($, wp) {
+                 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    mode: 'text/html'
+                });
+                var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    mode: 'text/css'
+                });
+            })(window.jQuery, window.wp);
+            </script>
+			<?php
 		}
 		// Do the MultiSelect JS in the appropriate tab only
 		if ( $active_tab === 'manage-users' ) {
 			?>
-				<script type="text/javascript">
-					jQuery(document).ready(function($) {
-					   $('#multiselect').multiselect({
-		search: {
-			left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-			right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-		},
-		fireSearch: function(value) {
-			return value.length > 3;
-		}
-	});
-				});
-				</script>
-		<?php
+            <script type="text/javascript">
+                jQuery(document).ready(function($) {
+                   $('#multiselect').multiselect({
+                    search: {
+                        left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+                        right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+                    },
+                    fireSearch: function(value) {
+                        return value.length > 3;
+                    }
+                });
+            });
+            </script>
+			<?php
 		}
 	}
 }
