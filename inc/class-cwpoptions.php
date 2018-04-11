@@ -44,7 +44,7 @@ class CwpOptions {
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
 			wp_enqueue_style( 'wp-codemirror' );
-			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], NULL, TRUE );
+			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
 		}
 	}
 
@@ -104,7 +104,7 @@ class CwpOptions {
 				// Get the user ID
 				$user_id = $userobject->ID;
 				// Get the existing preference if any
-				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 				// Update their preference only if it's different
 				if ( $user_value != '0' ) {
 					update_user_meta( $user_id, 'cwp_notify', '0' );
@@ -119,7 +119,7 @@ class CwpOptions {
 				// Get the user ID
 				$user_id = $userobject->ID;
 				// Get the existing preference if any
-				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 				// Update their preference only if it's different
 				if ( $user_value != '1' ) {
 					update_user_meta( $user_id, 'cwp_notify', '1' );
@@ -138,7 +138,7 @@ class CwpOptions {
 		// To build the listboxes, we need to check for the value of cwp_notify, so let's make sure it exists.
 		foreach ( $all_users as $user ) {
 			// get the existing meta values
-			$user_preference = get_user_meta( $user->ID, 'cwp_notify', TRUE );
+			$user_preference = get_user_meta( $user->ID, 'cwp_notify', true );
 
 			// If a preference doesn't already exist, create it with default to 0
 			if ( ! ( $user_preference == '1' || $user_preference == '0' ) ) {
@@ -289,7 +289,7 @@ class CwpOptions {
 
 		$valid = is_email( $settings['test_send'] );
 
-		if ( FALSE === $valid ) {
+		if ( false === $valid ) {
 			unset( $settings['test_send'] );
 
 			add_settings_error(
@@ -405,7 +405,7 @@ class CwpOptions {
 			$options['cwp_enable'] = 0;
 		}
 
-		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, FALSE ) . " value='1'>";
+		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, false ) . " value='1'>";
 	}
 
 	/**
@@ -420,8 +420,8 @@ class CwpOptions {
 		}
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
-			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', FALSE ) . ">Daily</option>
-			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', FALSE ) . '>Weekly</option>
+			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . '>Weekly</option>
 		</select><small> <i>NOTE: Changing the frequency triggers notifications to be sent out immediately</i></small>';
 	}
 
@@ -452,7 +452,7 @@ class CwpOptions {
 			$options['cwp_param'] = 0;
 		}
 
-		echo "<input type='checkbox' name='cwp_settings[cwp_param]'" . checked( $options['cwp_param'], 1, FALSE ) . " value='1'>";
+		echo "<input type='checkbox' name='cwp_settings[cwp_param]'" . checked( $options['cwp_param'], 1, false ) . " value='1'>";
 	}
 
 	/**
@@ -599,12 +599,12 @@ class CwpOptions {
 	}
 
 	/**
-    * @param $settings
-    *
-    * @return mixed
-    */
-	function sanitizeTemplate( $settings ){
-	    $esc_html  = [ 'cwp_template', 'cwp_css' ];
+	* @param $settings
+	*
+	* @return mixed
+	*/
+	function sanitizeTemplate( $settings ) {
+		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_email = [ 'cwp_unsubscribe' ];
 
 		// esc html
@@ -617,7 +617,7 @@ class CwpOptions {
 			$settings[ $email ] = sanitize_email( $settings[ $email ] );
 		}
 
-		if ( empty( $settings['cwp_unsubscribe'] ) || FALSE === is_email( $settings['cwp_unsubscribe'] ) ) {
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === is_email( $settings['cwp_unsubscribe'] ) ) {
 			add_settings_error(
 				'cwp_template_options',
 				'settings_updated',
@@ -645,28 +645,22 @@ class CwpOptions {
 	function optionsPage() {
 		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'template';
 		?>
-        <!-- Bootstrap styling -->
-        <link rel="stylesheet"
-              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-              crossorigin="anonymous">
-        <h2>Custom WP Notify</h2>
-        <div id="icon-options-general" class="icon32"></div>
-        <h2 class="nav-tab-wrapper">
-            <a href="?page=custom-wp-notify&tab=general"
-               class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
-            <a href="?page=custom-wp-notify&tab=template"
-               class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
-            <a href="?page=custom-wp-notify&tab=testing"
-               class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
-            <a href="?page=custom-wp-notify&tab=manage-users"
-               class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
-                Management</a>
-            <a href="?page=custom-wp-notify&tab=logs"
-               class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
-        </h2>
+		<!-- Bootstrap styling -->
+		<link rel="stylesheet"
+			  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+			  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+			  crossorigin="anonymous">
+		<h2>Custom WP Notify</h2>
+		<div id="icon-options-general" class="icon32"></div>
+		<h2 class="nav-tab-wrapper">
+			<a href="?page=custom-wp-notify&tab=general" class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
+			<a href="?page=custom-wp-notify&tab=template" class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+			<a href="?page=custom-wp-notify&tab=testing" class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+			<a href="?page=custom-wp-notify&tab=manage-users" class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription Management</a>
+			<a href="?page=custom-wp-notify&tab=logs" class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+		</h2>
 
-        <form action="options.php" method="post">
+		<form action="options.php" method="post">
 		<?php
 
 		switch ( $active_tab ) {
@@ -708,38 +702,38 @@ class CwpOptions {
 
 		if ( $active_tab === 'template' ) {
 			?>
-            <script type="text/javascript">
-             (function ($, wp) {
-                 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
-                    lineNumbers: true,
-                    matchBrackets: true,
-                    mode: 'text/html'
-                });
-                var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
-                    lineNumbers: true,
-                    matchBrackets: true,
-                    mode: 'text/css'
-                });
-            })(window.jQuery, window.wp);
-            </script>
+			<script type="text/javascript">
+			 (function ($, wp) {
+				 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/html'
+				});
+				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: 'text/css'
+				});
+			})(window.jQuery, window.wp);
+			</script>
 			<?php
 		}
 		// Do the MultiSelect JS in the appropriate tab only
 		if ( $active_tab === 'manage-users' ) {
 			?>
-            <script type="text/javascript">
-                jQuery(document).ready(function($) {
-                   $('#multiselect').multiselect({
-                    search: {
-                        left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-                        right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-                    },
-                    fireSearch: function(value) {
-                        return value.length > 3;
-                    }
-                });
-            });
-            </script>
+			<script type="text/javascript">
+				jQuery(document).ready(function($) {
+				   $('#multiselect').multiselect({
+					search: {
+						left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+						right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
+					},
+					fireSearch: function(value) {
+						return value.length > 3;
+					}
+				});
+			});
+			</script>
 			<?php
 		}
 	}
