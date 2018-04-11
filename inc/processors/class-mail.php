@@ -219,8 +219,8 @@ class Mail {
 		$time = current_time( 'y-m-d');
 		foreach ( $vars['events'] as $event ) {
 			$event_title = urlencode(str_replace(' ', '-', $event['title']));
-			$campaign = ( $vars['cwp_param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}'>{$event['title']}";
-			$events .= "<li><a href='{$event['link']}</a></li>$campaign";
+			$campaign = ( $vars['cwp_param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
+			$events .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
 		}
 		$events .= '</ul>';
 
