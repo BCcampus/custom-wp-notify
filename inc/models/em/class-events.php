@@ -29,8 +29,9 @@ class Events {
 	 */
 	public function getRecentEvents() {
 		global $wpdb;
-		$today = date( 'Y-m-d', time() );
-		$limit = 4;
+		$today   = date( 'Y-m-d', time() );
+		$options = get_option( 'cwp_template_settings' );
+		$limit   = $options['cwp_limit'];
 
 		$sanitized_query = $wpdb->prepare(
 			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events

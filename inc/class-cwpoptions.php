@@ -535,6 +535,14 @@ class CwpOptions {
 		);
 
 		add_settings_field(
+			'cwp_limit',
+			__( 'Number of Recent Events:', 'custom-wp-notify' ),
+			[ $this, 'limitRender' ],
+			$page,
+			$options . '_section'
+		);
+
+		add_settings_field(
 			'cwp_unsubscribe',
 			__( 'Unsubscribe E-mail:', 'custom-wp-notify' ),
 			[ $this, 'unsubscribeRender' ],
@@ -599,6 +607,26 @@ class CwpOptions {
 	}
 
 	/**
+     *
+     */
+	function limitRender(){
+	    $options = get_option( 'cwp_template_settings' );
+		// add default
+		if ( ! isset( $options['cwp_limit'] ) ) {
+			$options['cwp_limit'] = 4;
+		}
+		$select_list = "<select name='cwp_template_settings[cwp_limit]'>";
+
+		for( $i = 1; $i <= 20; $i++ ){
+		    $select_list .= "<option value='{$i}'" . selected( $options['cwp_limit'], $i, FALSE ) . ">{$i}</option>";
+		}
+
+		$select_list .= '</select>';
+
+		echo $select_list;
+	}
+
+	/**
 	* @param $settings
 	*
 	* @return mixed
@@ -606,6 +634,12 @@ class CwpOptions {
 	function sanitizeTemplate( $settings ) {
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_email = [ 'cwp_unsubscribe' ];
+        $integers = [ 'cwp_limit' ];
+
+        // integers
+		foreach ( $integers as $int ) {
+			$settings[ $int ] = absint( $settings[ $int ] );
+		}
 
 		// esc html
 		foreach ( $esc_html as $html ) {
