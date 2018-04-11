@@ -44,11 +44,12 @@ class CwpOptions {
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
 			wp_enqueue_style( 'wp-codemirror' );
-			wp_enqueue_script( 'cwp-codemirror-script',  plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], null, true );
-		} if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
+			wp_enqueue_script( 'cwp-codemirror-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], null, true );
+		}
+		if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
 			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
-			wp_enqueue_script( 'cwp-multi-select-script',  plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], null, true );
-        }
+			wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], null, true );
+		}
 	}
 
 	/**
@@ -290,18 +291,44 @@ class CwpOptions {
 	function sanitizeUat( $settings ) {
 		$success_msg = 'Email sent. Please check your inbox';
 
-		$valid = is_email( $settings['test_send'] );
+		// Get the comma separated email addresses
+		$email_list = explode( ',', $settings['test_send'] );
 
-		if ( false === $valid ) {
+		// Trim the whitespace so it can pass the is_email test
+		$email_trimmed = array_map( 'trim', $email_list );
+
+		// Placeholder array for our invalid emails
+		$invalid = [];
+
+		// Loop through to check for invalid emails
+		foreach ( $email_trimmed as $email ) {
+			if ( false === is_email( $email ) ) {
+				// If invalid email was found, let's add it to invalid[]
+				$invalid[] = $email;
+			}
+		}
+
+		// Check if there were any invalid email addresses added to $invalid[]
+		if ( false === empty( $invalid ) ) {
 			unset( $settings['test_send'] );
 
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
-				'Email field is not a valid email address',
+				'Please enter only valid e-mail addresses.',
 				'error'
 			);
-		} else {
+		} else if ( count( $email_trimmed ) > 20 ) {
+			unset( $settings['test_send'] );
+
+			add_settings_error(
+				'cwp_uat_settings',
+				'settings_uat_updated',
+				'Exceeded maximum limit of 20 email addresses.',
+				'error'
+			);
+		} // All e-mails were valid and within the limit, proceed
+		else {
 			$u = new Wp\Users();
 			$q = new Processors\Queue( $u );
 			$m = new Processors\Mail( $q );
@@ -313,6 +340,7 @@ class CwpOptions {
 				$success_msg,
 				'updated'
 			);
+			unset( $settings['test_send'] );
 		}
 
 		return $settings;
@@ -329,7 +357,7 @@ class CwpOptions {
 			$options['test_send'] = '';
 		}
 
-		echo "<input type='text' name='cwp_uat_settings[test_send]' value='{$options['test_send']}'>";
+		echo "<input type='text' name='cwp_uat_settings[test_send]' value='{$options['test_send']}'></br><small id='emailHelp' class='form-text text-muted'>Enter up to 20 valid email addresses, comma separated.</small>";
 
 	}
 
@@ -610,19 +638,19 @@ class CwpOptions {
 	}
 
 	/**
-     *
-     */
-	function limitRender(){
-	    $options = get_option( 'cwp_template_settings' );
+	 *
+	 */
+	function limitRender() {
+		$options = get_option( 'cwp_template_settings' );
 
-	    // add default
+		// add default
 		if ( ! isset( $options['cwp_limit'] ) ) {
 			$options['cwp_limit'] = 4;
 		}
 
 		$select_list = "<select name='cwp_template_settings[cwp_limit]'>";
-		for( $i = 1; $i <= 20; $i++ ){
-		    $select_list .= "<option value='{$i}'" . selected( $options['cwp_limit'], $i, FALSE ) . ">{$i}</option>";
+		for ( $i = 1; $i <= 20; $i ++ ) {
+			$select_list .= "<option value='{$i}'" . selected( $options['cwp_limit'], $i, false ) . ">{$i}</option>";
 		}
 		$select_list .= '</select>';
 
@@ -630,16 +658,16 @@ class CwpOptions {
 	}
 
 	/**
-	* @param $settings
-	*
-	* @return mixed
-	*/
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
 	function sanitizeTemplate( $settings ) {
 		$esc_html  = [ 'cwp_template', 'cwp_css' ];
 		$esc_email = [ 'cwp_unsubscribe' ];
-        $integers  = [ 'cwp_limit' ];
+		$integers  = [ 'cwp_limit' ];
 
-        // integers
+		// integers
 		foreach ( $integers as $int ) {
 			$settings[ $int ] = absint( $settings[ $int ] );
 		}
@@ -684,17 +712,23 @@ class CwpOptions {
 		?>
 		<!-- Bootstrap styling -->
 		<link rel="stylesheet"
-			  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-			  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-			  crossorigin="anonymous">
+		      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+		      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+		      crossorigin="anonymous">
 		<h2>Custom WP Notify</h2>
 		<div id="icon-options-general" class="icon32"></div>
 		<h2 class="nav-tab-wrapper">
-			<a href="?page=custom-wp-notify&tab=general" class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
-			<a href="?page=custom-wp-notify&tab=template" class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
-			<a href="?page=custom-wp-notify&tab=testing" class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
-			<a href="?page=custom-wp-notify&tab=manage-users" class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription Management</a>
-			<a href="?page=custom-wp-notify&tab=logs" class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+			<a href="?page=custom-wp-notify&tab=general"
+			   class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
+			<a href="?page=custom-wp-notify&tab=template"
+			   class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+			<a href="?page=custom-wp-notify&tab=testing"
+			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+			<a href="?page=custom-wp-notify&tab=manage-users"
+			   class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
+				Management</a>
+			<a href="?page=custom-wp-notify&tab=logs"
+			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
 		</h2>
 
 		<form action="options.php" method="post">
