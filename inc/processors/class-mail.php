@@ -16,6 +16,7 @@ namespace BCcampus\Processors;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 class Mail {
+
 	/**
 	 * @var Queue
 	 */
@@ -34,18 +35,18 @@ class Mail {
 	 * @return bool
 	 */
 	private function verify() {
-		$ok       = true;
+		$ok       = TRUE;
 		$options  = $this->queue->getQueueOptions();
 		$settings = get_option( 'cwp_settings' );
 
 		// admin has disabled?
 		if ( ! isset( $settings['cwp_enable'] ) || ! $settings['cwp_enable'] === 1 ) {
-			return false;
+			return FALSE;
 		}
 
 		// have jobs?
-		if ( empty( $options['list'] ) || true === $options['safe_to_rebuild'] ) {
-			return false;
+		if ( empty( $options['list'] ) || TRUE === $options['safe_to_rebuild'] ) {
+			return FALSE;
 		}
 
 		// TODO check if it's stale (older than frequency perhaps?)
@@ -58,7 +59,7 @@ class Mail {
 	 *
 	 */
 	public function maybeRun() {
-		if ( false === $this->verify() ) {
+		if ( FALSE === $this->verify() ) {
 			return;
 		}
 		$subject  = 'Recent Events';
@@ -101,7 +102,7 @@ class Mail {
 
 		// flag the queue as safe to rebuild
 		if ( empty( $jobs['list'] ) ) {
-			$jobs['safe_to_rebuild'] = true;
+			$jobs['safe_to_rebuild'] = TRUE;
 			$jobs['attempts']        = 0;
 		} else {
 			// update the queue for the next round
@@ -118,7 +119,7 @@ class Mail {
 	 * @param $email
 	 */
 	public function runJustOne( $email ) {
-		if ( false === is_email( $email ) ) {
+		if ( FALSE === is_email( $email ) ) {
 			return;
 		}
 
@@ -215,13 +216,22 @@ class Mail {
 	 */
 	private function placeHolders( $vars ) {
 		// Events
-		$events = '<ul>';
-		$time = current_time( 'Y-m-d');
+		$events  = '<ul>';
+		$time    = current_time( 'Y-m-d' );
+		$options = get_option( 'cwp_template_settings' );
+		$limit   = $options['cwp_limit'];
+		$i       = 0;
+
 		foreach ( $vars['events'] as $event ) {
-			$event_title = urlencode(str_replace(' ', '-', $event['title']));
-			$campaign = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
-			$events .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
+			$event_title = urlencode( str_replace( ' ', '-', $event['title'] ) );
+			$campaign    = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
+			$events      .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
+			$i ++;
+			if ( $i >= $limit ) {
+				break;
+			}
 		}
+
 		$events .= '</ul>';
 
 		// Unsubscribe Link
