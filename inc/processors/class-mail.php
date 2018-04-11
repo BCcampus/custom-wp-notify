@@ -216,10 +216,10 @@ class Mail {
 	private function placeHolders( $vars ) {
 		// Events
 		$events = '<ul>';
-		$time = current_time( 'y-m-d');
+		$time = current_time( 'Y-m-d');
 		foreach ( $vars['events'] as $event ) {
 			$event_title = urlencode(str_replace(' ', '-', $event['title']));
-			$campaign = ( $vars['cwp_param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
+			$campaign = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
 			$events .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
 		}
 		$events .= '</ul>';
