@@ -39,13 +39,16 @@ class CwpOptions {
 	 */
 	function adminScripts() {
 		// Code Mirror
-		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
+		if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'template' ) {
 			wp_enqueue_script( 'wp-codemirror' );
 			wp_enqueue_script( 'htmlhint' );
 			wp_enqueue_script( 'csslint' );
 			wp_enqueue_style( 'wp-codemirror' );
+			wp_enqueue_script( 'cwp-codemirror-script',  plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], null, true );
+		} if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
 			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
-		}
+			wp_enqueue_script( 'cwp-multi-select-script',  plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], null, true );
+        }
 	}
 
 	/**
@@ -731,45 +734,6 @@ class CwpOptions {
 		}
 
 		echo '</form>';
-
-		// Do the CodeMirror JS in the appropriate tab to avoid console errors
-
-		if ( $active_tab === 'template' ) {
-			?>
-			<script type="text/javascript">
-			 (function ($, wp) {
-				 var e1 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_template'), {
-					lineNumbers: true,
-					matchBrackets: true,
-					mode: 'text/html'
-				});
-				var e2 = wp.CodeMirror.fromTextArea(document.getElementById('cwp_css'), {
-					lineNumbers: true,
-					matchBrackets: true,
-					mode: 'text/css'
-				});
-			})(window.jQuery, window.wp);
-			</script>
-			<?php
-		}
-		// Do the MultiSelect JS in the appropriate tab only
-		if ( $active_tab === 'manage-users' ) {
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function($) {
-				   $('#multiselect').multiselect({
-					search: {
-						left: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-						right: '<input type="text" name="q" class="form-control" placeholder="Filter by email or username..." />',
-					},
-					fireSearch: function(value) {
-						return value.length > 3;
-					}
-				});
-			});
-			</script>
-			<?php
-		}
 	}
 }
 
