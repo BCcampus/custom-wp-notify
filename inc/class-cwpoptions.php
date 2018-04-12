@@ -38,18 +38,22 @@ class CwpOptions {
 	 * add html and css syntax highlighting
 	 */
 	function adminScripts() {
-		// Code Mirror
-		if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'template' ) {
-			wp_enqueue_script( 'wp-codemirror' );
-			wp_enqueue_script( 'htmlhint' );
-			wp_enqueue_script( 'csslint' );
-			wp_enqueue_style( 'wp-codemirror' );
-			wp_enqueue_script( 'cwp-codemirror-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], NULL, TRUE );
+
+		if ( isset( $_REQUEST['page'] ) && $_REQUEST['page'] === $this::PAGE ) {
+			// Code Mirror
+			if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'template' ) {
+				wp_enqueue_script( 'wp-codemirror' );
+				wp_enqueue_script( 'htmlhint' );
+				wp_enqueue_script( 'csslint' );
+				wp_enqueue_style( 'wp-codemirror' );
+				wp_enqueue_script( 'cwp-codemirror-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], NULL, TRUE );
+			}
+			if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
+				wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], NULL, TRUE );
+				wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], NULL, TRUE );
+			}
 		}
-		if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
-			wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], NULL, TRUE );
-			wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], NULL, TRUE );
-		}
+
 	}
 
 	/**
@@ -409,6 +413,14 @@ class CwpOptions {
 		);
 
 		add_settings_field(
+			'cwp_start',
+			__( 'Notification Delayed Start (Hours):', 'custom-wp-notify' ),
+			[ $this, 'startRender' ],
+			$page,
+			$options . '_section'
+		);
+
+		add_settings_field(
 			'cwp_optin',
 			__( 'Subscribe text:', 'custom-wp-notify' ),
 			[ $this, 'optInTextRender' ],
@@ -454,7 +466,27 @@ class CwpOptions {
 		echo "<select name='cwp_settings[cwp_frequency]'>
 			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', FALSE ) . ">Daily</option>
 			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', FALSE ) . '>Weekly</option>
-		</select><small> <i>NOTE: Changing the frequency triggers notifications to be sent out immediately</i></small>';
+		</select><small> <i>NOTE: Changing the frequency triggers notifications to be sent out immediately if the delay (below) is set to zero.</i></small>';
+	}
+
+	/**
+	 * Render the options page frequency field
+	 */
+	function startRender() {
+
+		$options = get_option( 'cwp_settings' );
+		// add default
+		if ( ! isset( $options['cwp_start'] ) ) {
+			$options['cwp_start'] = 1;
+		}
+
+		$select_list = "<select name='cwp_settings[cwp_start]'>";
+		for ( $i = 0; $i <= 167; $i ++ ) {
+			$select_list .= "<option value='{$i}'" . selected( $options['cwp_start'], $i, FALSE ) . ">{$i}</option>";
+		}
+		$select_list .= '</select><small> <i>Delay sending the first notification by these many hours. Next scheduled build can be verified in the Logs tab.</i></small>';
+
+		echo $select_list;
 	}
 
 	/**
@@ -493,19 +525,23 @@ class CwpOptions {
 	 * @return mixed
 	 */
 	function sanitize( $settings ) {
-		$integers  = [ 'cwp_enable', 'cwp_param' ];
+		$integers  = [ 'cwp_enable', 'cwp_param', 'cwp_start' ];
 		$text_only = [ 'cwp_notify' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 
 		// integers
 		foreach ( $integers as $int ) {
-			$settings[ $int ] = absint( $settings[ $int ] );
+			if ( isset( $settings[ $int ] ) ) {
+				$settings[ $int ] = absint( $settings[ $int ] );
+			}
 		}
 
 		// text
 		foreach ( $text_only as $text ) {
-			$settings[ $text ] = sanitize_text_field( $settings[ $text ] );
+			if ( isset( $settings[ $text ] ) ) {
+				$settings[ $text ] = sanitize_text_field( $settings[ $text ] );
+			}
 		}
 
 		// enumeration
@@ -518,13 +554,11 @@ class CwpOptions {
 				'Could not find that Notification Frequency',
 				'error'
 			);
-		} elseif ( isset( $_POST['cwp_settings']['cwp_frequency'] ) ) {
+		} else {
 			// check for a change in the stored value
-			if ( 0 !== strcmp( $_POST['cwp_settings']['cwp_frequency'], $options['cwp_frequency'] ) ) {
-				BCcampus\Cron::getInstance()
-				             ->unScheduleEvents( 'cwp_cron_build_hook' );
-				BCcampus\Cron::getInstance()
-				             ->scheduleEventCustomInterval( $_POST['cwp_settings']['cwp_frequency'] );
+			if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
+				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
 			}
 		}
 
