@@ -32,7 +32,7 @@ class Queue {
 	public function __construct( Wp\Users $users ) {
 		$this->users = $users;
 		$em_events   = new Em\Events();
-		if ( $em_events->getRecentEvents() ) {
+		if ( $em_events->getRecentGroupedEvents() ) {
 			$this->events = $em_events;
 		}
 		// TODO add else to get API Events
@@ -72,7 +72,7 @@ class Queue {
 			return;
 		}
 
-		$events = $this->events->getTitlesAndLinks( $this->events->getRecentEvents() );
+		$events = $this->events->getTitlesAndLinks( $this->events->getRecentGroupedEvents() );
 
 		$queue = [
 			'queue'           => 'cwp_notify',
