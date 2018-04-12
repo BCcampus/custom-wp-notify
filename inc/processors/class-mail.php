@@ -118,7 +118,7 @@ class Mail {
 	 *
 	 * @param $email
 	 */
-	public function runJustOne( $email ) {
+	public function runJustTester( $email ) {
 
 		$name     = 'Tester';
 		$subject  = 'Test Recent Events';
@@ -140,13 +140,17 @@ class Mail {
 		if ( ! function_exists( 'wp_mail' ) ) {
 			include( ABSPATH . 'wp-includes/pluggable.php' );
 		}
-		$ok = \wp_mail( $to, $sub, $msg, $headers );
 
-		// take the recipient out of the list if it's been successful
-		if ( ! $ok ) {
-			\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $email );
+		$to = explode( ',', $to );
+
+		foreach ( $to as $recipient ) {
+			$ok = \wp_mail( $recipient, $sub, $msg, $headers );
+
+			// log if no success
+			if ( ! $ok ) {
+				\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $recipient );
+			}
 		}
-
 	}
 
 	/**
