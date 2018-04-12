@@ -116,9 +116,9 @@ class Mail {
 	/**
 	 * For testing, sends an email to one address
 	 *
-	 * @param $email
+	 * @param array $email
 	 */
-	public function runJustTester( $email ) {
+	public function runJustTester( array $email ) {
 
 		$name     = 'Tester';
 		$subject  = 'Test Recent Events';
@@ -140,8 +140,6 @@ class Mail {
 		if ( ! function_exists( 'wp_mail' ) ) {
 			include( ABSPATH . 'wp-includes/pluggable.php' );
 		}
-
-		$to = explode( ',', $to );
 
 		foreach ( $to as $recipient ) {
 			$ok = \wp_mail( $recipient, $sub, $msg, $headers );
