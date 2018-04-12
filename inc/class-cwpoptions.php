@@ -301,10 +301,11 @@ class CwpOptions {
 		$invalid = [];
 
 		// Loop through to check for invalid emails
-		foreach ( $email_trimmed as $email ) {
+		foreach ( $email_trimmed as $k => $email ) {
 			if ( FALSE === is_email( $email ) ) {
 				// If invalid email was found, let's add it to invalid[]
 				$invalid[] = $email;
+				unset( $email_trimmed[ $k ] );
 			}
 		}
 
@@ -316,6 +317,10 @@ class CwpOptions {
 				'Please enter only valid e-mail addresses.',
 				'error'
 			);
+
+			// put it back together, minus the baddies
+			$settings['test_send'] = implode( ',', $email_trimmed );
+
 		} else if ( count( $email_trimmed ) > 20 ) {
 			add_settings_error(
 				'cwp_uat_settings',
