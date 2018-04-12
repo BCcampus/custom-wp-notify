@@ -29,13 +29,45 @@ class Events {
 	 */
 	public function getRecentEvents() {
 		global $wpdb;
-		$today   = date( 'Y-m-d', time() );
+		$today = date( 'Y-m-d', time() );
 
 		$sanitized_query = $wpdb->prepare(
-			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events
-  LEFT JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_locations.location_id={$wpdb->prefix}em_events.location_id
-WHERE (`event_status`=1) AND (`recurrence`!=1 OR `recurrence` IS NULL) AND (`event_private`=0 OR (`event_private`=1 AND (`group_id` IS NULL OR `group_id` = 0)) OR (`event_private`=1 AND `group_id` IN (1))) AND  (event_start_date > CAST(%s AS DATE))
-ORDER BY event_start_date ASC, event_start_time ASC, event_name ASC OFFSET 0", $today);
+			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events 
+					LEFT JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_locations.location_id={$wpdb->prefix}em_events.location_id
+					WHERE (`event_status`=1) 
+					AND (`recurrence`!=1 OR `recurrence` IS NULL) 
+					AND (`event_private`=0 OR (`event_private`=1 AND (`group_id` IS NULL OR `group_id` = 0)) OR (`event_private`=1 AND `group_id` IN (1))) 
+					AND  (event_start_date > CAST(%s AS DATE))
+					ORDER BY event_start_date ASC, event_start_time ASC, event_name ASC OFFSET 0", $today );
+
+		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+
+		return $results;
+	}
+
+	/**
+	 * @return array|null|object
+	 */
+	public function getRecentGroupedEvents() {
+		global $wpdb;
+		$today = date( 'Y-m-d', time() );
+
+		$sanitized_query = $wpdb->prepare(
+			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id
+					FROM (
+						SELECT {$wpdb->prefix}em_events.*,
+							@cur := IF({$wpdb->prefix}em_events.location_id = @id, @cur+1, 1) AS RowNumber,
+							@id := {$wpdb->prefix}em_events.location_id AS IdCache
+						FROM {$wpdb->prefix}em_events
+						INNER JOIN (
+							SELECT @id:=0, @cur:=0
+						) AS lookup
+						
+						 WHERE (`event_status`=1) AND (`recurrence`!=1 OR `recurrence` IS NULL) AND ( event_start >= CAST(%s AS DATE) OR (event_end >= CAST(%s AS DATE))) AND (`event_private`=0 OR (`event_private`=1 AND (`group_id` IS NULL OR `group_id` = 0)) OR (`event_private`=1 AND `group_id` IN (1)))
+						ORDER BY {$wpdb->prefix}em_events.location_id , event_date_created DESC
+						) {$wpdb->prefix}em_events
+					WHERE RowNumber = 1
+					ORDER BY event_date_created DESC;", $today, $today );
 
 		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
 
