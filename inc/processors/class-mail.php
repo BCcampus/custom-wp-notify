@@ -73,6 +73,7 @@ class Mail {
 			$sub      = $subject;
 			$msg      = $this->applyTemplates( $jobs['payload'], $name );
 			$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+			$current_blog = get_option( 'blogname' );
 
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
@@ -80,7 +81,7 @@ class Mail {
 
 			$headers = [
 				'Content-Type: text/html; charset=UTF-8',
-				'From:' . $sitename . '<no-reply@' . $sitename . '>',
+				'From:' . $current_blog . '<no-reply@' . $sitename . '>',
 			];
 
 			if ( ! function_exists( 'wp_mail' ) ) {
