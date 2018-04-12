@@ -289,7 +289,7 @@ class CwpOptions {
 	 * @return mixed
 	 */
 	function sanitizeUat( $settings ) {
-		$success_msg = 'Email sent. Please check your inbox';
+		$success_msg = 'Email(s) sent. Please check your inbox';
 
 		// Get the comma separated email addresses
 		$email_list = explode( ',', $settings['test_send'] );
@@ -314,7 +314,7 @@ class CwpOptions {
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
-				'Please enter only valid e-mail addresses.',
+				'Please enter only valid e-mail addresses. Notifications have not been sent, invalid emails have been removed.',
 				'error'
 			);
 
@@ -325,7 +325,7 @@ class CwpOptions {
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
-				'Exceeded maximum limit of 20 email addresses.',
+				'Exceeded maximum limit of 20 email addresses. Notifications have not been sent.',
 				'error'
 			);
 		} // All e-mails were valid and within the limit, proceed
