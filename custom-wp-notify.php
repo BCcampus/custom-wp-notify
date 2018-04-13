@@ -6,7 +6,7 @@
  * Author:          bdolor
  * Text Domain:     custom-wp-notify
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         0.5.0
  *
  * @package         Custom_Wp_Notify
  */
