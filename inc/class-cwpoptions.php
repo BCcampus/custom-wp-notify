@@ -234,7 +234,7 @@ class CwpOptions {
 		$timestamp      = wp_next_scheduled( 'cwp_cron_build_hook' );
 
 		if ( $options['sent'] ) {
-			$sent_list = implode( ', ', array_keys( $options['sent'] ) );
+			$sent_list = implode( ', ', array_values( $options['sent'] ) );
 		} else {
 			$sent_list = 'no previously sent notifications';
 		}
