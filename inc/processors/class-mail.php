@@ -66,7 +66,7 @@ class Mail {
 		$limit    = 20;
 		$jobs     = $this->queue->getQueueOptions();
 		$attempts = $jobs['attempts'];
-
+		$sent_list    = [];
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
 			$to           = $email;
@@ -74,7 +74,6 @@ class Mail {
 			$msg          = $this->applyTemplates( $jobs['payload'], $name );
 			$sitename     = strtolower( $_SERVER['SERVER_NAME'] );
 			$current_blog = get_option( 'blogname' );
-			$sent_list    = [];
 
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 				$sitename = substr( $sitename, 4 );
@@ -105,8 +104,7 @@ class Mail {
 		}
 
 		// Add the sent list array to the cwp_queue options
-		$sent = [ 'sent' => $sent_list ];
-		update_option( 'cwp_queue', $sent );
+		$jobs['sent'] = $sent_list;
 
 		// flag the queue as safe to rebuild
 		if ( empty( $jobs['list'] ) ) {
