@@ -225,12 +225,20 @@ class CwpOptions {
 	 *
 	 */
 	function cronLogs() {
-		$options       = get_option( 'cwp_queue' );
-		$last_build    = date( 'F d, Y g:i A (T)', $options['created_at'] );
-		$remaining     = count( $options['list'] );
-		$attempts      = $options['attempts'];
-		$recent_events = count( $options['payload'] );
-		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
+		$options        = get_option( 'cwp_queue' );
+		$last_build     = date( 'F d, Y g:i A (T)', $options['created_at'] );
+		$remaining      = count( $options['list'] );
+		$remaining_list = implode( ', ', array_keys( $options['list'] ) );
+		$attempts       = $options['attempts'];
+		$recent_events  = count( $options['payload'] );
+		$timestamp      = wp_next_scheduled( 'cwp_cron_build_hook' );
+
+		if ( $options['sent'] ) {
+			$sent_list = implode( ', ', array_values( $options['sent'] ) );
+		} else {
+			$sent_list = 'no previously sent notifications';
+		}
+
 		if ( ! empty( $timestamp ) ) {
 			$next = date( 'F d, Y g:i A (T)', $timestamp );
 		} else {
@@ -243,6 +251,8 @@ class CwpOptions {
 		$html .= '<tr><td><b>Remaining notifications:</b></td><td>' . $remaining . '</td></tr>';
 		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b></td><td>' . $attempts . '</td></tr>';
 		$html .= '<tr><td><b>Number of published events:</b></td><td>' . $recent_events . '</td></tr>';
+		$html .= '<tr><td><b>Previously sent notifications to: </b></td><td>' . $sent_list . '</td></tr>';
+		$html .= '<tr><td><b>Upcoming notifications will be sent to: </b></td><td>' . $remaining_list . '</td></tr>';
 		$html .= '</table>';
 
 		echo $html;

@@ -59,20 +59,20 @@ class Mail {
 	 *
 	 */
 	public function maybeRun() {
-		if ( FALSE === $this->verify() ) {
+		if ( false === $this->verify() ) {
 			return;
 		}
 		$subject  = 'Recent Events';
 		$limit    = 20;
 		$jobs     = $this->queue->getQueueOptions();
 		$attempts = $jobs['attempts'];
-
+		$sent_list    = [];
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
-			$to       = $email;
-			$sub      = $subject;
-			$msg      = $this->applyTemplates( $jobs['payload'], $name );
-			$sitename = strtolower( $_SERVER['SERVER_NAME'] );
+			$to           = $email;
+			$sub          = $subject;
+			$msg          = $this->applyTemplates( $jobs['payload'], $name );
+			$sitename     = strtolower( $_SERVER['SERVER_NAME'] );
 			$current_blog = get_option( 'blogname' );
 
 			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
@@ -91,6 +91,8 @@ class Mail {
 
 			// take the recipient out of the list if it's been successful
 			if ( $ok ) {
+				// add them to the sent list
+				$sent_list [] = $email;
 				unset( $jobs['list'][ $email ] );
 			} else {
 				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email );
@@ -101,9 +103,12 @@ class Mail {
 			}
 		}
 
+		// Add the sent list array to the cwp_queue options
+		$jobs['sent'] = $sent_list;
+
 		// flag the queue as safe to rebuild
 		if ( empty( $jobs['list'] ) ) {
-			$jobs['safe_to_rebuild'] = TRUE;
+			$jobs['safe_to_rebuild'] = true;
 			$jobs['attempts']        = 0;
 		} else {
 			// update the queue for the next round
