@@ -29,7 +29,7 @@ Let your WordPress users opt-in to receive e-mail notifications based on their p
 * [bug] fix logic of recent events to be grouped
 * [feature] give admins ability to control how many events are displayed in email
 * [feature] extend test email functionality to send to multiple recipients
-* [feature] provide greater flexibility with user subsription management
+* [feature] provide greater flexibility with user subscription management
 
 = 0.1.0 =
 * initial commit
