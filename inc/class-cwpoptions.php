@@ -46,11 +46,11 @@ class CwpOptions {
 				wp_enqueue_script( 'htmlhint' );
 				wp_enqueue_script( 'csslint' );
 				wp_enqueue_style( 'wp-codemirror' );
-				wp_enqueue_script( 'cwp-codemirror-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], NULL, TRUE );
+				wp_enqueue_script( 'cwp-codemirror-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-codemirror.js', [ 'jquery' ], null, true );
 			}
 			if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
-				wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], NULL, TRUE );
-				wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], NULL, TRUE );
+				wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
+				wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], null, true );
 			}
 		}
 
@@ -112,7 +112,7 @@ class CwpOptions {
 				// Get the user ID
 				$user_id = $userobject->ID;
 				// Get the existing preference if any
-				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 				// Update their preference only if it's different
 				if ( $user_value != '0' ) {
 					update_user_meta( $user_id, 'cwp_notify', '0' );
@@ -127,7 +127,7 @@ class CwpOptions {
 				// Get the user ID
 				$user_id = $userobject->ID;
 				// Get the existing preference if any
-				$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+				$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 				// Update their preference only if it's different
 				if ( $user_value != '1' ) {
 					update_user_meta( $user_id, 'cwp_notify', '1' );
@@ -146,7 +146,7 @@ class CwpOptions {
 		// To build the listboxes, we need to check for the value of cwp_notify, so let's make sure it exists.
 		foreach ( $all_users as $user ) {
 			// get the existing meta values
-			$user_preference = get_user_meta( $user->ID, 'cwp_notify', TRUE );
+			$user_preference = get_user_meta( $user->ID, 'cwp_notify', true );
 
 			// If a preference doesn't already exist, create it with default to 0
 			if ( ! ( $user_preference == '1' || $user_preference == '0' ) ) {
@@ -228,15 +228,28 @@ class CwpOptions {
 		$options        = get_option( 'cwp_queue' );
 		$last_build     = date( 'F d, Y g:i A (T)', $options['created_at'] );
 		$remaining      = count( $options['list'] );
-		$remaining_list = implode( ', ', array_keys( $options['list'] ) );
 		$attempts       = $options['attempts'];
 		$recent_events  = count( $options['payload'] );
 		$timestamp      = wp_next_scheduled( 'cwp_cron_build_hook' );
 
 		if ( $options['sent'] ) {
-			$sent_list = implode( ', ', array_values( $options['sent'] ) );
+			$sent_list = '<ol>';
+			foreach ( array_values( $options['sent'] ) as $email ) {
+				$sent_list .= "<li>{$email}</li>";
+			}
+			$sent_list .= '</ol>';
 		} else {
-			$sent_list = 'no previously sent notifications';
+			$sent_list = '';
+		}
+
+		if ( $options['list'] ) {
+			$remaining_list = '<ol>';
+			foreach ( array_values( $options['sent'] ) as $email ) {
+				$sent_list .= "<li>{$email}</li>";
+			}
+			$remaining_list .= '</ol>';
+		} else {
+			$remaining_list = '';
 		}
 
 		if ( ! empty( $timestamp ) ) {
@@ -245,15 +258,18 @@ class CwpOptions {
 			$next = 'none scheduled';
 		}
 
-		$html = '<table>';
-		$html .= '<tr><td><b>Last build:</b></td><td>' . $last_build . '</td></tr>';
-		$html .= '<tr><td><b>Next scheduled:</b></td><td>' . $next . '</td></tr>';
-		$html .= '<tr><td><b>Remaining notifications:</b></td><td>' . $remaining . '</td></tr>';
-		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b></td><td>' . $attempts . '</td></tr>';
-		$html .= '<tr><td><b>Number of published events:</b></td><td>' . $recent_events . '</td></tr>';
-		$html .= '<tr><td><b>Previously sent notifications to: </b></td><td>' . $sent_list . '</td></tr>';
-		$html .= '<tr><td><b>Upcoming notifications will be sent to: </b></td><td>' . $remaining_list . '</td></tr>';
-		$html .= '</table>';
+		$html = '<table class="form-table"><tbody>';
+		$html .= '<tr><td><b>Last build:</b>&nbsp;</td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Next scheduled:</b>&nbsp;</td><td>' . $next . '</td></tr>';
+		$html .= '<tr><td><b>Remaining notifications:</b>&nbsp;</td><td>' . $remaining . '</td></tr>';
+		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b>&nbsp;</td><td>' . $attempts . '</td></tr>';
+		$html .= '<tr><td><b>Number of recent events available:</b>&nbsp;</td><td>' . $recent_events . '</td></tr>';
+		$html .= '</tbody></table>';
+
+		$html .= '<hr><table class="widefat"><caption>Archive</caption><tbody>';
+		$html .= '<thead><tr><th>Sent:</th><th>Awaiting:</th></tr></thead>';
+		$html .= '<tr><td>' . $sent_list . '</td><td>' . $remaining_list . '</td></tr>';
+		$html .= '</tbody></table>';
 
 		echo $html;
 	}
@@ -316,7 +332,7 @@ class CwpOptions {
 
 		// Loop through to check for invalid emails
 		foreach ( $email_trimmed as $k => $email ) {
-			if ( FALSE === is_email( $email ) ) {
+			if ( false === is_email( $email ) ) {
 				// If invalid email was found, let's add it to invalid[]
 				$invalid[] = $email;
 				unset( $email_trimmed[ $k ] );
@@ -324,7 +340,7 @@ class CwpOptions {
 		}
 
 		// Check if there were any invalid email addresses added to $invalid[]
-		if ( FALSE === empty( $invalid ) ) {
+		if ( false === empty( $invalid ) ) {
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
@@ -335,7 +351,7 @@ class CwpOptions {
 			// put it back together, minus the baddies
 			$settings['test_send'] = implode( ',', $email_trimmed );
 
-		} else if ( count( $email_trimmed ) > 20 ) {
+		} elseif ( count( $email_trimmed ) > 20 ) {
 			add_settings_error(
 				'cwp_uat_settings',
 				'settings_uat_updated',
@@ -459,7 +475,7 @@ class CwpOptions {
 			$options['cwp_enable'] = 0;
 		}
 
-		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, FALSE ) . " value='1'>";
+		echo "<input type='checkbox' name='cwp_settings[cwp_enable]'" . checked( $options['cwp_enable'], 1, false ) . " value='1'>";
 	}
 
 	/**
@@ -474,8 +490,8 @@ class CwpOptions {
 		}
 
 		echo "<select name='cwp_settings[cwp_frequency]'>
-			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', FALSE ) . ">Daily</option>
-			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', FALSE ) . '>Weekly</option>
+			<option value='daily'" . selected( $options['cwp_frequency'], 'daily', false ) . ">Daily</option>
+			<option value='cwp_weekly'" . selected( $options['cwp_frequency'], 'cwp_weekly', false ) . '>Weekly</option>
 		</select><small> <i>NOTE: Changing the frequency triggers notifications to be sent out immediately if the delay (below) is set to zero.</i></small>';
 	}
 
@@ -492,7 +508,7 @@ class CwpOptions {
 
 		$select_list = "<select name='cwp_settings[cwp_start]'>";
 		for ( $i = 0; $i <= 167; $i ++ ) {
-			$select_list .= "<option value='{$i}'" . selected( $options['cwp_start'], $i, FALSE ) . ">{$i}</option>";
+			$select_list .= "<option value='{$i}'" . selected( $options['cwp_start'], $i, false ) . ">{$i}</option>";
 		}
 		$select_list .= '</select><small> <i>Delay sending the first notification by these many hours. Next scheduled build can be verified in the Logs tab.</i></small>';
 
@@ -526,7 +542,7 @@ class CwpOptions {
 			$options['cwp_param'] = 0;
 		}
 
-		echo "<input type='checkbox' name='cwp_settings[cwp_param]'" . checked( $options['cwp_param'], 1, FALSE ) . " value='1'>";
+		echo "<input type='checkbox' name='cwp_settings[cwp_param]'" . checked( $options['cwp_param'], 1, false ) . " value='1'>";
 	}
 
 	/**
@@ -697,7 +713,7 @@ class CwpOptions {
 
 		$select_list = "<select name='cwp_template_settings[cwp_limit]'>";
 		for ( $i = 1; $i <= 20; $i ++ ) {
-			$select_list .= "<option value='{$i}'" . selected( $options['cwp_limit'], $i, FALSE ) . ">{$i}</option>";
+			$select_list .= "<option value='{$i}'" . selected( $options['cwp_limit'], $i, false ) . ">{$i}</option>";
 		}
 		$select_list .= '</select>';
 
@@ -729,7 +745,7 @@ class CwpOptions {
 			$settings[ $email ] = sanitize_email( $settings[ $email ] );
 		}
 
-		if ( empty( $settings['cwp_unsubscribe'] ) || FALSE === is_email( $settings['cwp_unsubscribe'] ) ) {
+		if ( empty( $settings['cwp_unsubscribe'] ) || false === is_email( $settings['cwp_unsubscribe'] ) ) {
 			add_settings_error(
 				'cwp_template_options',
 				'settings_updated',
@@ -757,28 +773,28 @@ class CwpOptions {
 	function optionsPage() {
 		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
 		?>
-        <!-- Bootstrap styling -->
-        <link rel="stylesheet"
-              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-              crossorigin="anonymous">
-        <h2>Custom WP Notify</h2>
-        <div id="icon-options-general" class="icon32"></div>
-        <h2 class="nav-tab-wrapper">
-            <a href="?page=custom-wp-notify&tab=general"
-               class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
-            <a href="?page=custom-wp-notify&tab=template"
-               class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
-            <a href="?page=custom-wp-notify&tab=testing"
-               class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
-            <a href="?page=custom-wp-notify&tab=manage-users"
-               class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
-                Management</a>
-            <a href="?page=custom-wp-notify&tab=logs"
-               class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
-        </h2>
+		<!-- Bootstrap styling -->
+		<link rel="stylesheet"
+			  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+			  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+			  crossorigin="anonymous">
+		<h2>Custom WP Notify</h2>
+		<div id="icon-options-general" class="icon32"></div>
+		<h2 class="nav-tab-wrapper">
+			<a href="?page=custom-wp-notify&tab=general"
+			   class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
+			<a href="?page=custom-wp-notify&tab=template"
+			   class="nav-tab <?php echo $active_tab == 'template' ? 'nav-tab-active' : ''; ?>">Template</a>
+			<a href="?page=custom-wp-notify&tab=testing"
+			   class="nav-tab <?php echo $active_tab == 'testing' ? 'nav-tab-active' : ''; ?>">Testing</a>
+			<a href="?page=custom-wp-notify&tab=manage-users"
+			   class="nav-tab <?php echo $active_tab == 'manage-users' ? 'nav-tab-active' : ''; ?>">Subscription
+				Management</a>
+			<a href="?page=custom-wp-notify&tab=logs"
+			   class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>">Logs</a>
+		</h2>
 
-        <form action="options.php" method="post">
+		<form action="options.php" method="post">
 		<?php
 
 		switch ( $active_tab ) {

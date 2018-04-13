@@ -35,18 +35,18 @@ class Mail {
 	 * @return bool
 	 */
 	private function verify() {
-		$ok       = TRUE;
+		$ok       = true;
 		$options  = $this->queue->getQueueOptions();
 		$settings = get_option( 'cwp_settings' );
 
 		// admin has disabled?
 		if ( ! isset( $settings['cwp_enable'] ) || ! $settings['cwp_enable'] === 1 ) {
-			return FALSE;
+			return false;
 		}
 
 		// have jobs?
-		if ( empty( $options['list'] ) || TRUE === $options['safe_to_rebuild'] ) {
-			return FALSE;
+		if ( empty( $options['list'] ) || true === $options['safe_to_rebuild'] ) {
+			return false;
 		}
 
 		// TODO check if it's stale (older than frequency perhaps?)
@@ -67,6 +67,7 @@ class Mail {
 		$jobs     = $this->queue->getQueueOptions();
 		$attempts = $jobs['attempts'];
 		$sent_list    = [];
+
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
 			$to           = $email;
