@@ -41,7 +41,7 @@ class Cron {
 		add_action( 'cwp_cron_build_hook', [ $this, 'buildTheQueue' ] );
 		add_action( 'init', [ $this, 'scheduleEvents' ] );
 		add_action( 'init', [ $this, 'unScheduleEvents' ] );
-		add_action( 'init', [ $this, 'scheduleEventCustomInterval' ], 10, 1 );
+		add_action( 'init', [ $this, 'scheduleEventCustomInterval' ], 10, 2 );
 		add_filter( 'cron_schedules', [ $this, 'mailInterval' ] );
 		add_filter( 'cron_schedules', [ $this, 'weeklyInterval' ] );
 
@@ -126,16 +126,18 @@ class Cron {
 	/**
 	 *
 	 * @param $interval
+	 * @param int $delay
 	 */
-	public function scheduleEventCustomInterval( $interval ) {
+	public function scheduleEventCustomInterval( $interval, $delay = 0 ) {
 		if ( empty( $interval ) ) {
 			$interval = 'cwp_weekly';
 		}
+		$delay = HOUR_IN_SECONDS * $delay;
 		$hook      = 'cwp_cron_build_hook';
 		$timestamp = wp_next_scheduled( $hook );
 
 		if ( ! $timestamp ) {
-			wp_schedule_event( time(), $interval, $hook );
+			wp_schedule_event( time() + $delay, $interval, $hook );
 		}
 
 	}
