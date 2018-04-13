@@ -124,9 +124,9 @@ register_deactivation_hook(
 |
 |
 */
-//$u = new \BCcampus\Models\Wp\Users();
-//$q = new \BCcampus\Processors\Queue( $u );
-//$q->maybeBuild();
+$u = new \BCcampus\Models\Wp\Users();
+$q = new \BCcampus\Processors\Queue( $u );
+$q->maybeBuild();
 //echo '<pre>'; print_r( _get_cron_array() ); echo '</pre>';
 //$u = new \BCcampus\Models\Wp\Users();
 //$q = new \BCcampus\Processors\Queue( $u );
