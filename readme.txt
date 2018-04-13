@@ -23,7 +23,7 @@ Let your WordPress users opt-in to receive e-mail notifications based on their p
 
 == Changelog ==
 
-= 0.5.0 2018-04-13=
+= 0.5.0 2018-04-13 =
 * [feature] add Matomo integration for email campaigns
 * [feature] move template control to admin interface
 * [bug] fix logic of recent events to be grouped
