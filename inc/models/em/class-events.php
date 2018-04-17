@@ -77,6 +77,32 @@ class Events {
 	}
 
 	/**
+	 * @param int $taxonomy_id
+	 *
+	 * @return array|null|object
+	 */
+	public function getRecentCategoryEvents( int $taxonomy_id ) {
+		global $wpdb;
+		$today = date( 'Y-m-d', time() );
+
+		$sanitized_query = $wpdb->prepare(
+			"SELECT SQL_CALC_FOUND_ROWS  {$wpdb->prefix}posts.ID FROM {$wpdb->prefix}posts  LEFT JOIN {$wpdb->prefix}term_relationships ON ({$wpdb->prefix}posts.ID = {$wpdb->prefix}term_relationships.object_id) INNER JOIN {$wpdb->prefix}postmeta ON ( {$wpdb->prefix}posts.ID = {$wpdb->prefix}postmeta.post_id )  INNER JOIN {$wpdb->prefix}postmeta AS mt1 ON ( {$wpdb->prefix}posts.ID = mt1.post_id ) WHERE 1=1  AND ( 
+  					{$wpdb->prefix}term_relationships.term_taxonomy_id IN ( $taxonomy_id )
+					) AND ( 
+					  {$wpdb->prefix}postmeta.meta_key = '_event_start_local' 
+					  AND 
+					  ( 
+					    ( mt1.meta_key = '_event_end' AND CAST(mt1.meta_value AS DATETIME) > %s )
+					  )
+					) AND {$wpdb->prefix}posts.post_type = 'event' AND ({$wpdb->prefix}posts.post_status = 'publish' OR {$wpdb->prefix}posts.post_status = 'private') GROUP BY {$wpdb->prefix}posts.ID ORDER BY CAST({$wpdb->prefix}postmeta.meta_value AS DATETIME) ASC LIMIT 0, 10", $today
+				);
+
+		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+
+		return $results;
+	}
+
+	/**
 	 * Given and array of post ids will retrieve titles and links
 	 *
 	 * @param array $post_ids
