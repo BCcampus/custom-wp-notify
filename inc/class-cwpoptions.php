@@ -141,38 +141,36 @@ class CwpOptions {
 	 */
 	function manageUsers() {
 
-		$all_users = get_users();
+		$all_users      = get_users();
+		$subscribed     = [];
+		$not_subscribed = [];
 
-		// To build the listboxes, we need to check for the value of cwp_notify, so let's make sure it exists.
 		foreach ( $all_users as $user ) {
-			// get the existing meta values
-			$user_preference = get_user_meta( $user->ID, 'cwp_notify', true );
-
-			// If a preference doesn't already exist, create it with default to 0
-			if ( ! ( $user_preference == '1' || $user_preference == '0' ) ) {
-				update_user_meta( $all_users->ID, 'cwp_notify', '0' );
+		    
+			// skip over spam users, or those not yet registered
+			if ( '0' !== $user->data->user_status ) {
+				continue;
+			}
+			
+			$preference = get_user_meta( $user->ID, 'cwp_notify', true );
+			if ( $preference === '1' ) {
+				$subscribed[] = [
+					'email' => $user->user_email,
+					'login' => $user->user_login,
+				];
+			} else {
+				$not_subscribed[] = [
+					'email' => $user->user_email,
+					'login' => $user->user_login,
+				];
 			}
 		}
-
-		$subscribed     = get_users(
-			[
-				'meta_key'   => 'cwp_notify',
-				'meta_value' => '1',
-			]
-		);
-		$not_subscribed = get_users(
-			[
-				'meta_key'     => 'cwp_notify',
-				'meta_value'   => '1',
-				'meta_compare' => '!=',
-			]
-		);
 
 		$html = "<div class='row'><div class='col-xs-5'>";
 		$html .= '<h5>Subscribed</h5>';
 		$html .= "<select name='yes[]' id='multiselect' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
+			$html .= "<option value='{$user['login']}'>{$user['email']}[{$user['login']}]</option>";
 		}
 		$html .= '</select></div>';
 		$html .= "<div class='col-xs-2'>";
@@ -184,7 +182,7 @@ class CwpOptions {
 		$html .= '<h5>Not Subscribed</h5>';
 		$html .= "<select name='no[]' id='multiselect_to' class='form-control' size='8' multiple='multiple'>";
 		foreach ( $not_subscribed as $user ) {
-			$html .= "<option value='{$user->user_login}'>$user->user_email [$user->user_login]</option>";
+			$html .= "<option value='{$user['login']}'>{$user['email']}[{$user['login']}]</option>";
 		}
 		$html .= '</select></div></div>';
 
@@ -225,12 +223,12 @@ class CwpOptions {
 	 *
 	 */
 	function cronLogs() {
-		$options        = get_option( 'cwp_queue' );
-		$last_build     = date( 'F d, Y g:i A (T)', $options['created_at'] );
-		$remaining      = count( $options['list'] );
-		$attempts       = $options['attempts'];
-		$recent_events  = count( $options['payload'] );
-		$timestamp      = wp_next_scheduled( 'cwp_cron_build_hook' );
+		$options       = get_option( 'cwp_queue' );
+		$last_build    = date( 'F d, Y g:i A (T)', $options['created_at'] );
+		$remaining     = count( $options['list'] );
+		$attempts      = $options['attempts'];
+		$recent_events = count( $options['payload'] );
+		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
 
 		if ( $options['sent'] ) {
 			$sent_list = '<ol>';
@@ -775,9 +773,9 @@ class CwpOptions {
 		?>
 		<!-- Bootstrap styling -->
 		<link rel="stylesheet"
-			  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-			  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-			  crossorigin="anonymous">
+		      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+		      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+		      crossorigin="anonymous">
 		<h2>Custom WP Notify</h2>
 		<div id="icon-options-general" class="icon32"></div>
 		<h2 class="nav-tab-wrapper">
