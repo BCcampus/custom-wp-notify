@@ -146,6 +146,12 @@ class CwpOptions {
 		$not_subscribed = [];
 
 		foreach ( $all_users as $user ) {
+		    
+			// skip over spam users, or those not yet registered
+			if ( '0' !== $user->data->user_status ) {
+				continue;
+			}
+			
 			$preference = get_user_meta( $user->ID, 'cwp_notify', true );
 			if ( $preference === '1' ) {
 				$subscribed[] = [
