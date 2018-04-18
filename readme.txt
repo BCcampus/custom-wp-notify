@@ -3,7 +3,7 @@ Contributors: bdolor,aparedes
 Tags: notifications, email
 Requires at least: 4.9.5
 Tested up to: 4.9.5
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

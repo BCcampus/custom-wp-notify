@@ -92,10 +92,10 @@ class CwpBp {
 	 */
 	function bpActivated( $user_id, $key, $user ) {
 
-		$tag = 'notify';
+		$tag = 'cwp_bp_notify';
 
 		if ( $user_id && ! empty( $user['meta'][ $tag ] ) ) {
-			return update_user_meta( $user_id, "cwp_{$tag}", $user['meta'][ $tag ] );
+			return update_user_meta( $user_id, 'cwp_notify', $user['meta'][ $tag ] );
 		}
 	}
 
