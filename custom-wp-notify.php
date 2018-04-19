@@ -106,20 +106,6 @@ register_deactivation_hook(
 
 /*
 |--------------------------------------------------------------------------
-| Activation
-|--------------------------------------------------------------------------
-|
-| register meta value for all users, set to off/unsubscribe
-|
-|
-*/
-register_activation_hook( __FILE, function () {
-	$w = new \BCcampus\Models\Wp\Users();
-	$w->updateUserList( 0 );
-} );
-
-/*
-|--------------------------------------------------------------------------
 | Cron Instance
 |--------------------------------------------------------------------------
 |
