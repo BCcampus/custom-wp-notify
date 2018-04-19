@@ -103,6 +103,22 @@ class Events {
 	}
 
 	/**
+	 * @return array|null|object
+	 */
+	public function getEventCategories() {
+		global $wpdb;
+
+		$sanitized_query = $wpdb->prepare(
+			"SELECT {$wpdb->prefix}term_taxonomy.term_id FROM {$wpdb->prefix}term_taxonomy
+					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'"
+		);
+
+		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+
+		return $results;
+	}
+
+	/**
 	 * Given and array of post ids will retrieve titles and links
 	 *
 	 * @param array $post_ids
