@@ -109,7 +109,8 @@ class Events {
 		global $wpdb;
 
 		$sanitized_query = $wpdb->prepare(
-			"SELECT {$wpdb->prefix}term_taxonomy.term_id FROM {$wpdb->prefix}term_taxonomy
+			"SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
+					INNER JOIN {$wpdb->prefix}terms on ({$wpdb->prefix}term_taxonomy.term_id = {$wpdb->prefix}terms.term_id)
 					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'"
 		);
 

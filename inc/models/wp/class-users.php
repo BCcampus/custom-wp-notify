@@ -47,7 +47,7 @@ class Users {
 	}
 
 	/**
-	 * will update all existing users to either unsub
+	 * will update existing users to either un/subscribe
 	 *
 	 * @param int $notify
 	 */

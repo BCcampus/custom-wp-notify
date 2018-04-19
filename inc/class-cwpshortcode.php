@@ -10,6 +10,8 @@
 
 namespace BCcampus;
 
+use BCcampus\Models\Em;
+
 class CwpShortcode {
 
 	/**
@@ -22,6 +24,9 @@ class CwpShortcode {
 			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
 			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
 		}
+//		if ( \is_plugin_active( 'events-manager/events-manager.php' ) ) {
+			add_shortcode( 'cwp_notify_em_cat', [ $this, 'emShortCode' ] );
+//		}
 	}
 
 	/**
@@ -35,7 +40,7 @@ class CwpShortcode {
 		// Get prefix text for our checkbox from the plugin options
 		$getoptions = get_option( 'cwp_settings' );
 
-		if ( is_user_logged_in() ) {
+		if ( \is_user_logged_in() ) {
 			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify', true );
 
 			// Set default prefix text for the checkbox if none exists
@@ -58,6 +63,35 @@ class CwpShortcode {
 			$html = '<div class="cwp-notify">';
 			$html .= $disabled_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="" disabled>';
 			$html .= '</div>';
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @param $atts
+	 *
+	 * @return string
+	 */
+	function emShortCode( $atts ) {
+		$em   = new Em\Events();
+		$html = '';
+		if ( \is_user_logged_in() ) {
+			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
+			$cats       = $em->getEventCategories();
+
+			if ( ! empty( $cats ) ) {
+				$html = '<fieldset>';
+				$html .= '<legend>Choose my professional development interests</legend>';
+				$html .= '<div class="checkbox">';
+				foreach ( $cats as $category ) {
+
+					$html .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
+					$html .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories' id='{$category['term_id']}'" . checked( $user_value[ $category['term_id'] ], 1, FALSE ) . " value='{$category['term_id']}'>";
+					$html .= "{$category['name']}</label>";
+				}
+				$html .= '</div></fieldset>';
+			}
 		}
 
 		return $html;
