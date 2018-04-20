@@ -44,14 +44,14 @@ class CwpShortcode {
 		$label = get_option( 'cwp_settings' );
 
 		if ( \is_user_logged_in() ) {
-			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify', TRUE );
+			$user_value = get_user_meta( get_current_user_id(), 'cwp_notify', true );
 
 			// Set default prefix text for the checkbox if none exists
 			( $label['cwp_notify'] ) ? $opt_in_text = $label['cwp_notify'] : $opt_in_text = 'Subscribe to Notifications';
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
 			$html = '<div class="cwp-notify">';
-			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, FALSE ) . ' value="1">';
+			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">';
 			$html .= '<span class="cwp-loading">' . __( '...', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message-error">' . __( 'Error', 'custom-wp-notify' ) . '</span>';
@@ -80,7 +80,7 @@ class CwpShortcode {
 		$em   = new Em\Events();
 		$html = '';
 		if ( \is_user_logged_in() ) {
-			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', true );
 			$cats       = $em->getEventCategories();
 
 			if ( ! empty( $cats ) ) {
@@ -88,10 +88,13 @@ class CwpShortcode {
 				$html .= '<legend>Choose my professional development interests</legend>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
-					$checked = ( in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
-					$html    .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
-					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, FALSE ) . " value='{$category['term_id']}'>";
-					$html    .= "{$category['name']}</label>";
+					// set state of checkbox only if user preference exists
+					if ( $user_prefs != '' ) {
+						$checked = ( in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
+					}
+					$html .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
+					$html .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, false ) . " value='{$category['term_id']}'>";
+					$html .= "{$category['name']}</label>";
 				}
 				$html .= '<br><button class="notifiable-categories" type="submit">Submit</button>';
 				$html .= '<span class="cwp-cat-loading">' . __( ' ...', 'custom-wp-notify' ) . '</span>';
@@ -142,7 +145,7 @@ class CwpShortcode {
 			// Get the user ID, and existing value.
 			$new_value  = $_POST['new_value'];
 			$user_id    = get_current_user_id();
-			$user_value = get_user_meta( $user_id, 'cwp_notify', TRUE );
+			$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 
 			// The new value shouldn't match the stored value
 			if ( $user_value != $new_value ) {
@@ -157,8 +160,8 @@ class CwpShortcode {
 	 * Enqueue scripts, styles, and ajax
 	 */
 	function scripts() {
-		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], NULL, TRUE );
-		wp_enqueue_script( 'cwp-notify-categories', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify-categories.js', [ 'jquery' ], NULL, TRUE );
+		wp_enqueue_script( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify.js', [ 'jquery' ], null, true );
+		wp_enqueue_script( 'cwp-notify-categories', plugin_dir_url( __DIR__ . '..' ) . 'assets/scripts/cwp-notify-categories.js', [ 'jquery' ], null, true );
 		wp_enqueue_style( 'cwp-notify', plugin_dir_url( __DIR__ . '..' ) . 'assets/css/style.css' );
 		wp_localize_script(
 			'cwp-notify', 'settings', [
