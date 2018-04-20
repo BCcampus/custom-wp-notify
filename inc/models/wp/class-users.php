@@ -46,7 +46,12 @@ class Users {
 
 	}
 
-	public function updateUserList() {
+	/**
+	 * will update existing users to either un/subscribe
+	 *
+	 * @param int $notify
+	 */
+	public function updateUserList( int $notify ) {
 		// loop through all users who have opted in
 		$users = get_users();
 
@@ -55,8 +60,9 @@ class Users {
 			if ( '0' !== $user->data->user_status ) {
 				continue;
 			}
-
-			update_user_meta( $user->data->ID, 'cwp_notify', 1 );
+			if ( ! get_user_meta( $user->data->ID, 'cwp_notify', TRUE ) ) {
+				update_user_meta( $user->data->ID, 'cwp_notify', $notify );
+			}
 		}
 	}
 }
