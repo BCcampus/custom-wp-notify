@@ -18,13 +18,13 @@ class CwpShortcode {
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_shortcode( 'cwp_notify', [ $this, 'shortCode' ] );
-		add_shortcode( 'cwp_notify_em_cat', [ $this, 'emShortCode' ] );
+		add_shortcode( 'cwp_notify', [ $this, 'userSubscribe' ] );
+		add_shortcode( 'cwp_notify_em_cat', [ $this, 'userCategories' ] );
 		add_action( 'wp_enqueue_scripts', [ $this, 'scripts' ] );
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
 			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
-			add_action( 'wp_ajax_cwpCategoryPrefs', [ $this, 'categoryPrefsCallback' ] );
+			add_action( 'wp_ajax_cwpCategoryPrefs', [ $this, 'userCategoriesCallback' ] );
 		}
 	}
 
@@ -33,7 +33,7 @@ class CwpShortcode {
 	 *
 	 * @return string
 	 */
-	function shortCode() {
+	function userSubscribe() {
 
 		// Get prefix text for our checkbox from the plugin options
 		$label = get_option( 'cwp_settings' );
@@ -71,7 +71,7 @@ class CwpShortcode {
 	 * 
 	 * @return string
 	 */
-	function emShortCode() {
+	function userCategories() {
 		$em   = new Em\Events();
 		$html = '';
 		if ( \is_user_logged_in() ) {
@@ -80,7 +80,7 @@ class CwpShortcode {
 
 			if ( ! empty( $cats ) ) {
 				$html = '<fieldset>';
-				$html .= '<legend>Choose my professional development interests</legend>';
+				$html .= '<legend>My Professional Interests (select one or more cateogries)</legend>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
@@ -103,7 +103,7 @@ class CwpShortcode {
 	/**
 	 * callback to set user meta
 	 */
-	function categoryPrefsCallback() {
+	function userCategoriesCallback() {
 		// Check for nonce security
 		$nonce      = $_POST['nonce'];
 		$user_prefs = [];
