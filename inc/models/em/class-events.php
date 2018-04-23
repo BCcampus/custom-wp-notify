@@ -108,13 +108,11 @@ class Events {
 	public function getEventCategories() {
 		global $wpdb;
 
-		$sanitized_query = $wpdb->prepare(
-			"SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
+		$query = "SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
 					INNER JOIN {$wpdb->prefix}terms on ({$wpdb->prefix}term_taxonomy.term_id = {$wpdb->prefix}terms.term_id)
-					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'" , ''
-		);
+					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'";
 
-		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+		$results = $wpdb->get_results( $query, ARRAY_A );
 
 		return $results;
 	}

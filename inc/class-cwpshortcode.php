@@ -24,21 +24,16 @@ class CwpShortcode {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
 			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
-			add_action( 'wp_ajax_cwpCategoryPrefs', [
-				$this,
-				'categoryPrefsCallback',
-			] );
-
+			add_action( 'wp_ajax_cwpCategoryPrefs', [ $this, 'categoryPrefsCallback' ] );
 		}
 	}
 
 	/**
-	 * @param $atts
-	 * Contents of the shortcode
+	 * Adds user controlled un/subscribe function
 	 *
 	 * @return string
 	 */
-	function shortCode( $atts ) {
+	function shortCode() {
 
 		// Get prefix text for our checkbox from the plugin options
 		$label = get_option( 'cwp_settings' );
@@ -72,15 +67,15 @@ class CwpShortcode {
 	}
 
 	/**
-	 * @param $atts
-	 *
+	 * Adds user controlled preferences for event categories
+	 * 
 	 * @return string
 	 */
-	function emShortCode( $atts ) {
+	function emShortCode() {
 		$em   = new Em\Events();
 		$html = '';
 		if ( \is_user_logged_in() ) {
-			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', true );
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
 			$cats       = $em->getEventCategories();
 
 			if ( ! empty( $cats ) ) {
@@ -89,12 +84,10 @@ class CwpShortcode {
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
-					if ( $user_prefs != '' ) {
-						$checked = ( in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
-					}
-					$html .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
-					$html .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, false ) . " value='{$category['term_id']}'>";
-					$html .= "{$category['name']}</label>";
+					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
+					$html    .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
+					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, FALSE ) . " value='{$category['term_id']}'>";
+					$html    .= "{$category['name']}</label>";
 				}
 				$html .= '<br><button class="notifiable-categories" type="submit">Submit</button>';
 				$html .= '<span class="cwp-cat-loading">' . __( ' ...', 'custom-wp-notify' ) . '</span>';
@@ -138,7 +131,7 @@ class CwpShortcode {
 
 		// Check for nonce security
 		$nonce = $_POST['security'];
-		if ( ! wp_verify_nonce( $nonce, 'cwp_cat_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'cwp_nonce' ) ) {
 			wp_send_json_error();
 		} else {
 

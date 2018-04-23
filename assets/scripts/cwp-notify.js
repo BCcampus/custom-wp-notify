@@ -8,7 +8,6 @@
 
     $(document).ready(function () {
 
-
         // Handle the changes
         $('.cwp-notify').on('change', '.notifiable', function (event) {
 
@@ -18,21 +17,20 @@
             // temporarily disable to prevent accidental or additional clicks
             $('.notifiable').prop("disabled", true);
 
-            // set the value depending on if it's checked or not
+            var new_value = 0;
+            
+            // set the value if it's checked
             if ($('.notifiable').is(':checked')) {
-                $new_value = 1;
-            } else {
-                $new_value = 0;
-            }
-
-            $security = settings.security
+                new_value = 1;
+            } 
 
             // Ajax data
             var data = {
                 'action': 'cwpOptIn',
-                'new_value': $new_value,
-                'security': $security
+                'new_value': new_value,
+                'security': settings.security
             };
+            
             // Response
             $.post(settings.ajaxurl, data, function (response) {
 

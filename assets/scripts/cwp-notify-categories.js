@@ -10,8 +10,9 @@
 
         // Handle the changes
         $('button.notifiable-categories').on('click', function (event) {
+            
             // let the user know something is loading
-            $('.cwp-cat-loading').show().fadeOut(300);
+            $('.cwp-cat-loading').show().fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300);
 
             // temporarily disable to prevent accidental or additional clicks
             $('.notifiable-categories').prop("disabled", true);
@@ -29,7 +30,7 @@
             };
 
             // Response
-            $.post(settings.ajaxurl, data, function (response) {
+            $.post(category_settings.ajaxurl, data, function (response) {
                 if (response.success === true) {
 
                     // show the success message
