@@ -134,3 +134,4 @@ if ( function_exists( 'bp_is_active' ) ) {
 	// TODO: allow admins to activate, move this to Options
 	new \BCcampus\CwpBp();
 }
+
