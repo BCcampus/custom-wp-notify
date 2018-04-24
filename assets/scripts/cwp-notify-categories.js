@@ -10,6 +10,8 @@
 
         // Handle the changes
         $('button.notifiable-categories').on('click', function (event) {
+            // prevent jumping to the top of page on form submit
+            event.preventDefault();
             
             // let the user know something is loading
             $('.cwp-cat-loading').show().fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300);
