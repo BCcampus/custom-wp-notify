@@ -82,7 +82,7 @@ class CwpShortcode {
 
 			if ( ! empty( $cats ) ) {
 				$html = '<fieldset>';
-				$html .= '<legend>My Professional Interests (select one or more cateogries)</legend>';
+				$html .= '<legend>My Professional Interests (select one or more categories)</legend>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
