@@ -81,7 +81,7 @@ class Events {
 	 *
 	 * @return array|null|object
 	 */
-	public function getRecentCategoryEvents( int $taxonomy_id ) {
+	public function getRecentEventsByCategory( int $taxonomy_id ) {
 		global $wpdb;
 		$today = date( 'Y-m-d', time() );
 
@@ -102,6 +102,22 @@ class Events {
 		return $results;
 	}
 
+	/**
+	 * @param $term_id
+	 *
+	 * @return array|null|object
+	 */
+	function getCategoryName( $term_id ){
+		global $wpdb;
+		$sanitized_query = $wpdb->prepare(
+			"SELECT `name` from {$wpdb->prefix}terms WHERE `term_id` = '%s'", $term_id
+		);
+		
+		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+
+		return $results;	
+	}
+	
 	/**
 	 * @return array|null|object
 	 */
@@ -134,6 +150,5 @@ class Events {
 
 		return $posts;
 	}
-
 
 }

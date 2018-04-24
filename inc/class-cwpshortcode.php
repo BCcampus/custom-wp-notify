@@ -18,13 +18,15 @@ class CwpShortcode {
 	 * Add appropriate hooks
 	 */
 	function __construct() {
-		add_shortcode( 'cwp_notify', [ $this, 'shortCode' ] );
-		add_shortcode( 'cwp_notify_em_cat', [ $this, 'emShortCode' ] );
+		add_shortcode( 'cwp_notify', [ $this, 'userSubscribe' ] );
+		add_shortcode( 'cwp_notify_em_cat', [ $this, 'userCategories' ] );
+		add_shortcode( 'cwp_notify_em_user_cat', [ $this, 'displayUserCategories' ] );
+
 		add_action( 'wp_enqueue_scripts', [ $this, 'scripts' ] );
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_nopriv_cwpOptIn', [ $this, 'optInCallback' ] );
 			add_action( 'wp_ajax_cwpOptIn', [ $this, 'optInCallback' ] );
-			add_action( 'wp_ajax_cwpCategoryPrefs', [ $this, 'categoryPrefsCallback' ] );
+			add_action( 'wp_ajax_cwpCategoryPrefs', [ $this, 'userCategoriesCallback' ] );
 		}
 	}
 
@@ -33,7 +35,7 @@ class CwpShortcode {
 	 *
 	 * @return string
 	 */
-	function shortCode() {
+	function userSubscribe() {
 
 		// Get prefix text for our checkbox from the plugin options
 		$label = get_option( 'cwp_settings' );
@@ -71,16 +73,16 @@ class CwpShortcode {
 	 * 
 	 * @return string
 	 */
-	function emShortCode() {
+	function userCategories() {
 		$em   = new Em\Events();
 		$html = '';
 		if ( \is_user_logged_in() ) {
-			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', true );
 			$cats       = $em->getEventCategories();
 
 			if ( ! empty( $cats ) ) {
 				$html = '<fieldset>';
-				$html .= '<legend>Choose my professional development interests</legend>';
+				$html .= '<legend>My Professional Interests (select one or more cateogries)</legend>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
@@ -103,7 +105,7 @@ class CwpShortcode {
 	/**
 	 * callback to set user meta
 	 */
-	function categoryPrefsCallback() {
+	function userCategoriesCallback() {
 		// Check for nonce security
 		$nonce      = $_POST['nonce'];
 		$user_prefs = [];
@@ -122,6 +124,55 @@ class CwpShortcode {
 			// send back the new value
 			wp_send_json_success( $response );
 		}
+	}
+
+	/**
+	 *
+	 */
+	function displayUserCategories() {
+		$em          = new Em\Events();
+		$default_msg = 'Currently there are no upcoming events in the categories selected.';
+		$html        = '';
+
+		if ( \is_user_logged_in() ) {
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
+			if ( is_array( $user_prefs ) ) {
+				foreach ( $user_prefs as $term_id ) {
+					$title  = $em->getCategoryName( $term_id );
+					$events = $em->getRecentEventsByCategory( $term_id );
+
+					if ( ! empty( $title ) && ! empty( $events ) ) {
+						$titles_and_links = $em->getTitlesAndLinks( $this->cleanRecentEvents( $events ) );
+						$html             .= "<h2>{$title[0]['name']}</h2>";
+						$html             .= '<ul>';
+						foreach ( $titles_and_links as $event ) {
+							$html .= "<li><a href='{$event['link']}'>{$event['title']}</a></li>";
+						}
+						$html .= '</ul>';
+					}
+				}
+			}
+			if ( empty( $html ) ) {
+				$html = $default_msg;
+			}
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @param array $events
+	 *
+	 * @return array
+	 */
+	private function cleanRecentEvents( array $events ) {
+		$clean = [];
+
+		foreach ( $events as $event ) {
+			$clean[]['post_id'] = $event['ID'];
+		}
+
+		return $clean;
 	}
 
 	/**
