@@ -130,12 +130,12 @@ class CwpShortcode {
 	 *
 	 */
 	function displayUserCategories() {
-		$em   = new Em\Events();
-		$html = '';
+		$em          = new Em\Events();
+		$default_msg = 'Currently there are no upcoming events in the categories selected.';
+		$html        = '';
 
 		if ( \is_user_logged_in() ) {
-			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', true );
-
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
 			if ( is_array( $user_prefs ) ) {
 				foreach ( $user_prefs as $term_id ) {
 					$title  = $em->getCategoryName( $term_id );
@@ -151,6 +151,9 @@ class CwpShortcode {
 						$html .= '</ul>';
 					}
 				}
+			}
+			if ( empty( $html ) ) {
+				$html = $default_msg;
 			}
 		}
 
