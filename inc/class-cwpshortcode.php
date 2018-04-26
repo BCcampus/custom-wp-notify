@@ -82,16 +82,15 @@ class CwpShortcode {
 
 			if ( ! empty( $cats ) ) {
 				$html = '<fieldset>';
-				$html .= '<legend>My Professional Interests (select one or more categories)</legend>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
 					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
-					$html    .= "<label class='checkbox-inline' for='{$category['term_id']}'>";
+					$html    .= "<label class='checkbox' for='{$category['term_id']}'>";
 					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, FALSE ) . " value='{$category['term_id']}'>";
 					$html    .= "{$category['name']}</label>";
 				}
-				$html .= '<br><button class="notifiable-categories" type="submit">Submit</button>';
+				$html .= '<br><button class="notifiable-categories" type="submit">Save</button>';
 				$html .= '<span class="cwp-cat-loading">' . __( ' ...', 'custom-wp-notify' ) . '</span>';
 				$html .= '<span class="cwp-cat-message">' . __( ' Saved', 'custom-wp-notify' ) . '</span>';
 				$html .= '<span class="cwp-cat-message-error">' . __( ' Error', 'custom-wp-notify' ) . '</span>';
