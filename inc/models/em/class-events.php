@@ -126,7 +126,8 @@ class Events {
 
 		$query = "SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
 					INNER JOIN {$wpdb->prefix}terms on ({$wpdb->prefix}term_taxonomy.term_id = {$wpdb->prefix}terms.term_id)
-					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'";
+					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'
+					ORDER BY {$wpdb->prefix}terms.name ASC";
 
 		$results = $wpdb->get_results( $query, ARRAY_A );
 
