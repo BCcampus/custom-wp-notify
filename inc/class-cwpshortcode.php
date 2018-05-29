@@ -48,7 +48,7 @@ class CwpShortcode {
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
 			$html = '<div class="cwp-notify">';
-			$html .= $opt_in_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">';
+			$html .= '<label><input class="notifiable" id="cwp-opt-in" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, FALSE ) . ' value="1">' . $opt_in_text . '</label>';
 			$html .= '<span class="cwp-loading">' . __( '...', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message-error">' . __( 'Error', 'custom-wp-notify' ) . '</span>';
@@ -61,7 +61,7 @@ class CwpShortcode {
 			( $label['cwp_disabled'] ) ? $disabled_text = $label['cwp_disabled'] : $disabled_text = 'Log in to subscribe to notifications';
 
 			$html = '<div class="cwp-notify">';
-			$html .= $disabled_text . '<input class="notifiable" type="checkbox" name="cwp-opt-in" value="" disabled>';
+			$html .= '<label><input class="notifiable" type="checkbox" name="cwp-opt-in" value="" disabled>' . $disabled_text . '</label>';
 			$html .= '</div>';
 		}
 
@@ -70,7 +70,7 @@ class CwpShortcode {
 
 	/**
 	 * Adds user controlled preferences for event categories
-	 * 
+	 *
 	 * @return string
 	 */
 	function userCategories() {
