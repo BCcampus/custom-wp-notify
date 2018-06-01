@@ -83,6 +83,7 @@ class CwpShortcode {
 			if ( ! empty( $cats ) ) {
 				$html = '<fieldset>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
+				$html .= '<label class="checkbox" for="select_all"><input class="notifiable-categories" type="checkbox" id="select_all">Select All</label>';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
 					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
