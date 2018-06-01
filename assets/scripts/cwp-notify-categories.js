@@ -10,7 +10,7 @@
 
         // Handles the select all functionality
         $('#select_all').click(function() {
-            $(':checkbox').prop('checked', this.checked);
+            $('.notifiable-categories').prop('checked', this.checked);
         });
 
         // Handle the changes
