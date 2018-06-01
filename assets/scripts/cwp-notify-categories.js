@@ -8,6 +8,11 @@
 
     $(document).ready(function () {
 
+        // Handles the select all functionality
+        $('#select_all').click(function() {
+            $('.notifiable-categories').prop('checked', this.checked);
+        });
+
         // Handle the changes
         $('button.notifiable-categories').on('click', function (event) {
             // prevent jumping to the top of page on form submit
