@@ -15,7 +15,13 @@
       "homepage": "https://github.com/alexpflores"
     }
   ],
+  "config": {
+    "platform": {
+      "php": "7.0.30"
+    }
+  },
   "require": {
+    "php": ">=7.0",
     "tijsverkoyen/css-to-inline-styles": "^2.2"
   },
   "require-dev": {
