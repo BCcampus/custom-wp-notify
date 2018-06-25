@@ -1,10 +1,4 @@
 *~
 .DS_Store
 .idea
-!vendor
-vendor/*
-!vendor/autoload.php
-!vendor/composer
-!vendor/tijsverkoyen
-!vendor/symfony
-node_modules/
+vendor/

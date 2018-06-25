@@ -1,11 +1,5 @@
 # Custom Notifications for WP #
-**Contributors:** bdolor,aparedes  
-**Tags:** notifications, email  
-**Requires at least:** 4.9.5  
-**Tested up to:** 4.9.5  
-**Stable tag:** 0.5.0  
-**License:** GPLv3 or later  
-**License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
+[![Build Status](https://travis-ci.com/BCcampus/custom-wp-notify.svg?branch=dev)](https://travis-ci.com/BCcampus/custom-wp-notify)
 
 Let your WordPress users opt-in to receive e-mail notifications based on their preferences.
 
