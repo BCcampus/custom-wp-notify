@@ -60,7 +60,7 @@ class Users {
 			if ( '0' !== $user->data->user_status ) {
 				continue;
 			}
-			if ( ! get_user_meta( $user->data->ID, 'cwp_notify', TRUE ) ) {
+			if ( ! get_user_meta( $user->data->ID, 'cwp_notify', true ) ) {
 				update_user_meta( $user->data->ID, 'cwp_notify', $notify );
 			}
 		}

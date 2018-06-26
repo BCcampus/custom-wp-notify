@@ -30,7 +30,12 @@ if ( ! defined( 'CWP_DIR' ) ) {
 }
 
 require_once CWP_DIR . 'autoloader.php';
-require_once CWP_DIR . 'vendor/autoload.php';
+
+$composer = CWP_DIR . 'vendor/autoload.php';
+if ( file_exists( $composer ) ) {
+	require_once( $composer );
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -44,24 +49,24 @@ require_once CWP_DIR . 'vendor/autoload.php';
 add_action(
 	'init', function () {
 
-	$slug = 'rest_routes';
-	$args = [
-		'event'    => 1,
-		'location' => 1,
-	];
+		$slug = 'rest_routes';
+		$args = [
+			'event'    => 1,
+			'location' => 1,
+		];
 
-	if ( is_multisite() ) {
-		$exists = get_site_option( $slug, FALSE );
-		if ( ! $exists ) {
-			update_site_option( $slug, $args );
-		}
-	} else {
-		$exists = get_option( $slug );
-		if ( ! $exists ) {
-			update_option( $slug, $args );
+		if ( is_multisite() ) {
+			$exists = get_site_option( $slug, false );
+			if ( ! $exists ) {
+				update_site_option( $slug, $args );
+			}
+		} else {
+			$exists = get_option( $slug );
+			if ( ! $exists ) {
+				update_option( $slug, $args );
+			}
 		}
 	}
-}
 );
 
 /*
@@ -75,13 +80,13 @@ add_action(
 */
 add_action(
 	'admin_notices', function () {
-	if ( ! is_plugin_active( 'events-manager/events-manager.php' ) ) {
-		$class   = 'notice notice-error';
-		$message = __( 'Custom WP Notify: Please install the Events Manager plugin.', 'custom-wp-notify' );
+		if ( ! is_plugin_active( 'events-manager/events-manager.php' ) ) {
+			$class   = 'notice notice-error';
+			$message = __( 'Custom WP Notify: Please install the Events Manager plugin.', 'custom-wp-notify' );
 
-		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+			printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+		}
 	}
-}
 );
 
 /*
@@ -95,13 +100,13 @@ add_action(
 */
 register_deactivation_hook(
 	__FILE__, function () {
-	$b_timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
-	wp_unschedule_event( $b_timestamp, 'cwp_cron_build_hook' );
+		$b_timestamp = wp_next_scheduled( 'cwp_cron_build_hook' );
+		wp_unschedule_event( $b_timestamp, 'cwp_cron_build_hook' );
 
-	$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
-	wp_unschedule_event( $m_timestamp, 'cwp_cron_notify_hook' );
+		$m_timestamp = wp_next_scheduled( 'cwp_cron_notify_hook' );
+		wp_unschedule_event( $m_timestamp, 'cwp_cron_notify_hook' );
 
-}
+	}
 );
 
 /*
