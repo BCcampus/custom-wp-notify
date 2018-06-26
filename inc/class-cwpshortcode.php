@@ -137,6 +137,7 @@ class CwpShortcode {
 		if ( \is_user_logged_in() ) {
 			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
 			if ( is_array( $user_prefs ) ) {
+
 				foreach ( $user_prefs as $term_id ) {
 					$title  = $em->getCategoryName( $term_id );
 					$events = $em->getRecentEventsByCategory( $term_id );
@@ -144,12 +145,19 @@ class CwpShortcode {
 					if ( ! empty( $title ) && ! empty( $events ) ) {
 						$titles_and_links = $em->getTitlesAndLinks( $this->cleanRecentEvents( $events ) );
 						$html             .= "<h2>{$title[0]['name']}</h2>";
-						$html             .= '<ul>';
-						foreach ( $titles_and_links as $event ) {
-							$html .= "<li><a href='{$event['link']}'>{$event['title']}</a></li>";
+						$html             .= '<table class="events-table"><thead><tr><th>Date</th><th>Title</th><th>Certificate Hours</th><th>Cost</th><th>Registration Link</th></tr></thead><tbody>';
+						$html             .= '<tr>';
+						foreach ( $titles_and_links as $id => $event ) {
+							$event_details = $em->getEvent( $id );
+							$html          .= "<td>{$event_details[0]['event_start_date']}</td>";
+							$html          .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
+							$html          .= "<td>placeholder</td>";
+							$html          .= "<td>placeholder</td>";
+							$html          .= "<td>placeholder</td>";
 						}
-						$html .= '</ul>';
+						$html .= '</tr>';
 					}
+					$html .= '</tbody></table>';
 				}
 			}
 			if ( empty( $html ) ) {

@@ -124,13 +124,14 @@ class Events {
 	 */
 	public function getEventCategories() {
 		global $wpdb;
+		$term = 'event-categories';
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
 					INNER JOIN {$wpdb->prefix}terms on ({$wpdb->prefix}term_taxonomy.term_id = {$wpdb->prefix}terms.term_id)
-					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = 'event-categories'
-					ORDER BY {$wpdb->prefix}terms.name ASC"
+					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = %s
+					ORDER BY {$wpdb->prefix}terms.name ASC", $term
 			), ARRAY_A
 		);
 
@@ -167,7 +168,7 @@ class Events {
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT {$wpdb->prefix}em_events.post_id, {$wpdb->prefix}em_locations.location_id,  {$wpdb->prefix}em_locations.location_name, {$wpdb->prefix}em_locations.location_town, {$wpdb->prefix}em_locations.location_state,{$wpdb->prefix}em_events.event_start, {$wpdb->prefix}em_events.event_end, {$wpdb->prefix}em_locations.location_name 
+				"SELECT {$wpdb->prefix}em_events.post_id, {$wpdb->prefix}em_locations.location_id,  {$wpdb->prefix}em_locations.location_name, {$wpdb->prefix}em_locations.location_town, {$wpdb->prefix}em_locations.location_state,{$wpdb->prefix}em_events.event_start_date, {$wpdb->prefix}em_events.event_end_date, {$wpdb->prefix}em_locations.location_name 
 				FROM {$wpdb->prefix}em_events
 				INNER JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_events.location_id = {$wpdb->prefix}em_locations.location_id
 				WHERE {$wpdb->prefix}em_events.post_id = '%s'", $post_id

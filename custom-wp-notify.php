@@ -30,7 +30,12 @@ if ( ! defined( 'CWP_DIR' ) ) {
 }
 
 require_once CWP_DIR . 'autoloader.php';
-require_once CWP_DIR . 'vendor/autoload.php';
+
+$composer = CWP_DIR . 'vendor/autoload.php';
+if ( file_exists( $composer ) ) {
+	require_once( $composer );
+}
+
 
 /*
 |--------------------------------------------------------------------------
