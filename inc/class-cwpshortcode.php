@@ -48,7 +48,7 @@ class CwpShortcode {
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
 			$html = '<div class="cwp-notify">';
-			$html .= '<label><input class="notifiable" id="cwp-opt-in" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, FALSE ) . ' value="1">' . $opt_in_text . '</label>';
+			$html .= '<label><input class="notifiable" id="cwp-opt-in" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">' . $opt_in_text . '</label>';
 			$html .= '<span class="cwp-loading">' . __( '...', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message-error">' . __( 'Error', 'custom-wp-notify' ) . '</span>';
@@ -88,7 +88,7 @@ class CwpShortcode {
 					// set state of checkbox only if user preference exists
 					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
 					$html    .= "<label class='checkbox' for='{$category['term_id']}'>";
-					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, FALSE ) . " value='{$category['term_id']}'>";
+					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, false ) . " value='{$category['term_id']}'>";
 					$html    .= "{$category['name']}</label>";
 				}
 				$html .= '<br><button class="notifiable-categories" type="submit">Save</button>';
@@ -135,7 +135,7 @@ class CwpShortcode {
 		$html        = '';
 
 		if ( \is_user_logged_in() ) {
-			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', TRUE );
+			$user_prefs = get_user_meta( get_current_user_id(), 'cwp_notify_categories', true );
 			if ( is_array( $user_prefs ) ) {
 
 				foreach ( $user_prefs as $term_id ) {
@@ -151,9 +151,9 @@ class CwpShortcode {
 							$event_details = $em->getEvent( $id );
 							$html          .= "<td>{$event_details[0]['event_start_date']}</td>";
 							$html          .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
-							$html          .= "<td>placeholder</td>";
-							$html          .= "<td>placeholder</td>";
-							$html          .= "<td>placeholder</td>";
+							$html          .= '<td>placeholder</td>';
+							$html          .= '<td>placeholder</td>';
+							$html          .= '<td>placeholder</td>';
 						}
 						$html .= '</tr>';
 					}
