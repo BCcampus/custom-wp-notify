@@ -146,21 +146,21 @@ class CwpShortcode {
 						$titles_and_links = $em->getTitlesAndLinks( $this->cleanRecentEvents( $events ) );
 						$html             .= "<h2>{$title[0]['name']}</h2>";
 						$html             .= '<table class="events-table"><thead><tr><th>Date</th><th>Event Description</th><th>Certificate Hours</th><th>Cost</th><th>Registration Link</th></tr></thead><tbody>';
-						$html             .= '<tr>';
 						foreach ( $titles_and_links as $id => $event ) {
-							$event_details = $em->getEvent( $id );
+							$html             .= '<tr>';
+							$event_details    = $em->getEvent( $id );
 							$event_attributes = get_post_meta( $id );
-							$hours = ( isset( $event_attributes['Professional Development Certificate Credit Hours'] ) ) ? $event_attributes['Professional Development Certificate Credit Hours'][0] : '';
-							$fee = ( isset( $event_attributes['Registration Fee'] ) ) ? $event_attributes['Registration Fee'][0] : '';
-							$link = ( isset( $event_attributes['Registration Link'] ) ) ? $event_attributes['Registration Link'][0] : '';
+							$hours            = ( isset( $event_attributes['Professional Development Certificate Credit Hours'] ) ) ? $event_attributes['Professional Development Certificate Credit Hours'][0] : '';
+							$fee              = ( isset( $event_attributes['Registration Fee'] ) ) ? $event_attributes['Registration Fee'][0] : '';
+							$link             = ( isset( $event_attributes['Registration Link'] ) ) ? $event_attributes['Registration Link'][0] : '';
 
-							$html          .= "<td>{$event_details[0]['event_start_date']}</td>";
-							$html          .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
-							$html          .= "<td>{$hours}</td>";
-							$html          .= "<td>{$fee}</td>";
-							$html          .= "<td><a href='{$link}' target='_blank'>Registration Link</a></td>";
+							$html .= "<td>{$event_details[0]['event_start_date']}</td>";
+							$html .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
+							$html .= "<td>{$hours}</td>";
+							$html .= "<td>{$fee}</td>";
+							$html .= "<td><a href='{$link}' target='_blank'>Registration Link</a></td>";
+							$html .= '</tr>';
 						}
-						$html .= '</tr>';
 					}
 					$html .= '</tbody></table>';
 				}
