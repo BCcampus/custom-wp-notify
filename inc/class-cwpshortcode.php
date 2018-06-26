@@ -91,7 +91,7 @@ class CwpShortcode {
 					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, FALSE ) . " value='{$category['term_id']}'>";
 					$html    .= "{$category['name']}</label>";
 				}
-				$html .= '<br><button class="notifiable-categories" type="submit">Save</button>';
+				$html .= '<br><button class="notifiable-categories" type="submit">Save Selected Interests</button>';
 				$html .= '<span class="cwp-cat-loading">' . __( ' ...', 'custom-wp-notify' ) . '</span>';
 				$html .= '<span class="cwp-cat-message">' . __( ' Saved', 'custom-wp-notify' ) . '</span>';
 				$html .= '<span class="cwp-cat-message-error">' . __( ' Error', 'custom-wp-notify' ) . '</span>';
