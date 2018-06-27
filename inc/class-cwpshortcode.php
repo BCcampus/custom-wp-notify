@@ -152,13 +152,14 @@ class CwpShortcode {
 							$event_attributes = get_post_meta( $id );
 							$hours            = ( isset( $event_attributes['Professional Development Certificate Credit Hours'] ) ) ? $event_attributes['Professional Development Certificate Credit Hours'][0] : '';
 							$fee              = ( isset( $event_attributes['Registration Fee'] ) ) ? $event_attributes['Registration Fee'][0] : '';
-							$link             = ( isset( $event_attributes['Registration Link'] ) ) ? $event_attributes['Registration Link'][0] : '';
+							$maybe_url        = $this->maybeUrl( $event_attributes['Registration Link'][0] );
+							$link             = ( $maybe_url ) ? "<a href='{$maybe_url}' target='_blank'>Registration Link</a>" : "<a href='{$event['link']}'>Contact Organizer to Register</a>";
 
 							$html .= "<td>{$event_details[0]['event_start_date']}</td>";
 							$html .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
 							$html .= "<td>{$hours}</td>";
 							$html .= "<td>{$fee}</td>";
-							$html .= "<td><a href='{$link}' target='_blank'>Registration Link</a></td>";
+							$html .= "<td>{$link}</td>";
 							$html .= '</tr>';
 						}
 					}
@@ -171,6 +172,30 @@ class CwpShortcode {
 		}
 
 		return $html;
+	}
+
+	/**
+	 * @param $url
+	 *
+	 * @return bool|false|string
+	 */
+	protected function maybeUrl( $url ) {
+		if ( is_null( $url ) ) {
+			return false;
+		}
+
+		$parts = wp_parse_url( $url );
+
+		// tries to ameliorate 'url.ca' as input to '//url.ca'
+		if ( ! isset( $parts['scheme'] ) && ! isset( $parts['host'] ) && isset( $parts['path'] ) ) {
+			if ( false !== strpos( $parts['path'], '.' ) ) {
+				$url = '//' . $parts['path'];
+			}
+		}
+
+		$valid = wp_http_validate_url( $url );
+
+		return $valid;
 	}
 
 	/**
