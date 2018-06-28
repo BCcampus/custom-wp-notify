@@ -2,7 +2,7 @@
   "name": "bccampus/custom-wp-notify",
   "description": "Opt-in, custom email notifications",
   "type": "wordpress-plugin",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "homepage": "https://github.com/bccampus/custom-wp-notify",
   "license": "GPLv3 or later",
   "authors": [
