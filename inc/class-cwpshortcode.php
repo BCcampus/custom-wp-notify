@@ -145,7 +145,7 @@ class CwpShortcode {
 					if ( ! empty( $title ) && ! empty( $events ) ) {
 						$titles_and_links = $em->getTitlesAndLinks( $this->cleanRecentEvents( $events ) );
 						$html             .= "<h2>{$title[0]['name']}</h2>";
-						$html             .= '<table class="events-table"><thead><tr><th>Date</th><th>Event Description</th><th>Certificate Hours</th><th>Cost</th><th>Registration Link</th></tr></thead><tbody>';
+						$html             .= '<table class="events-table"><thead><tr><th>Date</th><th>Event Description</th><th>Certificate Hours</th><th>Cost</th><th>Register</th></tr></thead><tbody>';
 						foreach ( $titles_and_links as $id => $event ) {
 							$html             .= '<tr>';
 							$event_details    = $em->getEvent( $id );
@@ -153,7 +153,7 @@ class CwpShortcode {
 							$hours            = ( isset( $event_attributes['Professional Development Certificate Credit Hours'] ) ) ? $event_attributes['Professional Development Certificate Credit Hours'][0] : '';
 							$fee              = ( isset( $event_attributes['Registration Fee'] ) ) ? $event_attributes['Registration Fee'][0] : '';
 							$maybe_url        = $this->maybeUrl( $event_attributes['Registration Link'][0] );
-							$link             = ( $maybe_url ) ? "<a href='{$maybe_url}' target='_blank'>Registration Link</a>" : "<a href='{$event['link']}'>Contact Organizer to Register</a>";
+							$link             = ( $maybe_url ) ? "<a href='{$maybe_url}' target='_blank'>Contact Organizer <i class='glyphicon glyphicon-new-window'></i></a>" : "<a href='{$event['link']}'>Contact Organizer</a>";
 
 							$html .= "<td>{$event_details[0]['event_start_date']}</td>";
 							$html .= "<td><a href='{$event['link']}'>{$event['title']}</a></br>{$event_details[0]['location_name']}<br>{$event_details[0]['location_town']}, {$event_details[0]['location_state']}</td>";
