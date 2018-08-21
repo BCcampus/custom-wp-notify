@@ -8,6 +8,22 @@
 
     $(document).ready(function () {
 
+        var boxes = $("input[type='checkbox'].notifiable-categories");
+
+        // Set initial state of select all checkbox
+        if (boxes.length === boxes.filter(":checked").length) {
+            $('.notifiable-categories-all[id="select_all"]').prop('checked', true);
+        }
+
+        // Uncheck select all when not all items checked, check when all items checked
+        $("input[type='checkbox'].notifiable-categories").change(function () {
+            if (boxes.length !== boxes.filter(":checked").length) {
+                $('.notifiable-categories-all[id="select_all"]').prop('checked', false);
+            } else if (boxes.length === boxes.filter(":checked").length) {
+                $('.notifiable-categories-all[id="select_all"]').prop('checked', true);
+            }
+        });
+
         // Handles the select all functionality
         $('#select_all').click(function() {
             $('.notifiable-categories').prop('checked', this.checked);
