@@ -51,6 +51,7 @@ class CwpOptions {
 			if ( isset( $_REQUEST['tab'] ) && $_REQUEST['tab'] === 'manage-users' ) {
 				wp_enqueue_script( 'cwp-multi-select', 'https://cdn.jsdelivr.net/npm/multiselect-two-sides@2.5.0/dist/js/multiselect.min.js/', [ 'jquery' ], null, true );
 				wp_enqueue_script( 'cwp-multi-select-script', plugin_dir_url( __FILE__ ) . '../assets/scripts/cwp-multiselect.js', [ 'jquery' ], null, true );
+				wp_enqueue_style( 'bootstrap3', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', '', null, 'screen' );
 			}
 		}
 
@@ -146,12 +147,12 @@ class CwpOptions {
 		$not_subscribed = [];
 
 		foreach ( $all_users as $user ) {
-		    
+
 			// skip over spam users, or those not yet registered
 			if ( '0' !== $user->data->user_status ) {
 				continue;
 			}
-			
+
 			$preference = get_user_meta( $user->ID, 'cwp_notify', true );
 			if ( $preference === '1' ) {
 				$subscribed[] = [
@@ -771,11 +772,6 @@ class CwpOptions {
 	function optionsPage() {
 		$active_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
 		?>
-		<!-- Bootstrap styling -->
-		<link rel="stylesheet"
-		      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-		      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-		      crossorigin="anonymous">
 		<h2>Custom WP Notify</h2>
 		<div id="icon-options-general" class="icon32"></div>
 		<h2 class="nav-tab-wrapper">

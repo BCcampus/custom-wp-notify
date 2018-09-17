@@ -6,7 +6,7 @@
  * Author:          bdolor
  * Text Domain:     custom-wp-notify
  * Domain Path:     /languages
- * Version:         0.5.1
+ * Version:         0.6.0
  *
  * @package         Custom_Wp_Notify
  */
@@ -30,7 +30,12 @@ if ( ! defined( 'CWP_DIR' ) ) {
 }
 
 require_once CWP_DIR . 'autoloader.php';
-require_once CWP_DIR . 'vendor/autoload.php';
+
+$composer = CWP_DIR . 'vendor/autoload.php';
+if ( file_exists( $composer ) ) {
+	require_once( $composer );
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +51,7 @@ add_action(
 
 		$slug = 'rest_routes';
 		$args = [
-			'event' => 1,
+			'event'    => 1,
 			'location' => 1,
 		];
 
@@ -134,3 +139,4 @@ if ( function_exists( 'bp_is_active' ) ) {
 	// TODO: allow admins to activate, move this to Options
 	new \BCcampus\CwpBp();
 }
+

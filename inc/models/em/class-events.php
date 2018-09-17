@@ -31,17 +31,17 @@ class Events {
 		global $wpdb;
 		$today = date( 'Y-m-d', time() );
 
-		$sanitized_query = $wpdb->prepare(
-			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events 
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id FROM {$wpdb->prefix}em_events 
 					LEFT JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_locations.location_id={$wpdb->prefix}em_events.location_id
 					WHERE (`event_status`=1) 
 					AND (`recurrence`!=1 OR `recurrence` IS NULL) 
 					AND (`event_private`=0 OR (`event_private`=1 AND (`group_id` IS NULL OR `group_id` = 0)) OR (`event_private`=1 AND `group_id` IN (1))) 
 					AND  (event_start_date > CAST(%s AS DATE))
 					ORDER BY event_start_date ASC, event_start_time ASC, event_name ASC OFFSET 0", $today
+			), ARRAY_A
 		);
-
-		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
 
 		return $results;
 	}
@@ -53,8 +53,9 @@ class Events {
 		global $wpdb;
 		$today = date( 'Y-m-d', time() );
 
-		$sanitized_query = $wpdb->prepare(
-			"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->prefix}em_events.post_id
 					FROM (
 						SELECT {$wpdb->prefix}em_events.*,
 							@cur := IF({$wpdb->prefix}em_events.location_id = @id, @cur+1, 1) AS RowNumber,
@@ -69,9 +70,70 @@ class Events {
 						) {$wpdb->prefix}em_events
 					WHERE RowNumber = 1
 					ORDER BY event_date_created DESC;", $today, $today
+			), ARRAY_A
 		);
 
-		$results = $wpdb->get_results( $sanitized_query, ARRAY_A );
+		return $results;
+	}
+
+	/**
+	 * @param int $taxonomy_id
+	 *
+	 * @return array|null|object
+	 */
+	public function getRecentEventsByCategory( int $taxonomy_id ) {
+		global $wpdb;
+		$today = date( 'Y-m-d', time() );
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT SQL_CALC_FOUND_ROWS  {$wpdb->prefix}posts.ID FROM {$wpdb->prefix}posts  LEFT JOIN {$wpdb->prefix}term_relationships ON ({$wpdb->prefix}posts.ID = {$wpdb->prefix}term_relationships.object_id) INNER JOIN {$wpdb->prefix}postmeta ON ( {$wpdb->prefix}posts.ID = {$wpdb->prefix}postmeta.post_id )  INNER JOIN {$wpdb->prefix}postmeta AS mt1 ON ( {$wpdb->prefix}posts.ID = mt1.post_id ) WHERE 1=1  AND ( 
+  					{$wpdb->prefix}term_relationships.term_taxonomy_id IN ( %d )
+					) AND ( 
+					  {$wpdb->prefix}postmeta.meta_key = '_event_start_local' 
+					  AND 
+					  ( 
+					    ( mt1.meta_key = '_event_end' AND CAST(mt1.meta_value AS DATETIME) > %s )
+					  )
+					) AND {$wpdb->prefix}posts.post_type = 'event' AND ({$wpdb->prefix}posts.post_status = 'publish' OR {$wpdb->prefix}posts.post_status = 'private') GROUP BY {$wpdb->prefix}posts.ID ORDER BY CAST({$wpdb->prefix}postmeta.meta_value AS DATETIME) ASC LIMIT 0, 10", $taxonomy_id, $today
+			), ARRAY_A
+		);
+
+		return $results;
+	}
+
+	/**
+	 * @param $term_id
+	 *
+	 * @return array|null|object
+	 */
+	function getCategoryName( $term_id ) {
+		global $wpdb;
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT `name` from {$wpdb->prefix}terms WHERE `term_id` = '%s'", $term_id
+			), ARRAY_A
+		);
+
+		return $results;
+	}
+
+	/**
+	 * @return array|null|object
+	 */
+	public function getEventCategories() {
+		global $wpdb;
+		$term = 'event-categories';
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT {$wpdb->prefix}term_taxonomy.term_id,{$wpdb->prefix}terms.name FROM {$wpdb->prefix}term_taxonomy
+					INNER JOIN {$wpdb->prefix}terms on ({$wpdb->prefix}term_taxonomy.term_id = {$wpdb->prefix}terms.term_id)
+					WHERE {$wpdb->prefix}term_taxonomy.taxonomy = %s
+					ORDER BY {$wpdb->prefix}terms.name ASC", $term
+			), ARRAY_A
+		);
 
 		return $results;
 	}
@@ -94,5 +156,26 @@ class Events {
 		return $posts;
 	}
 
+	/**
+	 * Get event details, location with post_id
+	 *
+	 * @param $post_id of the event
+	 *
+	 * @return array|null|object
+	 */
+	public function getEvent( $post_id ) {
+		global $wpdb;
 
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT {$wpdb->prefix}em_events.post_id, {$wpdb->prefix}em_locations.location_id,  {$wpdb->prefix}em_locations.location_name, {$wpdb->prefix}em_locations.location_town, {$wpdb->prefix}em_locations.location_state,{$wpdb->prefix}em_events.event_start_date, {$wpdb->prefix}em_events.event_end_date, {$wpdb->prefix}em_locations.location_name 
+				FROM {$wpdb->prefix}em_events
+				INNER JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_events.location_id = {$wpdb->prefix}em_locations.location_id
+				WHERE {$wpdb->prefix}em_events.post_id = '%s'", $post_id
+			), ARRAY_A
+		);
+
+		return $results;
+
+	}
 }
