@@ -112,7 +112,7 @@ class Events {
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT `name` from {$wpdb->prefix}terms WHERE `term_id` = '%s'", $term_id
+				"SELECT `name` from {$wpdb->prefix}terms WHERE `term_id` = %s", $term_id
 			), ARRAY_A
 		);
 
@@ -171,7 +171,7 @@ class Events {
 				"SELECT {$wpdb->prefix}em_events.post_id, {$wpdb->prefix}em_locations.location_id,  {$wpdb->prefix}em_locations.location_name, {$wpdb->prefix}em_locations.location_town, {$wpdb->prefix}em_locations.location_state,{$wpdb->prefix}em_events.event_start_date, {$wpdb->prefix}em_events.event_end_date, {$wpdb->prefix}em_locations.location_name 
 				FROM {$wpdb->prefix}em_events
 				INNER JOIN {$wpdb->prefix}em_locations ON {$wpdb->prefix}em_events.location_id = {$wpdb->prefix}em_locations.location_id
-				WHERE {$wpdb->prefix}em_events.post_id = '%s'", $post_id
+				WHERE {$wpdb->prefix}em_events.post_id = %s", $post_id
 			), ARRAY_A
 		);
 

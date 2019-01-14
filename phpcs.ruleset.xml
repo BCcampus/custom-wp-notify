@@ -2,13 +2,14 @@
 <ruleset>
     <!-- Scan only PHP files -->
     <arg name="extensions" value="php"/>
-
     <!-- Show colors in console -->
     <arg value="-colors"/>
-
     <!-- Show progress -->
     <arg value="p"/>
-
+    <!-- Be quiet -->
+    <arg value="q"/>
+    <!-- Include source codes in the report -->
+    <arg value="s"/>
     <!-- Use HM Coding Standards -->
     <rule ref="vendor/humanmade/coding-standards">
         <!-- Disable all ESLint checks -->
@@ -17,8 +18,7 @@
         <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
         <exclude name="WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase"/>
         <exclude name="WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar"/>
-        <exclude name="WordPress.VIP.SessionVariableUsage"/>
-        <exclude name="WordPress.VIP.SessionFunctionsUsage"/>
+        <exclude name="WordPress.VIP.CronInterval.ChangeDetected"/>
         <!-- Disable LayoutOrder until humanmade/coding-standards#5 is fixed -->
         <exclude name="HM.Layout.Order.WrongOrder"/>
     </rule>
@@ -38,6 +38,5 @@
 
     <exclude-pattern>/vendor/*</exclude-pattern>
 	<exclude-pattern>/tests/*</exclude-pattern>
-
 
 </ruleset>

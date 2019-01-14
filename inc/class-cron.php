@@ -132,7 +132,7 @@ class Cron {
 		if ( empty( $interval ) ) {
 			$interval = 'cwp_weekly';
 		}
-		$delay = HOUR_IN_SECONDS * $delay;
+		$delay     = HOUR_IN_SECONDS * $delay;
 		$hook      = 'cwp_cron_build_hook';
 		$timestamp = wp_next_scheduled( $hook );
 

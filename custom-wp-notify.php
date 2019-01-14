@@ -13,25 +13,12 @@
 
 // Your code starts here.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Constants
-|--------------------------------------------------------------------------
-|
-|
-|
-|
-*/
-if ( ! defined( 'CWP_DIR' ) ) {
-	define( 'CWP_DIR', __DIR__ . '/' );
-}
+require_once __DIR__ . '/autoloader.php';
 
-require_once CWP_DIR . 'autoloader.php';
-
-$composer = CWP_DIR . 'vendor/autoload.php';
+$composer = __DIR__ . '/vendor/autoload.php';
 if ( file_exists( $composer ) ) {
 	require_once( $composer );
 }

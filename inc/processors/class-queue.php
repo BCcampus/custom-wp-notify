@@ -13,8 +13,8 @@
 
 namespace BCcampus\Processors;
 
-use BCcampus\Models\Wp;
 use BCcampus\Models\Em;
+use BCcampus\Models\Wp;
 
 /**
  * Class Queue

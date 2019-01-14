@@ -47,7 +47,7 @@ class CwpShortcode {
 			( $label['cwp_notify'] ) ? $opt_in_text = $label['cwp_notify'] : $opt_in_text = 'Subscribe to Notifications';
 
 			// Build the checkbox with prefix text from options page, and the user value of cwp_notify
-			$html = '<div class="cwp-notify">';
+			$html  = '<div class="cwp-notify">';
 			$html .= '<label><input class="notifiable" id="cwp-opt-in" type="checkbox" name="cwp-opt-in"' . checked( $user_value, 1, false ) . ' value="1">' . $opt_in_text . '</label>';
 			$html .= '<span class="cwp-loading">' . __( '...', 'custom-wp-notify' ) . '</span>';
 			$html .= '<span class="cwp-message">' . __( 'Saved', 'custom-wp-notify' ) . '</span>';
@@ -60,7 +60,7 @@ class CwpShortcode {
 			// Set default prefix text for the disabled checkbox if none exists
 			( $label['cwp_disabled'] ) ? $disabled_text = $label['cwp_disabled'] : $disabled_text = 'Log in to subscribe to notifications';
 
-			$html = '<div class="cwp-notify">';
+			$html  = '<div class="cwp-notify">';
 			$html .= '<label><input class="notifiable" type="checkbox" name="cwp-opt-in" value="" disabled>' . $disabled_text . '</label>';
 			$html .= '</div>';
 		}
@@ -81,15 +81,15 @@ class CwpShortcode {
 			$cats       = $em->getEventCategories();
 
 			if ( ! empty( $cats ) ) {
-				$html = '<fieldset>';
+				$html  = '<fieldset>';
 				$html .= '<form><div class="checkbox cwp-notify-categories">';
 				$html .= '<label class="checkbox" for="select_all"><input class="notifiable-categories-all" type="checkbox" id="select_all">Select All</label>';
 				foreach ( $cats as $category ) {
 					// set state of checkbox only if user preference exists
-					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs ) ) ? 1 : 0;
-					$html    .= "<label class='checkbox' for='{$category['term_id']}'>";
-					$html    .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, false ) . " value='{$category['term_id']}'>";
-					$html    .= "{$category['name']}</label>";
+					$checked = ( is_array( $user_prefs ) && in_array( $category['term_id'], $user_prefs, true ) ) ? 1 : 0;
+					$html   .= "<label class='checkbox' for='{$category['term_id']}'>";
+					$html   .= "<input class='notifiable-categories' type='checkbox' name='cwp_notify_categories[]' id='{$category['term_id']}'" . checked( $checked, 1, false ) . " value='{$category['term_id']}'>";
+					$html   .= "{$category['name']}</label>";
 				}
 				$html .= '<br><button class="notifiable-categories" type="submit">Save Selected Interests</button>';
 				$html .= '<span class="cwp-cat-loading">' . __( ' ...', 'custom-wp-notify' ) . '</span>';
@@ -107,10 +107,9 @@ class CwpShortcode {
 	 */
 	function userCategoriesCallback() {
 		// Check for nonce security
-		$nonce      = $_POST['nonce'];
 		$user_prefs = [];
 
-		if ( ! wp_verify_nonce( $nonce, 'cwp_cat_nonce' ) ) {
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'cwp_cat_nonce' ) ) {
 			wp_send_json_error();
 		} else {
 			// Get the user ID, and existing value.
@@ -144,10 +143,10 @@ class CwpShortcode {
 
 					if ( ! empty( $title ) && ! empty( $events ) ) {
 						$titles_and_links = $em->getTitlesAndLinks( $this->cleanRecentEvents( $events ) );
-						$html             .= "<h2>{$title[0]['name']}</h2>";
-						$html             .= '<table class="events-table"><thead><tr><th>Date</th><th>Event Description</th><th>Certificate Hours</th><th>Cost</th><th>Register</th></tr></thead><tbody>';
+						$html            .= "<h2>{$title[0]['name']}</h2>";
+						$html            .= '<table class="events-table"><thead><tr><th>Date</th><th>Event Description</th><th>Certificate Hours</th><th>Cost</th><th>Register</th></tr></thead><tbody>';
 						foreach ( $titles_and_links as $id => $event ) {
-							$html             .= '<tr>';
+							$html            .= '<tr>';
 							$event_details    = $em->getEvent( $id );
 							$event_attributes = get_post_meta( $id );
 							$hours            = ( isset( $event_attributes['Professional Development Certificate Credit Hours'] ) ) ? $event_attributes['Professional Development Certificate Credit Hours'][0] : '';
@@ -219,8 +218,7 @@ class CwpShortcode {
 	function optInCallback() {
 
 		// Check for nonce security
-		$nonce = $_POST['security'];
-		if ( ! wp_verify_nonce( $nonce, 'cwp_nonce' ) ) {
+		if ( ! wp_verify_nonce( $_POST['security'], 'cwp_nonce' ) ) {
 			wp_send_json_error();
 		} else {
 
@@ -230,7 +228,7 @@ class CwpShortcode {
 			$user_value = get_user_meta( $user_id, 'cwp_notify', true );
 
 			// The new value shouldn't match the stored value
-			if ( $user_value != $new_value ) {
+			if ( $user_value !== $new_value ) {
 				$response = update_user_meta( $user_id, 'cwp_notify', $new_value );
 				// send back the new value
 				wp_send_json_success( $response );

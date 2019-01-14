@@ -62,11 +62,11 @@ class Mail {
 		if ( false === $this->verify() ) {
 			return;
 		}
-		$subject  = 'Recent Events';
-		$limit    = 20;
-		$jobs     = $this->queue->getQueueOptions();
-		$attempts = $jobs['attempts'];
-		$sent_list    = [];
+		$subject   = 'Recent Events';
+		$limit     = 20;
+		$jobs      = $this->queue->getQueueOptions();
+		$attempts  = $jobs['attempts'];
+		$sent_list = [];
 
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
@@ -76,7 +76,7 @@ class Mail {
 			$sitename     = strtolower( $_SERVER['SERVER_NAME'] );
 			$current_blog = get_option( 'blogname' );
 
-			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+			if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
 
@@ -96,10 +96,10 @@ class Mail {
 				$sent_list [] = $email;
 				unset( $jobs['list'][ $email ] );
 			} else {
-				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email );
+				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email ); //@codingStandardsIgnoreLine
 			}
 
-			if ( -- $limit == 0 ) {
+			if ( -- $limit === 0 ) {
 				break;
 			}
 		}
@@ -135,7 +135,7 @@ class Mail {
 		$msg      = $this->applyTemplates( $jobs['payload'], $name );
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 
-		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+		if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 			$sitename = substr( $sitename, 4 );
 		}
 
@@ -153,7 +153,7 @@ class Mail {
 
 			// log if no success
 			if ( ! $ok ) {
-				\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $recipient );
+				\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $recipient ); //@codingStandardsIgnoreLine
 			}
 		}
 	}
@@ -187,7 +187,7 @@ class Mail {
 		$inline_styles = new CssToInlineStyles();
 
 		ob_start();
-		extract( $vars );
+		extract( $vars ); //@codingStandardsIgnoreLine
 		include( 'templates/html.php' );
 		$output = ob_get_contents();
 		ob_end_clean();
@@ -229,9 +229,9 @@ class Mail {
 		$i       = 0;
 
 		foreach ( $vars['events'] as $event ) {
-			$event_title = urlencode( str_replace( ' ', '-', $event['title'] ) );
+			$event_title = rawurlencode( str_replace( ' ', '-', $event['title'] ) );
 			$campaign    = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
-			$events      .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
+			$events     .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
 			$i ++;
 			if ( $i >= $limit ) {
 				break;
