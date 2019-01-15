@@ -107,7 +107,7 @@ class CwpOptions {
 	 */
 	function updateUsers() {
 
-		if ( isset( $_POST['no'] ) && wp_verify_nonce( '_wpnonce' ) ) {
+		if ( isset( $_POST['no'] ) && false !== wp_verify_nonce( $_POST['cwp-options-update-field'], 'cwp-options-update-action' ) ) {
 			foreach ( $_POST['no'] as $username ) {
 				// Get the user object by login name
 				$userobject = get_user_by( 'login', $username );
@@ -122,7 +122,7 @@ class CwpOptions {
 			}
 		}
 
-		if ( isset( $_POST['yes'] ) && wp_verify_nonce( '_wpnonce' ) ) {
+		if ( isset( $_POST['yes'] ) && false !== wp_verify_nonce( $_POST['cwp-options-update-field'], 'cwp-options-update-action' ) ) {
 			foreach ( $_POST['yes'] as $username ) {
 				// Get the user object by login name
 				$userobject = get_user_by( 'login', $username );
@@ -227,7 +227,7 @@ class CwpOptions {
 	 */
 	function cronLogs() {
 		$options       = get_option( 'cwp_queue' );
-		$last_build    = date( 'F d, Y g:i A (T)', $options['created_at'] );
+		$last_build    = date( 'F d, Y g:i A', $options['created_at'] + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
 		$remaining     = count( $options['list'] );
 		$attempts      = $options['attempts'];
 		$recent_events = count( $options['payload'] );
@@ -235,8 +235,8 @@ class CwpOptions {
 
 		if ( $options['sent'] ) {
 			$sent_list = '<ol>';
-			foreach ( array_values( $options['sent'] ) as $email ) {
-				$sent_list .= "<li>{$email}</li>";
+			foreach ( $options['sent']  as $s_email => $timestamp ) {
+				$sent_list .= "<li>{$s_email} [{$timestamp}]</li>";
 			}
 			$sent_list .= '</ol>';
 		} else {
@@ -245,8 +245,8 @@ class CwpOptions {
 
 		if ( $options['list'] ) {
 			$remaining_list = '<ol>';
-			foreach ( array_values( $options['sent'] ) as $email ) {
-				$sent_list .= "<li>{$email}</li>";
+			foreach ( array_keys( $options['list'] ) as $r_email ) {
+				$remaining_list .= "<li>{$r_email}</li>";
 			}
 			$remaining_list .= '</ol>';
 		} else {
@@ -254,21 +254,21 @@ class CwpOptions {
 		}
 
 		if ( ! empty( $timestamp ) ) {
-			$next = date( 'F d, Y g:i A (T)', $timestamp );
+			$next = date( 'F d, Y g:i A', $timestamp );
 		} else {
 			$next = 'none scheduled';
 		}
 
 		$html  = '<table class="form-table"><tbody>';
-		$html .= '<tr><td><b>Last build:</b>&nbsp;</td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Last build (list of recent events):</b>&nbsp;</td><td>' . $last_build . '</td></tr>';
 		$html .= '<tr><td><b>Next scheduled:</b>&nbsp;</td><td>' . $next . '</td></tr>';
 		$html .= '<tr><td><b>Remaining notifications:</b>&nbsp;</td><td>' . $remaining . '</td></tr>';
-		$html .= '<tr><td><b>Number of attempts (20 emails at a time):</b>&nbsp;</td><td>' . $attempts . '</td></tr>';
+		$html .= '<tr><td><b>Number of batches sent (20 emails at a time):</b>&nbsp;</td><td>' . $attempts . '</td></tr>';
 		$html .= '<tr><td><b>Number of recent events available:</b>&nbsp;</td><td>' . $recent_events . '</td></tr>';
 		$html .= '</tbody></table>';
 
 		$html .= '<hr><table class="widefat"><caption>Archive</caption><tbody>';
-		$html .= '<thead><tr><th>Sent:</th><th>Awaiting:</th></tr></thead>';
+		$html .= '<thead><tr><th width="50%">Sent:</th><th width="50%">Awaiting:</th></tr></thead>';
 		$html .= '<tr><td>' . $sent_list . '</td><td>' . $remaining_list . '</td></tr>';
 		$html .= '</tbody></table>';
 
@@ -819,6 +819,7 @@ class CwpOptions {
 		}
 
 		if ( ! in_array( $active_tab, [ 'logs', 'testing' ], true ) ) {
+			wp_nonce_field( 'cwp-options-update-action', 'cwp-options-update-field' );
 			submit_button();
 		}
 

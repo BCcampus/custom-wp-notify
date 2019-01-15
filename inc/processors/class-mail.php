@@ -67,6 +67,7 @@ class Mail {
 		$jobs      = $this->queue->getQueueOptions();
 		$attempts  = $jobs['attempts'];
 		$sent_list = [];
+		$now       = date( 'F d, Y g:i A', current_time( 'timestamp' ) );
 
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
@@ -93,7 +94,7 @@ class Mail {
 			// take the recipient out of the list if it's been successful
 			if ( $ok ) {
 				// add them to the sent list
-				$sent_list [] = $email;
+				$sent_list[ $email ] = $now;
 				unset( $jobs['list'][ $email ] );
 			} else {
 				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email ); //@codingStandardsIgnoreLine
