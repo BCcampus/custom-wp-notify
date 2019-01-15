@@ -170,6 +170,7 @@ class Mail {
 		$settings     = get_option( 'cwp_settings' );
 		$template     = get_option( 'cwp_template_settings' );
 		$current_blog = get_option( 'blogname' );
+		$param        = ( $settings['cwp_param'] ) ? $settings['cwp_param'] : 0;
 		$vars         = [
 			'events'           => $payload,
 			'template'         => html_entity_decode( $template['cwp_template'] ),
@@ -178,7 +179,7 @@ class Mail {
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $template['cwp_unsubscribe'],
 			'blogname'         => $current_blog,
-			'param'            => $settings['cwp_param'],
+			'param'            => $param,
 		];
 
 		$vars = $this->placeHolders( $vars );
@@ -224,7 +225,7 @@ class Mail {
 	private function placeHolders( $vars ) {
 		// Events
 		$events  = '<ul>';
-		$time    = current_time( 'Y-m-d' );
+		$time    = date( 'Y-m-d', current_time( 'timestamp' ) );
 		$options = get_option( 'cwp_template_settings' );
 		$limit   = $options['cwp_limit'];
 		$i       = 0;

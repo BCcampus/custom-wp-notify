@@ -231,12 +231,12 @@ class CwpOptions {
 		$remaining     = count( $options['list'] );
 		$attempts      = $options['attempts'];
 		$recent_events = count( $options['payload'] );
-		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' );
+		$timestamp     = wp_next_scheduled( 'cwp_cron_build_hook' ); // next notification happens at the same time as build
 
 		if ( $options['sent'] ) {
 			$sent_list = '<ol>';
-			foreach ( $options['sent']  as $s_email => $timestamp ) {
-				$sent_list .= "<li>{$s_email} [{$timestamp}]</li>";
+			foreach ( $options['sent']  as $s_email => $s_timestamp ) {
+				$sent_list .= "<li>{$s_email} [{$s_timestamp}]</li>";
 			}
 			$sent_list .= '</ol>';
 		} else {
@@ -254,17 +254,17 @@ class CwpOptions {
 		}
 
 		if ( ! empty( $timestamp ) ) {
-			$next = date( 'F d, Y g:i A', $timestamp );
+			$next = date( 'F d, Y g:i A', $timestamp + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
 		} else {
 			$next = 'none scheduled';
 		}
 
 		$html  = '<table class="form-table"><tbody>';
-		$html .= '<tr><td><b>Last build (list of recent events):</b>&nbsp;</td><td>' . $last_build . '</td></tr>';
-		$html .= '<tr><td><b>Next scheduled:</b>&nbsp;</td><td>' . $next . '</td></tr>';
-		$html .= '<tr><td><b>Remaining notifications:</b>&nbsp;</td><td>' . $remaining . '</td></tr>';
-		$html .= '<tr><td><b>Number of batches sent (20 emails at a time):</b>&nbsp;</td><td>' . $attempts . '</td></tr>';
-		$html .= '<tr><td><b>Number of recent events available:</b>&nbsp;</td><td>' . $recent_events . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Last build (list of recent events and email addresses)&nbsp;</td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Number of recent events available&nbsp;</td><td>' . $recent_events . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Remaining number of emails to be sent&nbsp;</td><td>' . $remaining . '</td></tr>';
+		$html .= '<tr><td><b>Notifications:</b> Next scheduled build and email notification&nbsp;</td><td>' . $next . '</td></tr>';
+		$html .= '<tr><td><b>Notifications:</b> Number of email batches already sent (20 emails at a time)&nbsp;</td><td>' . $attempts . '</td></tr>';
 		$html .= '</tbody></table>';
 
 		$html .= '<hr><table class="widefat"><caption>Archive</caption><tbody>';
