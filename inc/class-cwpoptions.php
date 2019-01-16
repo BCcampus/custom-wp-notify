@@ -561,7 +561,6 @@ class CwpOptions {
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 		$next      = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
-		$force     = true;
 
 		// integers
 		foreach ( $integers as $int ) {
