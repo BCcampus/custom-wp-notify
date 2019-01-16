@@ -17,16 +17,16 @@
   ],
   "config": {
     "platform": {
-      "php": "7.0.30"
+      "php": "7.1"
     }
   },
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.1",
     "tijsverkoyen/css-to-inline-styles": "^2.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5.7",
-    "humanmade/coding-standards": "^0.3"
+    "phpunit/phpunit": "^6.5",
+    "humanmade/coding-standards": "^0.5"
   },
   "scripts": {
     "test": [

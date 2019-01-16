@@ -13,8 +13,8 @@
 
 namespace BCcampus\Processors;
 
-use BCcampus\Models\Wp;
 use BCcampus\Models\Em;
+use BCcampus\Models\Wp;
 
 /**
  * Class Queue
@@ -65,10 +65,12 @@ class Queue {
 	}
 
 	/**
-	 * build the queue
+	 * Maybe build the queue
+	 *
+	 * @param bool $force
 	 */
-	public function maybeBuild() {
-		if ( false === $this->verify() ) {
+	public function maybeBuild( $force = false ) {
+		if ( false === $this->verify() && false === $force ) {
 			return;
 		}
 

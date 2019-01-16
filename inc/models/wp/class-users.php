@@ -26,11 +26,11 @@ class Users {
 	 */
 	public function getUserList() {
 		// loop through all users who have opted in
-		$args = [
-			'meta_key' => 'cwp_notify',
-			'meta_value' => 1,
+		$args  = [
+			'meta_key' => 'cwp_notify', //@codingStandardsIgnoreLine
+			'meta_value' => 1, //@codingStandardsIgnoreLine
 		];
-		$list = [];
+		$list  = [];
 		$users = get_users( $args );
 
 		foreach ( $users as $user ) {

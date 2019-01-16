@@ -44,10 +44,10 @@ class CwpBp {
 	}
 
 	/**
-	 * Validate and sanitize checkbox
+	 * Validate and sanitize radio
 	 */
 	function bpValidate() {
-		if ( isset( $_POST['cwp_bp_notify'] ) ) {
+		if ( isset( $_POST['cwp_bp_notify'] ) && wp_verify_nonce( '_wpnonce' ) ) {
 
 			global $bp, $notify_field_value;
 
@@ -57,7 +57,7 @@ class CwpBp {
 			}
 
 			// input can only be 1 or 0
-			if ( ! ( $_POST['cwp_bp_notify'] == '1' || $_POST['cwp_bp_notify'] == '0' ) ) {
+			if ( ! ( $_POST['cwp_bp_notify'] === '1' || $_POST['cwp_bp_notify'] === '0' ) ) {
 				if ( ! isset( $bp->signup->errors ) ) {
 					$bp->signup->errors = [];
 				}

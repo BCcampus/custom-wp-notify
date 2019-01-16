@@ -62,11 +62,12 @@ class Mail {
 		if ( false === $this->verify() ) {
 			return;
 		}
-		$subject  = 'Recent Events';
-		$limit    = 20;
-		$jobs     = $this->queue->getQueueOptions();
-		$attempts = $jobs['attempts'];
-		$sent_list    = [];
+		$subject   = 'Recent Events';
+		$limit     = 20;
+		$jobs      = $this->queue->getQueueOptions();
+		$attempts  = $jobs['attempts'];
+		$sent_list = [];
+		$now       = date( 'F d, Y g:i A', current_time( 'timestamp' ) );
 
 		// send an email to each recipient
 		foreach ( $jobs['list'] as $email => $name ) {
@@ -76,7 +77,7 @@ class Mail {
 			$sitename     = strtolower( $_SERVER['SERVER_NAME'] );
 			$current_blog = get_option( 'blogname' );
 
-			if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+			if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 				$sitename = substr( $sitename, 4 );
 			}
 
@@ -93,13 +94,13 @@ class Mail {
 			// take the recipient out of the list if it's been successful
 			if ( $ok ) {
 				// add them to the sent list
-				$sent_list [] = $email;
+				$sent_list[ $email ] = $now;
 				unset( $jobs['list'][ $email ] );
 			} else {
-				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email );
+				\error_log( '\BCcampus\Processors\Mail->maybeRun failed to send a message to ' . $email ); //@codingStandardsIgnoreLine
 			}
 
-			if ( -- $limit == 0 ) {
+			if ( -- $limit === 0 ) {
 				break;
 			}
 		}
@@ -135,7 +136,7 @@ class Mail {
 		$msg      = $this->applyTemplates( $jobs['payload'], $name );
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 
-		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+		if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 			$sitename = substr( $sitename, 4 );
 		}
 
@@ -153,7 +154,7 @@ class Mail {
 
 			// log if no success
 			if ( ! $ok ) {
-				\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $recipient );
+				\error_log( '\BCcampus\Processors\Mail->runJustOne failed to send a message to ' . $recipient ); //@codingStandardsIgnoreLine
 			}
 		}
 	}
@@ -169,6 +170,7 @@ class Mail {
 		$settings     = get_option( 'cwp_settings' );
 		$template     = get_option( 'cwp_template_settings' );
 		$current_blog = get_option( 'blogname' );
+		$param        = ( $settings['cwp_param'] ) ? $settings['cwp_param'] : 0;
 		$vars         = [
 			'events'           => $payload,
 			'template'         => html_entity_decode( $template['cwp_template'] ),
@@ -177,7 +179,7 @@ class Mail {
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $template['cwp_unsubscribe'],
 			'blogname'         => $current_blog,
-			'param'            => $settings['cwp_param'],
+			'param'            => $param,
 		];
 
 		$vars = $this->placeHolders( $vars );
@@ -187,7 +189,7 @@ class Mail {
 		$inline_styles = new CssToInlineStyles();
 
 		ob_start();
-		extract( $vars );
+		extract( $vars ); //@codingStandardsIgnoreLine
 		include( 'templates/html.php' );
 		$output = ob_get_contents();
 		ob_end_clean();
@@ -223,15 +225,15 @@ class Mail {
 	private function placeHolders( $vars ) {
 		// Events
 		$events  = '<ul>';
-		$time    = current_time( 'Y-m-d' );
+		$time    = date( 'Y-m-d', current_time( 'timestamp' ) );
 		$options = get_option( 'cwp_template_settings' );
 		$limit   = $options['cwp_limit'];
 		$i       = 0;
 
 		foreach ( $vars['events'] as $event ) {
-			$event_title = urlencode( str_replace( ' ', '-', $event['title'] ) );
+			$event_title = rawurlencode( str_replace( ' ', '-', $event['title'] ) );
 			$campaign    = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
-			$events      .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
+			$events     .= "<li><a href='{$event['link']}{$campaign}'>{$event['title']}</a></li>";
 			$i ++;
 			if ( $i >= $limit ) {
 				break;
