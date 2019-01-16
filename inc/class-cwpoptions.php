@@ -502,7 +502,8 @@ class CwpOptions {
 	 */
 	function startRender() {
 
-		$options = get_option( 'cwp_settings' );
+		$options   = get_option( 'cwp_settings' );
+		$timestamp = time();
 		// add default
 		if ( ! isset( $options['cwp_start'] ) ) {
 			$options['cwp_start'] = 1;
@@ -510,7 +511,9 @@ class CwpOptions {
 
 		$select_list = "<select name='cwp_settings[cwp_start]'>";
 		for ( $i = 0; $i <= 167; $i ++ ) {
-			$select_list .= "<option value='{$i}'" . selected( $options['cwp_start'], $i, false ) . ">{$i}</option>";
+			$time_value   = $timestamp + ( $i * HOUR_IN_SECONDS );
+			$time_display = date( 'l, F d, Y g:i A', $time_value + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
+			$select_list .= "<option value='{$i}'" . selected( $options['cwp_start'], $i, false ) . ">Delay by {$i} hours: {$time_display}</option>";
 		}
 		$select_list .= '</select><small> <i>Delay sending the first notification by these many hours. Next scheduled build can be verified in the Logs tab.</i></small>';
 
