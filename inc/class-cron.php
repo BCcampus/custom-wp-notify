@@ -86,12 +86,12 @@ class Cron {
 	}
 
 	/**
-	 *
+	 * @param bool $force
 	 */
-	public function buildTheQueue() {
+	public function buildTheQueue( $force = false ) {
 		$u = new Wp\Users();
 		$q = new Processors\Queue( $u );
-		$q->maybeBuild();
+		$q->maybeBuild( $force );
 	}
 
 	/**

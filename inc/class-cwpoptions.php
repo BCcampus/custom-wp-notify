@@ -90,7 +90,8 @@ class CwpOptions {
 
 		register_setting(
 			$options,
-			$options, $this->updateUsers()
+			$options,
+			[ $this, 'sanitizeUsers' ]
 		);
 
 		add_settings_section(
@@ -103,9 +104,8 @@ class CwpOptions {
 	}
 
 	/**
-	 *
 	 */
-	function updateUsers() {
+	function sanitizeUsers() {
 
 		if ( isset( $_POST['no'] ) && false !== wp_verify_nonce( $_POST['cwp-options-update-field'], 'cwp-options-update-action' ) ) {
 			foreach ( $_POST['no'] as $username ) {
@@ -414,7 +414,7 @@ class CwpOptions {
 		register_setting(
 			$options,
 			'cwp_settings',
-			[ $this, 'sanitize' ]
+			[ $this, 'sanitizeGeneral' ]
 		);
 
 		add_settings_section(
@@ -442,7 +442,7 @@ class CwpOptions {
 
 		add_settings_field(
 			'cwp_start',
-			__( 'Notification Delayed Start (Hours):', 'custom-wp-notify' ),
+			__( 'First Notification Delayed Start (Hours):', 'custom-wp-notify' ),
 			[ $this, 'startRender' ],
 			$page,
 			$options . '_section'
@@ -555,7 +555,7 @@ class CwpOptions {
 	 *
 	 * @return mixed
 	 */
-	function sanitize( $settings ) {
+	function sanitizeGeneral( $settings ) {
 		$integers  = [ 'cwp_enable', 'cwp_param', 'cwp_start' ];
 		$text_only = [ 'cwp_notify' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
@@ -590,6 +590,22 @@ class CwpOptions {
 			if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
 				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
 				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
+				BCcampus\Cron::getInstance()->buildTheQueue( true );
+
+				$next = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
+				add_settings_error(
+					'cwp_options',
+					'settings_cron_change',
+					'<h1>Notification Frequency has been updated!</h1>
+                            <h3>The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '</h3>
+                <table class="widefat"><caption>Summary of the changes:</caption><tbody>
+				<thead><tr><th width="50%">Previous Settings:</th><th width="50%">Current Settings:</th></tr></thead>
+				<tr><td>Frequency: ' . $options['cwp_frequency'] . '</td><td>Frequency: ' . $settings['cwp_frequency'] . '</td></tr>
+				<tr><td>First Notification Delay: ' . $options['cwp_start'] . ' hour(s)</td><td>First Notification Delay: ' . $settings['cwp_start'] . ' hour(s)</td></tr>
+				</tbody></table>
+				<p>If you want to stop all notifications immediately, uncheck `Enable Notifications` below</p>',
+					'updated'
+				);
 			}
 		}
 
@@ -819,6 +835,8 @@ class CwpOptions {
 			case 'logs':
 				settings_fields( 'cwp_log_settings' );
 				do_settings_sections( 'cwp_log_settings' );
+
+				break;
 		}
 
 		if ( ! in_array( $active_tab, [ 'logs', 'testing' ], true ) ) {

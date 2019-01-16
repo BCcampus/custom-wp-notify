@@ -65,10 +65,12 @@ class Queue {
 	}
 
 	/**
-	 * build the queue
+	 * Maybe build the queue
+	 *
+	 * @param bool $force
 	 */
-	public function maybeBuild() {
-		if ( false === $this->verify() ) {
+	public function maybeBuild( $force = false ) {
+		if ( false === $this->verify() && false === $force ) {
 			return;
 		}
 
