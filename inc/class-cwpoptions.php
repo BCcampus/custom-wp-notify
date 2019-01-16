@@ -560,6 +560,8 @@ class CwpOptions {
 		$text_only = [ 'cwp_notify' ];
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
+		$next      = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
+		$force     = true;
 
 		// integers
 		foreach ( $integers as $int ) {
@@ -585,28 +587,56 @@ class CwpOptions {
 				'Could not find that Notification Frequency',
 				'error'
 			);
-		} else {
-			// check for a change in the stored value
-			if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
-				BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
-				BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
-				BCcampus\Cron::getInstance()->buildTheQueue( true );
+		}
 
-				$next = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
-				add_settings_error(
-					'cwp_options',
-					'settings_cron_change',
-					'<h1>Notification Frequency has been updated!</h1>
-                            <h3>The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '</h3>
+		/*
+		|--------------------------------------------------------------------------
+		| Feedback, update messages
+		|--------------------------------------------------------------------------
+		|
+		| Unschedule, rebuild with different triggers
+		|
+		|
+		*/
+		$s_enabled = ( 1 === $settings['cwp_enable'] ) ? 'true' : 'false';
+		$o_enabled = ( 1 === $options['cwp_enable'] ) ? 'true' : 'false';
+
+		if ( 0 !== strcmp( $settings['cwp_enable'], $options['cwp_enable'] ) && 1 === $settings['cwp_enable'] ) {
+
+			add_settings_error(
+				'cwp_options',
+				'settings_enable',
+				'<h1>Notifications have been enabled!</h1>
+                <table class="widefat"><caption>Summary of the changes:</caption><tbody>
+				<thead><tr><th width="50%">Previous Settings:</th><th width="50%">Current Settings:</th></tr></thead>
+				<tr><td>Enabled: ' . $o_enabled . '</td><td>Enabled: ' . $s_enabled . '</td></tr>
+				</tbody></table>
+				<p>If you want to stop all notifications immediately, uncheck `Enable Notifications` below</p>',
+				'updated'
+			);
+		}
+
+		if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
+			$message1 = ( 1 === $settings['cwp_enable'] ) ? 'The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '' : 'Notifications will only sent if enabled';
+			$message2 = ( 1 === $settings['cwp_enable'] ) ? 'If you want to stop all notifications immediately, uncheck `Enable Notifications` below' : 'If you want to send notifications, check `Enable Notifications` below';
+
+			BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+			BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
+			BCcampus\Cron::getInstance()->buildTheQueue( $force );
+
+			add_settings_error(
+				'cwp_options',
+				'settings_cron_change',
+				'<h1>Notification Frequency has been updated!</h1>
+                            <h3>' . $message1 . '</h3>
                 <table class="widefat"><caption>Summary of the changes:</caption><tbody>
 				<thead><tr><th width="50%">Previous Settings:</th><th width="50%">Current Settings:</th></tr></thead>
 				<tr><td>Frequency: ' . $options['cwp_frequency'] . '</td><td>Frequency: ' . $settings['cwp_frequency'] . '</td></tr>
 				<tr><td>First Notification Delay: ' . $options['cwp_start'] . ' hour(s)</td><td>First Notification Delay: ' . $settings['cwp_start'] . ' hour(s)</td></tr>
 				</tbody></table>
-				<p>If you want to stop all notifications immediately, uncheck `Enable Notifications` below</p>',
-					'updated'
-				);
-			}
+				<p>' . $message2 . '</p>',
+				'updated'
+			);
 		}
 
 		return $settings;
