@@ -622,7 +622,6 @@ class CwpOptions {
 
 			BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
 			BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
-			BCcampus\Cron::getInstance()->buildTheQueue( $force );
 
 			add_settings_error(
 				'cwp_options',
