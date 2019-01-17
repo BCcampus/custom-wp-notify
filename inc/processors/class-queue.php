@@ -74,12 +74,14 @@ class Queue {
 			return;
 		}
 
+		// safe_to_rebuild = true prevents it from being mailed out
+		$safe   = ( true === $force ) ? true : false;
 		$events = $this->events->getTitlesAndLinks( $this->events->getRecentGroupedEvents() );
 
 		$queue = [
 			'queue'           => 'cwp_notify',
 			'attempts'        => 0,
-			'safe_to_rebuild' => false,
+			'safe_to_rebuild' => $safe,
 			'created_at'      => time(),
 			'list'            => $this->users->getUserList(),
 			'payload'         => $events,

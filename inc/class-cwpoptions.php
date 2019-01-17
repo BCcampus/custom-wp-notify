@@ -210,7 +210,8 @@ class CwpOptions {
 
 		register_setting(
 			$options,
-			$options
+			$options,
+			[ $this, 'sanitizeCron' ]
 		);
 
 		add_settings_section(
@@ -220,6 +221,24 @@ class CwpOptions {
 			$page
 		);
 
+	}
+
+
+
+	function sanitizeCron( $settings ) {
+
+		if ( ! empty( $_POST['cwp_remove'] ) && wp_verify_nonce( $_POST['cwp-options-remove-emails-field'], 'cwp-options-remove-action' ) ) {
+
+			$options = get_option( 'cwp_queue' );
+
+			foreach ( $_POST['cwp_remove'] as $email => $value ) {
+				unset( $options['list'][ $email ] );
+			}
+			update_option( 'cwp_queue', $options );
+
+		}
+
+		return $settings;
 	}
 
 	/**
@@ -246,9 +265,9 @@ class CwpOptions {
 		if ( $options['list'] ) {
 			$remaining_list = '<ol>';
 			foreach ( array_keys( $options['list'] ) as $r_email ) {
-				$remaining_list .= "<li>{$r_email}</li>";
+				$remaining_list .= "<li><input type='checkbox' name='cwp_remove[{$r_email}]' " . checked( 0, 1, false ) . " value='1'/><label for='cwp_remove[{$r_email}]'>{$r_email}</label></li>";
 			}
-			$remaining_list .= '</ol>';
+			$remaining_list .= '<ol>';
 		} else {
 			$remaining_list = '';
 		}
@@ -270,6 +289,7 @@ class CwpOptions {
 		$html .= '<hr><table class="widefat"><caption>Archive</caption><tbody>';
 		$html .= '<thead><tr><th width="50%">Sent:</th><th width="50%">Awaiting:</th></tr></thead>';
 		$html .= '<tr><td>' . $sent_list . '</td><td>' . $remaining_list . '</td></tr>';
+
 		$html .= '</tbody></table>';
 
 		echo $html;
@@ -561,7 +581,7 @@ class CwpOptions {
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 		$next      = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
-
+		$force     = true;
 		// integers
 		foreach ( $integers as $int ) {
 			if ( isset( $settings[ $int ] ) ) {
@@ -620,6 +640,7 @@ class CwpOptions {
 			$message2 = ( 1 === $settings['cwp_enable'] ) ? 'If you want to stop all notifications immediately, uncheck `Enable Notifications` below' : 'If you want to send notifications, check `Enable Notifications` below';
 
 			BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+			BCcampus\Cron::getInstance()->buildTheQueue( $force );
 			BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
 
 			add_settings_error(
@@ -863,6 +884,9 @@ class CwpOptions {
 			case 'logs':
 				settings_fields( 'cwp_log_settings' );
 				do_settings_sections( 'cwp_log_settings' );
+				wp_nonce_field( 'cwp-options-remove-action', 'cwp-options-remove-emails-field' );
+
+				submit_button( 'Remove selected emails from the queue' );
 
 				break;
 		}
