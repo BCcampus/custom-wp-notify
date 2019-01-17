@@ -224,8 +224,8 @@ class CwpOptions {
 	}
 
 	/**
-     * removes email addresses from an active queue
-     *
+	 * removes email addresses from an active queue
+	 *
 	 * @param $settings
 	 *
 	 * @return mixed
