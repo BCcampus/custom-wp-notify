@@ -107,9 +107,6 @@ register_deactivation_hook(
 */
 \BCcampus\Cron::getInstance();
 
-$u = new \BCcampus\Models\Wp\Users();
-$u->getUserList();
-
 /**
  * Check the user has the right permissions for the options page
  */
