@@ -70,10 +70,10 @@ class Mail {
 		$now       = date( 'F d, Y g:i A', current_time( 'timestamp' ) );
 
 		// send an email to each recipient
-		foreach ( $jobs['list'] as $email => $name ) {
+		foreach ( $jobs['list'] as $email => $val ) {
 			$to           = $email;
 			$sub          = $subject;
-			$msg          = $this->applyTemplates( $jobs['payload'], $name );
+			$msg          = $this->applyTemplates( $jobs['payload'], $val );
 			$sitename     = strtolower( $_SERVER['SERVER_NAME'] );
 			$current_blog = get_option( 'blogname' );
 
@@ -128,7 +128,7 @@ class Mail {
 	 */
 	public function runJustTester( array $email ) {
 
-		$name     = 'Tester';
+		$name     = [ 'name' => 'Tester' ];
 		$subject  = 'Test Recent Events';
 		$jobs     = $this->queue->getQueueOptions();
 		$to       = $email;
@@ -162,19 +162,21 @@ class Mail {
 	/**
 	 * @param $payload
 	 *
-	 * @param $name
+	 * @param array $user
 	 *
 	 * @return string
 	 */
-	private function applyTemplates( $payload, $name ) {
+	private function applyTemplates( $payload, $user ) {
 		$settings     = get_option( 'cwp_settings' );
 		$template     = get_option( 'cwp_template_settings' );
 		$current_blog = get_option( 'blogname' );
 		$param        = ( $settings['cwp_param'] ) ? $settings['cwp_param'] : 0;
 		$vars         = [
-			'events'           => $payload,
+			'events'           => $payload['recent'],
+			'custom_events'    => $payload['category'],
 			'template'         => html_entity_decode( $template['cwp_template'] ),
-			'name'             => $name,
+			'name'             => $user['name'],
+			'preferences'      => $user['event_cats'],
 			'style'            => $template['cwp_css'],
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $template['cwp_unsubscribe'],
@@ -230,6 +232,7 @@ class Mail {
 		$limit   = $options['cwp_limit'];
 		$i       = 0;
 
+		// recent events
 		foreach ( $vars['events'] as $event ) {
 			$event_title = rawurlencode( str_replace( ' ', '-', $event['title'] ) );
 			$campaign    = ( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}";
@@ -241,6 +244,20 @@ class Mail {
 		}
 
 		$events .= '</ul>';
+
+		// custom events
+		if ( is_array( $vars['preferences'] ) ) {
+			foreach ( $vars['preferences'] as $tax_id ) {
+				if ( array_key_exists( $tax_id, $vars['custom_events'] ) && is_array( $vars['custom_events'][ $tax_id ]['posts'] ) ) {
+					$events .= sprintf( '<h2>%1$s</h2><ul>', $vars['custom_events'][ $tax_id ]['name'] );
+
+					foreach ( $vars['custom_events'][ $tax_id ]['posts'] as $c_event ) {
+						$events .= sprintf( '<li><a href="%1$s">%2$s</a></li>', $c_event['link'], $c_event['title'] );
+					}
+					$events .= '</ul>';
+				}
+			}
+		}
 
 		// Unsubscribe Link
 		$unsubscribe = "<a href='mailto:{$vars['unsubscribe_link']}?subject=remove'>Unsubscribe</a>";
