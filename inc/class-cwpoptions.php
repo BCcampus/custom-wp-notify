@@ -647,7 +647,7 @@ class CwpOptions {
 		}
 
 		if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
-			$message1 = ( 1 === $settings['cwp_enable'] ) ? 'The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '' : 'Notifications will only sent if enabled';
+			$message1 = ( 1 === $settings['cwp_enable'] ) ? 'The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '' : 'Notifications will only be sent if enabled';
 			$message2 = ( 1 === $settings['cwp_enable'] ) ? 'If you want to stop all notifications immediately, uncheck `Enable Notifications` below' : 'If you want to send notifications, check `Enable Notifications` below';
 
 			BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
