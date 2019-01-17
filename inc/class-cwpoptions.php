@@ -210,7 +210,8 @@ class CwpOptions {
 
 		register_setting(
 			$options,
-			$options
+			$options,
+			[ $this, 'sanitizeCron' ]
 		);
 
 		add_settings_section(
@@ -223,11 +224,33 @@ class CwpOptions {
 	}
 
 	/**
+	 * removes email addresses from an active queue
+	 *
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
+	function sanitizeCron( $settings ) {
+
+		if ( ! empty( $_POST['cwp_remove'] ) && wp_verify_nonce( $_POST['cwp-options-remove-emails-field'], 'cwp-options-remove-action' ) ) {
+			$options = get_option( 'cwp_queue' );
+
+			foreach ( $_POST['cwp_remove'] as $email => $value ) {
+				unset( $options['list'][ $email ] );
+			}
+			update_option( 'cwp_queue', $options );
+
+		}
+
+		return $settings;
+	}
+
+	/**
 	 *
 	 */
 	function cronLogs() {
 		$options       = get_option( 'cwp_queue' );
-		$last_build    = date( 'F d, Y g:i A', $options['created_at'] + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
+		$last_build    = date( 'l, F d, Y g:i A', $options['created_at'] + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
 		$remaining     = count( $options['list'] );
 		$attempts      = $options['attempts'];
 		$recent_events = count( $options['payload'] );
@@ -246,30 +269,31 @@ class CwpOptions {
 		if ( $options['list'] ) {
 			$remaining_list = '<ol>';
 			foreach ( array_keys( $options['list'] ) as $r_email ) {
-				$remaining_list .= "<li>{$r_email}</li>";
+				$remaining_list .= "<li><input type='checkbox' name='cwp_remove[{$r_email}]' " . checked( 0, 1, false ) . " value='1'/><label for='cwp_remove[{$r_email}]'>{$r_email}</label></li>";
 			}
-			$remaining_list .= '</ol>';
+			$remaining_list .= '<ol>';
 		} else {
 			$remaining_list = '';
 		}
 
 		if ( ! empty( $timestamp ) ) {
-			$next = date( 'F d, Y g:i A', $timestamp + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
+			$next = date( 'l, F d, Y g:i A', $timestamp + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
 		} else {
 			$next = 'none scheduled';
 		}
 
 		$html  = '<table class="form-table"><tbody>';
-		$html .= '<tr><td><b>Queue:</b> Last build (list of recent events and email addresses)&nbsp;</td><td>' . $last_build . '</td></tr>';
-		$html .= '<tr><td><b>Queue:</b> Number of recent events available&nbsp;</td><td>' . $recent_events . '</td></tr>';
-		$html .= '<tr><td><b>Queue:</b> Remaining number of emails to be sent&nbsp;</td><td>' . $remaining . '</td></tr>';
-		$html .= '<tr><td><b>Notifications:</b> Next scheduled build and email notification&nbsp;</td><td>' . $next . '</td></tr>';
-		$html .= '<tr><td><b>Notifications:</b> Number of email batches already sent (20 emails at a time)&nbsp;</td><td>' . $attempts . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Last build (list of recent events and email addresses)</td><td>' . $last_build . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Number of recent events available</td><td>' . $recent_events . '</td></tr>';
+		$html .= '<tr><td><b>Queue:</b> Remaining number of emails to be sent</td><td>' . $remaining . '</td></tr>';
+		$html .= '<tr><td><b>Notifications:</b> Next scheduled build and email notification</td><td>' . $next . '</td></tr>';
+		$html .= '<tr><td><b>Notifications:</b> Number of email batches already sent (20 emails at a time)</td><td>' . $attempts . '</td></tr>';
 		$html .= '</tbody></table>';
 
-		$html .= '<hr><table class="widefat"><caption>Archive</caption><tbody>';
+		$html .= '<hr><table class="widefat"><caption>Email Queue</caption><tbody>';
 		$html .= '<thead><tr><th width="50%">Sent:</th><th width="50%">Awaiting:</th></tr></thead>';
 		$html .= '<tr><td>' . $sent_list . '</td><td>' . $remaining_list . '</td></tr>';
+
 		$html .= '</tbody></table>';
 
 		echo $html;
@@ -433,22 +457,6 @@ class CwpOptions {
 		);
 
 		add_settings_field(
-			'cwp_frequency',
-			__( 'Notification Frequency:', 'custom-wp-notify' ),
-			[ $this, 'frequencyRender' ],
-			$page,
-			$options . '_section'
-		);
-
-		add_settings_field(
-			'cwp_start',
-			__( 'First Notification Delayed Start (Hours):', 'custom-wp-notify' ),
-			[ $this, 'startRender' ],
-			$page,
-			$options . '_section'
-		);
-
-		add_settings_field(
 			'cwp_optin',
 			__( 'Subscribe text:', 'custom-wp-notify' ),
 			[ $this, 'optInTextRender' ],
@@ -462,6 +470,29 @@ class CwpOptions {
 			[ $this, 'paramRender' ],
 			$page,
 			$options . '_section'
+		);
+
+		add_settings_section(
+			$options . '_reset_section',
+			__( 'Reset Cron and Rebuild Queue', 'custom-wp-notify' ),
+			'',
+			$page
+		);
+
+		add_settings_field(
+			'cwp_frequency',
+			__( 'Notification Frequency:', 'custom-wp-notify' ),
+			[ $this, 'frequencyRender' ],
+			$page,
+			$options . '_reset_section'
+		);
+
+		add_settings_field(
+			'cwp_start',
+			__( 'First Notification Delayed Start (Hours):', 'custom-wp-notify' ),
+			[ $this, 'startRender' ],
+			$page,
+			$options . '_reset_section'
 		);
 	}
 
@@ -561,7 +592,7 @@ class CwpOptions {
 		$enum      = [ 'daily', 'cwp_weekly' ];
 		$options   = get_option( 'cwp_settings' );
 		$next      = date( 'F d, Y g:i A', time() + ( $settings['cwp_start'] * HOUR_IN_SECONDS ) + ( get_option( 'gmt_offset' ) * HOUR_IN_SECONDS ) );
-
+		$force     = true;
 		// integers
 		foreach ( $integers as $int ) {
 			if ( isset( $settings[ $int ] ) ) {
@@ -606,7 +637,7 @@ class CwpOptions {
 				'cwp_options',
 				'settings_enable',
 				'<h1>Notifications have been enabled!</h1>
-                <table class="widefat"><caption>Summary of the changes:</caption><tbody>
+                <table class="widefat"><tbody>
 				<thead><tr><th width="50%">Previous Settings:</th><th width="50%">Current Settings:</th></tr></thead>
 				<tr><td>Enabled: ' . $o_enabled . '</td><td>Enabled: ' . $s_enabled . '</td></tr>
 				</tbody></table>
@@ -616,10 +647,11 @@ class CwpOptions {
 		}
 
 		if ( 0 !== strcmp( $settings['cwp_frequency'], $options['cwp_frequency'] ) || 0 !== strcmp( $settings['cwp_start'], $options['cwp_start'] ) ) {
-			$message1 = ( 1 === $settings['cwp_enable'] ) ? 'The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '' : 'Notifications will only sent if enabled';
+			$message1 = ( 1 === $settings['cwp_enable'] ) ? 'The first batch of notifications will be sent ' . $next . ' and repeated ' . $settings['cwp_frequency'] . '' : 'Notifications will only be sent if enabled';
 			$message2 = ( 1 === $settings['cwp_enable'] ) ? 'If you want to stop all notifications immediately, uncheck `Enable Notifications` below' : 'If you want to send notifications, check `Enable Notifications` below';
 
 			BCcampus\Cron::getInstance()->unScheduleEvents( 'cwp_cron_build_hook' );
+			BCcampus\Cron::getInstance()->buildTheQueue( $force );
 			BCcampus\Cron::getInstance()->scheduleEventCustomInterval( $settings['cwp_frequency'], $settings['cwp_start'] );
 
 			add_settings_error(
@@ -627,7 +659,7 @@ class CwpOptions {
 				'settings_cron_change',
 				'<h1>Notification Frequency has been updated!</h1>
                             <h3>' . $message1 . '</h3>
-                <table class="widefat"><caption>Summary of the changes:</caption><tbody>
+                <table class="widefat"><tbody>
 				<thead><tr><th width="50%">Previous Settings:</th><th width="50%">Current Settings:</th></tr></thead>
 				<tr><td>Frequency: ' . $options['cwp_frequency'] . '</td><td>Frequency: ' . $settings['cwp_frequency'] . '</td></tr>
 				<tr><td>First Notification Delay: ' . $options['cwp_start'] . ' hour(s)</td><td>First Notification Delay: ' . $settings['cwp_start'] . ' hour(s)</td></tr>
@@ -863,6 +895,9 @@ class CwpOptions {
 			case 'logs':
 				settings_fields( 'cwp_log_settings' );
 				do_settings_sections( 'cwp_log_settings' );
+				wp_nonce_field( 'cwp-options-remove-action', 'cwp-options-remove-emails-field' );
+
+				submit_button( 'Remove selected emails from the queue' );
 
 				break;
 		}
