@@ -128,12 +128,15 @@ class Mail {
 	 */
 	public function runJustTester( array $email ) {
 
-		$name     = [ 'name' => 'Tester' ];
+		$user     = [
+			'name' => 'Tester',
+			'event_cats' => [],
+		];
 		$subject  = 'Test Recent Events';
 		$jobs     = $this->queue->getQueueOptions();
 		$to       = $email;
 		$sub      = $subject;
-		$msg      = $this->applyTemplates( $jobs['payload'], $name );
+		$msg      = $this->applyTemplates( $jobs['payload'], $user );
 		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 
 		if ( substr( $sitename, 0, 4 ) === 'www.' ) {
@@ -173,10 +176,10 @@ class Mail {
 		$param        = ( $settings['cwp_param'] ) ? $settings['cwp_param'] : 0;
 		$vars         = [
 			'events'           => $payload['recent'],
-			'custom_events'    => $payload['category'],
+			'events_by_cat'    => $payload['category'],
 			'template'         => html_entity_decode( $template['cwp_template'] ),
 			'name'             => $user['name'],
-			'preferences'      => $user['event_cats'],
+			'user_prefs'       => $user['event_cats'],
 			'style'            => $template['cwp_css'],
 			'title'            => 'Custom Notifications',
 			'unsubscribe_link' => $template['cwp_unsubscribe'],
@@ -246,15 +249,27 @@ class Mail {
 		$events .= '</ul>';
 
 		// custom events
-		if ( is_array( $vars['preferences'] ) ) {
-			foreach ( $vars['preferences'] as $tax_id ) {
-				if ( array_key_exists( $tax_id, $vars['custom_events'] ) && is_array( $vars['custom_events'][ $tax_id ]['posts'] ) ) {
-					$events .= sprintf( '<h2>%1$s</h2><ul>', $vars['custom_events'][ $tax_id ]['name'] );
+		if ( is_array( $vars['user_prefs'] ) ) {
 
-					foreach ( $vars['custom_events'][ $tax_id ]['posts'] as $c_event ) {
-						$events .= sprintf( '<li><a href="%1$s">%2$s</a></li>', $c_event['link'], $c_event['title'] );
+			$unique = $this->prepareEvents( $vars['user_prefs'], $vars['events_by_cat'] );
+
+			if ( ! empty( $unique ) ) {
+				foreach ( $unique as $tax_id ) {
+
+					$events  .= sprintf( '<h2>%1$s</h2>', $tax_id['name'] );
+					$c_events = '';
+
+					foreach ( $tax_id['posts'] as $c_event ) {
+						$event_title = rawurlencode( str_replace( ' ', '-', $c_event['title'] ) );
+
+						$c_events .= sprintf(
+							'<li><a href="%1$s%2$s">%3$s</a></li>', $c_event['link'],
+							( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}",
+							$c_event['title']
+						);
 					}
-					$events .= '</ul>';
+
+					$events .= sprintf( '<ul>%1$s</ul>', $c_events );
 				}
 			}
 		}
@@ -268,5 +283,43 @@ class Mail {
 		$vars['template'] = preg_replace( '/{EVENTS}/', $events, $vars['template'] );
 
 		return $vars;
+	}
+
+	/**
+	 * Removes duplicate events from user preferred categories
+	 *
+	 * @param $user_prefs
+	 * @param $events
+	 *
+	 * @return mixed
+	 */
+	private function prepareEvents( $user_prefs, $events ) {
+		$all_keys = [];
+
+		foreach ( $user_prefs as $id ) {
+
+			if ( array_key_exists( $id, $events ) && is_array( $events[ $id ]['posts'] ) ) {
+				continue;
+			} else {
+				unset( $events[ $id ] );
+			}
+		}
+
+		if ( ! empty( $events ) ) {
+			foreach ( $events as $cat_key => $event ) {
+				foreach ( $event['posts'] as $k => $v ) {
+					if ( in_array( $k, $all_keys, true ) ) {
+						unset( $events[ $cat_key ]['posts'][ $k ] );
+					}
+					$all_keys[] = $k;
+				}
+
+				if ( empty( $events[ $cat_key ]['posts'] ) ) {
+					unset( $events[ $cat_key ] );
+				}
+			}
+		}
+
+		return $events;
 	}
 }
