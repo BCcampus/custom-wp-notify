@@ -258,6 +258,7 @@ class Mail {
 
 					$events  .= sprintf( '<h2>%1$s</h2>', $tax_id['name'] );
 					$c_events = '';
+					$j        = 0;
 
 					foreach ( $tax_id['posts'] as $c_event ) {
 						$event_title = rawurlencode( str_replace( ' ', '-', $c_event['title'] ) );
@@ -267,6 +268,10 @@ class Mail {
 							( $vars['param'] === 0 ) ? '' : "?pk_campaign=custom-wp-notify-{$time}&pk_kwd={$event_title}",
 							$c_event['title']
 						);
+						$j ++;
+						if ( $j >= $limit ) {
+							break;
+						}
 					}
 
 					$events .= sprintf( '<ul>%1$s</ul>', $c_events );
