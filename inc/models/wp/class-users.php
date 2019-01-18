@@ -39,7 +39,17 @@ class Users {
 				continue;
 			}
 
-			$list[ $user->data->user_email ] = $user->data->display_name;
+			$meta = get_user_meta( $user->data->ID, 'cwp_notify_categories', false );
+			$cats = [];
+
+			if ( is_array( $meta ) ) {
+				$cats = maybe_unserialize( $meta[0] );
+			}
+
+			$list[ $user->data->user_email ] = [
+				'name'       => $user->data->display_name,
+				'event_cats' => $cats,
+			];
 		}
 
 		return $list;
