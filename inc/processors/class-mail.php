@@ -130,7 +130,7 @@ class Mail {
 
 		$user     = [
 			'name' => 'Tester',
-			'event_cats' => [],
+			'event_cats' => range( 1, 100 ),
 		];
 		$subject  = 'Test Recent Events';
 		$jobs     = $this->queue->getQueueOptions();
