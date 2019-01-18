@@ -280,7 +280,7 @@ class Mail {
 		}
 
 		// Unsubscribe Link
-		$unsubscribe = "<a href='mailto:{$vars['unsubscribe_link']}?subject=remove'>Unsubscribe</a>";
+		$unsubscribe = sprintf( '<a href="mailto:%1$s?subject=Please remove me from %2$s notifications">Unsubscribe</a>', $vars['unsubscribe_link'], $vars['blogname'] );
 
 		// Preg Replace
 		$vars['template'] = preg_replace( '/{NAME}/', $vars['name'], $vars['template'] );
