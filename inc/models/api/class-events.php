@@ -33,7 +33,7 @@ class Events {
 		$response = wp_remote_get( $endpoint );
 
 		if ( is_wp_error( $response ) ) {
-			error_log( '\BCcampus\Models\Events->getRecentEventsRest(), something wrong with the rest endpoint' . $endpoint . $response->get_error_message() );
+			error_log( '\BCcampus\Models\Events->getRecentEventsRest(), something wrong with the rest endpoint' . $endpoint . $response->get_error_message() ); //@codingStandardsIgnoreLine
 		}
 
 		if ( $response['response']['code'] < 400 ) {

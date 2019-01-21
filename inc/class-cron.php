@@ -86,12 +86,12 @@ class Cron {
 	}
 
 	/**
-	 *
+	 * @param bool $force
 	 */
-	public function buildTheQueue() {
+	public function buildTheQueue( $force = false ) {
 		$u = new Wp\Users();
 		$q = new Processors\Queue( $u );
-		$q->maybeBuild();
+		$q->maybeBuild( $force );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Cron {
 		if ( empty( $interval ) ) {
 			$interval = 'cwp_weekly';
 		}
-		$delay = HOUR_IN_SECONDS * $delay;
+		$delay     = HOUR_IN_SECONDS * $delay;
 		$hook      = 'cwp_cron_build_hook';
 		$timestamp = wp_next_scheduled( $hook );
 

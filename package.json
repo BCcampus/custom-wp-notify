@@ -1,7 +1,11 @@
-
 {
   "name": "custom-wp-notify",
-  "version": "0.6.0",
-  "author": "bdolor",
+  "version": "1.0.0",
+  "author": {
+    "name": "Brad Payne"
+  },
+  "contributors": [
+    "Alex Paredes"
+  ],
   "devDependencies": {}
 }

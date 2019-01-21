@@ -26,11 +26,11 @@ class Users {
 	 */
 	public function getUserList() {
 		// loop through all users who have opted in
-		$args = [
-			'meta_key' => 'cwp_notify',
-			'meta_value' => 1,
+		$args  = [
+			'meta_key' => 'cwp_notify', //@codingStandardsIgnoreLine
+			'meta_value' => 1, //@codingStandardsIgnoreLine
 		];
-		$list = [];
+		$list  = [];
 		$users = get_users( $args );
 
 		foreach ( $users as $user ) {
@@ -39,7 +39,17 @@ class Users {
 				continue;
 			}
 
-			$list[ $user->data->user_email ] = $user->data->display_name;
+			$meta = get_user_meta( $user->data->ID, 'cwp_notify_categories', false );
+			$cats = [];
+
+			if ( is_array( $meta ) ) {
+				$cats = maybe_unserialize( $meta[0] );
+			}
+
+			$list[ $user->data->user_email ] = [
+				'name'       => $user->data->display_name,
+				'event_cats' => $cats,
+			];
 		}
 
 		return $list;

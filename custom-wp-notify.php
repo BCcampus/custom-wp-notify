@@ -6,32 +6,19 @@
  * Author:          bdolor
  * Text Domain:     custom-wp-notify
  * Domain Path:     /languages
- * Version:         0.6.0
+ * Version:         1.0.0
  *
  * @package         Custom_Wp_Notify
  */
 
 // Your code starts here.
 if ( ! defined( 'ABSPATH' ) ) {
-	die();
+	exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Constants
-|--------------------------------------------------------------------------
-|
-|
-|
-|
-*/
-if ( ! defined( 'CWP_DIR' ) ) {
-	define( 'CWP_DIR', __DIR__ . '/' );
-}
+require_once __DIR__ . '/autoloader.php';
 
-require_once CWP_DIR . 'autoloader.php';
-
-$composer = CWP_DIR . 'vendor/autoload.php';
+$composer = __DIR__ . '/vendor/autoload.php';
 if ( file_exists( $composer ) ) {
 	require_once( $composer );
 }
